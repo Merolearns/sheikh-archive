@@ -1,0 +1,1773 @@
+{
+ "checks": {
+  "1_accounting": {
+   "raw_total": 52,
+   "listed_files": 41,
+   "review_files": 9,
+   "cover_files": 2,
+   "sum": 52,
+   "duplicates": [],
+   "missing_from_all_dispositions": [],
+   "in_no_disposition_but_raw": [],
+   "owner_review_files_total": 10,
+   "owner_review_files_not_listed": [
+    "kahf-khutbas-____-3.pdf",
+    "kahf-khutbas-____-2.pdf",
+    "kahf-khutbas-____.pdf",
+    "-_____.pdf",
+    "_______-_______-____-_______-____-____.pdf",
+    "______________________________________________.docx",
+    "Noor-Sprouts-Newsletter-01-EN.pdf",
+    "Noor-Sprouts-Newsletter-02-EN.pdf",
+    "_______-________-02-_______-____-_____.pdf"
+   ],
+   "owner_review_files_listed_anyway": [
+    "_16-_Series_of_-Proud_To_Be_Muslims-.pdf"
+   ],
+   "verdict": "PASS"
+  },
+  "2_pages": {
+   "rows": [
+    {
+     "entry": "book-01",
+     "file": "______-___-_______-____________-____.pdf",
+     "claimed": 330,
+     "extracted": 330,
+     "match": true
+    },
+    {
+     "entry": "book-01",
+     "file": "______-___-_______-____________-____-2.pdf",
+     "claimed": 230,
+     "extracted": 230,
+     "match": true
+    },
+    {
+     "entry": "book-01",
+     "file": "______-___-_______-____________-____-3.pdf",
+     "claimed": 286,
+     "extracted": 286,
+     "match": true
+    },
+    {
+     "entry": "book-01",
+     "file": "______-___-_______-____________-____-4.pdf",
+     "claimed": 211,
+     "extracted": 211,
+     "match": true
+    },
+    {
+     "entry": "book-02",
+     "file": "_______-__-____-_______-_____-______-____.pdf",
+     "claimed": 50,
+     "extracted": 50,
+     "match": true
+    },
+    {
+     "entry": "book-03",
+     "file": "Part1_Interior_256pp.pdf",
+     "claimed": 256,
+     "extracted": 256,
+     "match": true
+    },
+    {
+     "entry": "book-04",
+     "file": "Part2_Interior_204pp.pdf",
+     "claimed": 204,
+     "extracted": 204,
+     "match": true
+    },
+    {
+     "entry": "book-05",
+     "file": "___-________-____.pdf",
+     "claimed": 99,
+     "extracted": 99,
+     "match": true
+    },
+    {
+     "entry": "book-06",
+     "file": "___-_______-________-____.pdf",
+     "claimed": 32,
+     "extracted": 32,
+     "match": true
+    },
+    {
+     "entry": "book-07",
+     "file": "___-_________-____.pdf",
+     "claimed": 32,
+     "extracted": 32,
+     "match": true
+    },
+    {
+     "entry": "book-08",
+     "file": "___-____-_____-____.pdf",
+     "claimed": 25,
+     "extracted": 25,
+     "match": true
+    },
+    {
+     "entry": "book-09",
+     "file": "___-________-____-2.pdf",
+     "claimed": 73,
+     "extracted": 73,
+     "match": true
+    },
+    {
+     "entry": "book-10",
+     "file": "___-_____-______-____-2.pdf",
+     "claimed": 62,
+     "extracted": 62,
+     "match": true
+    },
+    {
+     "entry": "book-11",
+     "file": "___-____-____.pdf",
+     "claimed": 39,
+     "extracted": 39,
+     "match": true
+    },
+    {
+     "entry": "book-12",
+     "file": "___-______-______-____.pdf",
+     "claimed": 6,
+     "extracted": 6,
+     "match": true
+    },
+    {
+     "entry": "book-13",
+     "file": "___-______-_________-____.pdf",
+     "claimed": 21,
+     "extracted": 21,
+     "match": true
+    },
+    {
+     "entry": "book-14",
+     "file": "___-___-____.pdf",
+     "claimed": 10,
+     "extracted": 10,
+     "match": true
+    },
+    {
+     "entry": "book-15",
+     "file": "___-_____-____-2.pdf",
+     "claimed": 88,
+     "extracted": 88,
+     "match": true
+    },
+    {
+     "entry": "book-16",
+     "file": "___-____-_____-____-____.pdf",
+     "claimed": 18,
+     "extracted": 18,
+     "match": true
+    },
+    {
+     "entry": "book-17",
+     "file": "___-______-_______-____.pdf",
+     "claimed": 68,
+     "extracted": 68,
+     "match": true
+    },
+    {
+     "entry": "book-18",
+     "file": "___-_____-____.pdf",
+     "claimed": 35,
+     "extracted": 35,
+     "match": true
+    },
+    {
+     "entry": "book-19",
+     "file": "___-_______-____.pdf",
+     "claimed": 17,
+     "extracted": 17,
+     "match": true
+    },
+    {
+     "entry": "book-20",
+     "file": "___-________-____-3.pdf",
+     "claimed": 36,
+     "extracted": 36,
+     "match": true
+    },
+    {
+     "entry": "book-21",
+     "file": "___-_____-______-____.pdf",
+     "claimed": 119,
+     "extracted": 119,
+     "match": true
+    },
+    {
+     "entry": "book-22",
+     "file": "___-_______-_______-__-_____-____.pdf",
+     "claimed": 58,
+     "extracted": 58,
+     "match": true
+    },
+    {
+     "entry": "book-23",
+     "file": "___-_____-________-____.pdf",
+     "claimed": 56,
+     "extracted": 56,
+     "match": true
+    },
+    {
+     "entry": "book-24",
+     "file": "___-______-____.pdf",
+     "claimed": 24,
+     "extracted": 24,
+     "match": true
+    },
+    {
+     "entry": "book-25",
+     "file": "usul-al-fiqh-lessons-____.pdf",
+     "claimed": 25,
+     "extracted": 25,
+     "match": true
+    },
+    {
+     "entry": "book-26",
+     "file": "mas-la-introductions-____.pdf",
+     "claimed": 43,
+     "extracted": 43,
+     "match": true
+    },
+    {
+     "entry": "book-27",
+     "file": "al-fadila-lessons-____.pdf",
+     "claimed": 26,
+     "extracted": 26,
+     "match": true
+    },
+    {
+     "entry": "book-28",
+     "file": "___-______-______-____-2.pdf",
+     "claimed": 350,
+     "extracted": 350,
+     "match": true
+    },
+    {
+     "entry": "book-29",
+     "file": "prophets-stories-complete-book-____.pdf",
+     "claimed": 369,
+     "extracted": 369,
+     "match": true
+    },
+    {
+     "entry": "book-30",
+     "file": "moses-story-book-____.pdf",
+     "claimed": 108,
+     "extracted": 108,
+     "match": true
+    },
+    {
+     "entry": "book-31",
+     "file": "_______________________________.docx",
+     "claimed": 32,
+     "extracted": null,
+     "match": false
+    },
+    {
+     "entry": "book-32",
+     "file": "____________________________________________________.pdf",
+     "claimed": 5,
+     "extracted": 5,
+     "match": true
+    },
+    {
+     "entry": "book-33",
+     "file": "_____-__-______-_______-_____-______-____.pdf",
+     "claimed": 92,
+     "extracted": 92,
+     "match": true
+    },
+    {
+     "entry": "book-34",
+     "file": "_____-__-______-_______-_____-______-____-2.pdf",
+     "claimed": 55,
+     "extracted": 55,
+     "match": true
+    },
+    {
+     "entry": "book-35",
+     "file": "educational-reflections-on-the-seerah-part-one.pdf",
+     "claimed": 124,
+     "extracted": 124,
+     "match": true
+    },
+    {
+     "entry": "book-36",
+     "file": "educational-reflections-on-the-seerah-part-two.pdf",
+     "claimed": 76,
+     "extracted": 76,
+     "match": true
+    },
+    {
+     "entry": "book-37",
+     "file": "illuminations-from-surah-al-fatiha-dinner-reflections.pdf",
+     "claimed": 67,
+     "extracted": 67,
+     "match": true
+    },
+    {
+     "entry": "book-38",
+     "file": "_16-_Series_of_-Proud_To_Be_Muslims-.pdf",
+     "claimed": 10,
+     "extracted": 10,
+     "match": true
+    }
+   ],
+   "all_match_extraction": false,
+   "pypdf_recount_done": true,
+   "pypdf_vs_extraction_mismatches": {},
+   "phd_parts_sum": 1057,
+   "verdict": "FLAG"
+  },
+  "3_titles": {
+   "rows": [
+    {
+     "entry": "book-01",
+     "title_ar": "الفرقة بين الزوجين",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-02",
+     "title_ar": "إضاءات من سورة الفاتحة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-03",
+     "title_ar": "أنت تسأل والشيخ يجيب",
+     "title_en": "Anta Tasalu wa al-Shaikhu Yujib",
+     "supported_ar": true,
+     "supported_en": false,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-04",
+     "title_ar": "أنت تسأل والشيخ يجيب",
+     "title_en": "Anta Tasalu wa al-Shaikhu Yujib",
+     "supported_ar": true,
+     "supported_en": false,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-05",
+     "title_ar": "خطب الأخلاق",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-06",
+     "title_ar": "خطب الأسرة والتربية",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-07",
+     "title_ar": "خطب الأنبياء",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-08",
+     "title_ar": "خطب أول العام",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-09",
+     "title_ar": "خطب الإيمان",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-10",
+     "title_ar": "خطب تزكية النفوس",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-11",
+     "title_ar": "خطب الحج",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-12",
+     "title_ar": "خطب الحديث القدسي",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-13",
+     "title_ar": "خطب الدعوة والإصلاح",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-14",
+     "title_ar": "خطب رجب",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-15",
+     "title_ar": "خطب رمضان",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-16",
+     "title_ar": "خطب سبعة يظلهم الله",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-17",
+     "title_ar": "خطب السيرة النبوية",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-18",
+     "title_ar": "خطب شعبان",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-19",
+     "title_ar": "خطب الصحابة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-20",
+     "title_ar": "خطب العبادات",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-21",
+     "title_ar": "خطب قضايا الأمة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-22",
+     "title_ar": "خطب المجتمع والمسلم في الغرب",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-23",
+     "title_ar": "خطب الموت والآخرة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-24",
+     "title_ar": "خطب الهجرة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-25",
+     "title_ar": "دروس أصول الفقه للمبتدئين",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-26",
+     "title_ar": "دروس مؤتمر MAS LA",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-27",
+     "title_ar": "دروس من كتاب الفضيلة",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-28",
+     "title_ar": "فقه الزواج الميسر",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-29",
+     "title_ar": "قصص الأنبياء",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-30",
+     "title_ar": "قصة موسى عليه السلام",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-31",
+     "title_ar": "مسائل في مشكلات الحياة الزوجية",
+     "title_en": null,
+     "supported_ar": false,
+     "supported_en": true,
+     "via_transcript": "transcript send record names this title"
+    },
+    {
+     "entry": "book-32",
+     "title_ar": "من فضائل القرآن الكريم",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-33",
+     "title_ar": "وقفات من السيرة النبوية",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-34",
+     "title_ar": "وقفات من السيرة النبوية",
+     "title_en": null,
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-35",
+     "title_ar": "وقفات من السيرة النبوية",
+     "title_en": "Educational Reflections on the Seerah",
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-36",
+     "title_ar": "وقفات من السيرة النبوية",
+     "title_en": "Educational Reflections on the Seerah",
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-37",
+     "title_ar": "إضاءات من سورة الفاتحة",
+     "title_en": "Illuminations from Surah al-Fatiha (Dinner Reflections)",
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    },
+    {
+     "entry": "book-38",
+     "title_ar": null,
+     "title_en": "Proud To Be Muslims",
+     "supported_ar": true,
+     "supported_en": true,
+     "via_transcript": ""
+    }
+   ],
+   "verdict": "FLAG"
+  },
+  "4_anta_counts": {
+   "inventory_claims": {
+    "book-03": 405,
+    "book-04": 303
+   },
+   "cover_file_evidence": {
+    "Part1_Cover_Wraparound.pdf": 405,
+    "Part2_Cover_Wraparound.pdf": 303
+   },
+   "vol1_cover_states_405": true,
+   "vol2_cover_states_303": true,
+   "note": "Counts come from the books' own cover 'About this book' text (raw-extraction title_block of the wraparound PDFs). Independent in-text count: see adjudication-review-20261120.md §4.",
+   "verdict": "PASS"
+  },
+  "5_sort": {
+   "phd_first": true,
+   "arabic_block_ids_actual": [
+    "book-02",
+    "book-03",
+    "book-04",
+    "book-05",
+    "book-06",
+    "book-07",
+    "book-08",
+    "book-09",
+    "book-10",
+    "book-11",
+    "book-12",
+    "book-13",
+    "book-14",
+    "book-15",
+    "book-16",
+    "book-17",
+    "book-18",
+    "book-19",
+    "book-20",
+    "book-21",
+    "book-22",
+    "book-23",
+    "book-24",
+    "book-25",
+    "book-26",
+    "book-27",
+    "book-28",
+    "book-29",
+    "book-30",
+    "book-31",
+    "book-32",
+    "book-33",
+    "book-34",
+    "book-35",
+    "book-36",
+    "book-37"
+   ],
+   "arabic_block_ids_expected": [
+    "book-02",
+    "book-37",
+    "book-03",
+    "book-04",
+    "book-05",
+    "book-06",
+    "book-07",
+    "book-08",
+    "book-09",
+    "book-10",
+    "book-11",
+    "book-12",
+    "book-13",
+    "book-14",
+    "book-15",
+    "book-16",
+    "book-17",
+    "book-18",
+    "book-19",
+    "book-20",
+    "book-21",
+    "book-22",
+    "book-23",
+    "book-24",
+    "book-25",
+    "book-27",
+    "book-26",
+    "book-28",
+    "book-29",
+    "book-30",
+    "book-31",
+    "book-32",
+    "book-33",
+    "book-35",
+    "book-34",
+    "book-36"
+   ],
+   "english_block_ids_actual": [
+    "book-38"
+   ],
+   "english_block_ids_expected": [
+    "book-38"
+   ],
+   "adjacent_inversions_in_arabic_block": [
+    [
+     "book-26",
+     "book-27",
+     "دروس مؤتمر MAS LA",
+     "دروس من كتاب الفضيلة"
+    ],
+    [
+     "book-34",
+     "book-35",
+     "وقفات من السيرة النبوية",
+     "وقفات من السيرة النبوية"
+    ],
+    [
+     "book-36",
+     "book-37",
+     "وقفات من السيرة النبوية",
+     "إضاءات من سورة الفاتحة"
+    ]
+   ],
+   "alt_language_based_order_differs": false,
+   "alt_language_based_expected_tail": [
+    "book-33",
+    "book-34",
+    "book-35",
+    "book-36",
+    "book-37",
+    "book-38"
+   ],
+   "verdict": "FLAG"
+  },
+  "6_owner_review_excluded": {
+   "review_files_in_books_data_js": [],
+   "all_owner_review_files_in_books_data_js": [
+    "_16-_Series_of_-Proud_To_Be_Muslims-.pdf"
+   ],
+   "proud_file_in_books_data_js": true,
+   "note": "review-05 (Proud authorship) concerns a LISTED book whose author credit is withheld, not a withheld file; see report §6.",
+   "verdict": "PASS"
+  },
+  "7_books_data_js": {
+   "js_book_count": 38,
+   "inventory_count": 38,
+   "diffs": [],
+   "verdict": "PASS"
+  },
+  "8_author": {
+   "rows": [
+    {
+     "entry": "book-01",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "dissertation title page: تأليف د. مصطفى سليمان محمد كامل، إشراف د. صلاح الصاوي; bio: doctorate on الفرقة بين الزوجين"
+     ]
+    },
+    {
+     "entry": "book-02",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-03",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "title page names the Sheikh (Part1_Interior_256pp.pdf)",
+      "cover/interior: أجوبة فضيلة الشيخ الدكتور مصطفى كامل; compiler م. عمرو محمود credited in notes, not as author"
+     ]
+    },
+    {
+     "entry": "book-04",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "title page names the Sheikh (Part2_Interior_204pp.pdf)",
+      "cover/interior: أجوبة فضيلة الشيخ الدكتور مصطفى كامل; compiler م. عمرو محمود credited in notes, not as author"
+     ]
+    },
+    {
+     "entry": "book-05",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-06",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-07",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-08",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-09",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-10",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-11",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-12",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-13",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-14",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-15",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-16",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-17",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-18",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-19",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-20",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-21",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-22",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-23",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-24",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-25",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "PDF metadata author (usul-al-fiqh-lessons-____.pdf)"
+     ]
+    },
+    {
+     "entry": "book-26",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "PDF metadata author (mas-la-introductions-____.pdf)"
+     ]
+    },
+    {
+     "entry": "book-27",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "PDF metadata author (al-fadila-lessons-____.pdf)",
+      "title page: شرح د. مصطفى سليمان محمد كامل — Sheikh's lessons ON al-Manfaluti's الفضيلة (note guards against misreading)"
+     ]
+    },
+    {
+     "entry": "book-28",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "title page names the Sheikh (___-______-______-____-2.pdf)"
+     ]
+    },
+    {
+     "entry": "book-29",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-30",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "PDF metadata author (moses-story-book-____.pdf)"
+     ]
+    },
+    {
+     "entry": "book-31",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "no author line in DOCX first page; support is the transcript send record (Sheikh sent the DOCX Nov 7)"
+     ]
+    },
+    {
+     "entry": "book-32",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+      "no author line on title page; PDF meta_author is 'hosni ibrahim' (likely typesetter); support is the transcript send record (Sheikh sent the PDF Nov 13, his Friday khutba text)"
+     ]
+    },
+    {
+     "entry": "book-33",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-34",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-35",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-36",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-37",
+     "author_ar": "د. مصطفى سليمان كامل",
+     "author_en": "Dr. Moustafa Suleiman Kamel",
+     "evidence": [
+      "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+     ]
+    },
+    {
+     "entry": "book-38",
+     "author_ar": null,
+     "author_en": null,
+     "evidence": [
+      "author deliberately omitted (no author stated in file)"
+     ]
+    }
+   ],
+   "verdict": "PASS"
+  },
+  "companions_mutual": {
+   "pairs": [
+    [
+     "book-02",
+     "book-37"
+    ],
+    [
+     "book-33",
+     "book-35"
+    ],
+    [
+     "book-34",
+     "book-36"
+    ],
+    [
+     "book-35",
+     "book-33"
+    ],
+    [
+     "book-36",
+     "book-34"
+    ],
+    [
+     "book-37",
+     "book-02"
+    ]
+   ],
+   "mutual": true
+  },
+  "same_title_groups": {
+   "('أنت تسأل والشيخ يجيب', 'Anta Tasalu wa al-Shaikhu Yujib')": [
+    "book-03",
+    "book-04"
+   ],
+   "('وقفات من السيرة النبوية', None)": [
+    "book-33",
+    "book-34"
+   ],
+   "('وقفات من السيرة النبوية', 'Educational Reflections on the Seerah')": [
+    "book-35",
+    "book-36"
+   ]
+  }
+ },
+ "per_entry": [
+  {
+   "id": "book-01",
+   "files": [
+    "______-___-_______-____________-____.pdf",
+    "______-___-_______-____________-____-2.pdf",
+    "______-___-_______-____________-____-3.pdf",
+    "______-___-_______-____________-____-4.pdf"
+   ],
+   "pages_claimed": 1057,
+   "pages_extracted": [
+    330,
+    230,
+    286,
+    211
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "dissertation title page: تأليف د. مصطفى سليمان محمد كامل، إشراف د. صلاح الصاوي; bio: doctorate on الفرقة بين الزوجين"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-02",
+   "files": [
+    "_______-__-____-_______-_____-______-____.pdf"
+   ],
+   "pages_claimed": 50,
+   "pages_extracted": [
+    50
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-03",
+   "files": [
+    "Part1_Interior_256pp.pdf"
+   ],
+   "pages_claimed": 256,
+   "pages_extracted": [
+    256
+   ],
+   "title_supported": false,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "title page names the Sheikh (Part1_Interior_256pp.pdf)",
+    "cover/interior: أجوبة فضيلة الشيخ الدكتور مصطفى كامل; compiler م. عمرو محمود credited in notes, not as author"
+   ],
+   "verdict": "FLAG"
+  },
+  {
+   "id": "book-04",
+   "files": [
+    "Part2_Interior_204pp.pdf"
+   ],
+   "pages_claimed": 204,
+   "pages_extracted": [
+    204
+   ],
+   "title_supported": false,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "title page names the Sheikh (Part2_Interior_204pp.pdf)",
+    "cover/interior: أجوبة فضيلة الشيخ الدكتور مصطفى كامل; compiler م. عمرو محمود credited in notes, not as author"
+   ],
+   "verdict": "FLAG"
+  },
+  {
+   "id": "book-05",
+   "files": [
+    "___-________-____.pdf"
+   ],
+   "pages_claimed": 99,
+   "pages_extracted": [
+    99
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-06",
+   "files": [
+    "___-_______-________-____.pdf"
+   ],
+   "pages_claimed": 32,
+   "pages_extracted": [
+    32
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-07",
+   "files": [
+    "___-_________-____.pdf"
+   ],
+   "pages_claimed": 32,
+   "pages_extracted": [
+    32
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-08",
+   "files": [
+    "___-____-_____-____.pdf"
+   ],
+   "pages_claimed": 25,
+   "pages_extracted": [
+    25
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-09",
+   "files": [
+    "___-________-____-2.pdf"
+   ],
+   "pages_claimed": 73,
+   "pages_extracted": [
+    73
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-10",
+   "files": [
+    "___-_____-______-____-2.pdf"
+   ],
+   "pages_claimed": 62,
+   "pages_extracted": [
+    62
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-11",
+   "files": [
+    "___-____-____.pdf"
+   ],
+   "pages_claimed": 39,
+   "pages_extracted": [
+    39
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-12",
+   "files": [
+    "___-______-______-____.pdf"
+   ],
+   "pages_claimed": 6,
+   "pages_extracted": [
+    6
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-13",
+   "files": [
+    "___-______-_________-____.pdf"
+   ],
+   "pages_claimed": 21,
+   "pages_extracted": [
+    21
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-14",
+   "files": [
+    "___-___-____.pdf"
+   ],
+   "pages_claimed": 10,
+   "pages_extracted": [
+    10
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-15",
+   "files": [
+    "___-_____-____-2.pdf"
+   ],
+   "pages_claimed": 88,
+   "pages_extracted": [
+    88
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-16",
+   "files": [
+    "___-____-_____-____-____.pdf"
+   ],
+   "pages_claimed": 18,
+   "pages_extracted": [
+    18
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-17",
+   "files": [
+    "___-______-_______-____.pdf"
+   ],
+   "pages_claimed": 68,
+   "pages_extracted": [
+    68
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-18",
+   "files": [
+    "___-_____-____.pdf"
+   ],
+   "pages_claimed": 35,
+   "pages_extracted": [
+    35
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-19",
+   "files": [
+    "___-_______-____.pdf"
+   ],
+   "pages_claimed": 17,
+   "pages_extracted": [
+    17
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-20",
+   "files": [
+    "___-________-____-3.pdf"
+   ],
+   "pages_claimed": 36,
+   "pages_extracted": [
+    36
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-21",
+   "files": [
+    "___-_____-______-____.pdf"
+   ],
+   "pages_claimed": 119,
+   "pages_extracted": [
+    119
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-22",
+   "files": [
+    "___-_______-_______-__-_____-____.pdf"
+   ],
+   "pages_claimed": 58,
+   "pages_extracted": [
+    58
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-23",
+   "files": [
+    "___-_____-________-____.pdf"
+   ],
+   "pages_claimed": 56,
+   "pages_extracted": [
+    56
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-24",
+   "files": [
+    "___-______-____.pdf"
+   ],
+   "pages_claimed": 24,
+   "pages_extracted": [
+    24
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-25",
+   "files": [
+    "usul-al-fiqh-lessons-____.pdf"
+   ],
+   "pages_claimed": 25,
+   "pages_extracted": [
+    25
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "PDF metadata author (usul-al-fiqh-lessons-____.pdf)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-26",
+   "files": [
+    "mas-la-introductions-____.pdf"
+   ],
+   "pages_claimed": 43,
+   "pages_extracted": [
+    43
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "PDF metadata author (mas-la-introductions-____.pdf)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-27",
+   "files": [
+    "al-fadila-lessons-____.pdf"
+   ],
+   "pages_claimed": 26,
+   "pages_extracted": [
+    26
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "PDF metadata author (al-fadila-lessons-____.pdf)",
+    "title page: شرح د. مصطفى سليمان محمد كامل — Sheikh's lessons ON al-Manfaluti's الفضيلة (note guards against misreading)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-28",
+   "files": [
+    "___-______-______-____-2.pdf"
+   ],
+   "pages_claimed": 350,
+   "pages_extracted": [
+    350
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "title page names the Sheikh (___-______-______-____-2.pdf)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-29",
+   "files": [
+    "prophets-stories-complete-book-____.pdf"
+   ],
+   "pages_claimed": 369,
+   "pages_extracted": [
+    369
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-30",
+   "files": [
+    "moses-story-book-____.pdf"
+   ],
+   "pages_claimed": 108,
+   "pages_extracted": [
+    108
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "PDF metadata author (moses-story-book-____.pdf)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-31",
+   "files": [
+    "_______________________________.docx"
+   ],
+   "pages_claimed": 32,
+   "pages_extracted": [
+    null
+   ],
+   "title_supported": false,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "no author line in DOCX first page; support is the transcript send record (Sheikh sent the DOCX Nov 7)"
+   ],
+   "verdict": "FLAG"
+  },
+  {
+   "id": "book-32",
+   "files": [
+    "____________________________________________________.pdf"
+   ],
+   "pages_claimed": 5,
+   "pages_extracted": [
+    5
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)",
+    "no author line on title page; PDF meta_author is 'hosni ibrahim' (likely typesetter); support is the transcript send record (Sheikh sent the PDF Nov 13, his Friday khutba text)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-33",
+   "files": [
+    "_____-__-______-_______-_____-______-____.pdf"
+   ],
+   "pages_claimed": 92,
+   "pages_extracted": [
+    92
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-34",
+   "files": [
+    "_____-__-______-_______-_____-______-____-2.pdf"
+   ],
+   "pages_claimed": 55,
+   "pages_extracted": [
+    55
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-35",
+   "files": [
+    "educational-reflections-on-the-seerah-part-one.pdf"
+   ],
+   "pages_claimed": 124,
+   "pages_extracted": [
+    124
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-36",
+   "files": [
+    "educational-reflections-on-the-seerah-part-two.pdf"
+   ],
+   "pages_claimed": 76,
+   "pages_extracted": [
+    76
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-37",
+   "files": [
+    "illuminations-from-surah-al-fatiha-dinner-reflections.pdf"
+   ],
+   "pages_claimed": 67,
+   "pages_extracted": [
+    67
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "name form matches the Sheikh's dictated bio (مصطفي سليمان كامل / Moustafa Suleiman Kamel)"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "id": "book-38",
+   "files": [
+    "_16-_Series_of_-Proud_To_Be_Muslims-.pdf"
+   ],
+   "pages_claimed": 10,
+   "pages_extracted": [
+    10
+   ],
+   "title_supported": true,
+   "author_evidence": [
+    "author deliberately omitted (no author stated in file)"
+   ],
+   "verdict": "PASS"
+  }
+ ],
+ "mismatches": [
+  {
+   "code": "C2-NOPAGES",
+   "detail": "book-31 _______________________________.docx: raw extraction has no page count (format docx); inventory claims 32 pp — needs LibreOffice evidence"
+  },
+  {
+   "code": "C3-TITLE-EN",
+   "detail": "book-03: English title 'Anta Tasalu wa al-Shaikhu Yujib' not found in its file's first-page title block / metadata / filename"
+  },
+  {
+   "code": "C3-TITLE-EN",
+   "detail": "book-04: English title 'Anta Tasalu wa al-Shaikhu Yujib' not found in its file's first-page title block / metadata / filename"
+  },
+  {
+   "code": "C5-SORT-AR",
+   "detail": "Arabic block order differs from ال-ignored dictionary order. actual=['book-02', 'book-03', 'book-04', 'book-05', 'book-06', 'book-07', 'book-08', 'book-09', 'book-10', 'book-11', 'book-12', 'book-13', 'book-14', 'book-15', 'book-16', 'book-17', 'book-18', 'book-19', 'book-20', 'book-21', 'book-22', 'book-23', 'book-24', 'book-25', 'book-26', 'book-27', 'book-28', 'book-29', 'book-30', 'book-31', 'book-32', 'book-33', 'book-34', 'book-35', 'book-36', 'book-37'] expected=['book-02', 'book-37', 'book-03', 'book-04', 'book-05', 'book-06', 'book-07', 'book-08', 'book-09', 'book-10', 'book-11', 'book-12', 'book-13', 'book-14', 'book-15', 'book-16', 'book-17', 'book-18', 'book-19', 'book-20', 'book-21', 'book-22', 'book-23', 'book-24', 'book-25', 'book-27', 'book-26', 'book-28', 'book-29', 'book-30', 'book-31', 'book-32', 'book-33', 'book-35', 'book-34', 'book-36']"
+  }
+ ],
+ "summary": {
+  "entries_total": 38,
+  "entries_pass_clean": 35,
+  "entries_flagged": [
+   "book-03",
+   "book-04",
+   "book-31"
+  ],
+  "mismatch_count": 4,
+  "check_verdicts": {
+   "1_accounting": "PASS",
+   "2_pages": "FLAG",
+   "3_titles": "FLAG",
+   "4_anta_counts": "PASS",
+   "5_sort": "FLAG",
+   "6_owner_review_excluded": "PASS",
+   "7_books_data_js": "PASS",
+   "8_author": "PASS"
+  }
+ }
+}

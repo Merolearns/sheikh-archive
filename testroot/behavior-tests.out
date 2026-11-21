@@ -1,0 +1,12 @@
+PASS chrome does not move on AR->EN :: [[".brand",1131,225],["#langSeg",84,156],["#nav",310,801],["#themeBtn",250,40]] vs [[".brand",1131,225],["#langSeg",84,156],["#nav",310,801],["#themeBtn",250,40]]
+PASS html stays dir=rtl, text blocks switch lang :: {"y":900,"dir":"rtl","h1":"en"}
+PASS scroll position kept on switch :: scrollY=900
+PASS toggle labels never swap order :: العربية|English
+PASS video continues across language switch :: t1=6.51 t2=7.77 same=true
+PASS progress saved under the v1 key :: {"npEgn5Pz2G8":7}
+PASS Listen controls disabled, honest status, no audio src :: {"dis":true,"status":"التلاوة بانتظار الترخيص، ولا يوجد تسجيل مرفق.","audio":null}
+PASS opening: one button, verse with U+06DD marker, birds present :: {"buttons":1,"verse":"وَقُل رَّبِّ زِدْنِي عِلْمًا ۝١١٤","birds":7}
+PASS Escape skips the opening :: splash hidden
+PASS prefers-reduced-motion stops animation :: running animations=0
+PASS Save persists and appears on Saved :: {"store":true,"cards":1}
+FAILURES: 0

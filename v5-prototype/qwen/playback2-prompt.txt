@@ -1,0 +1,117 @@
+You are patching a vanilla-JS single-file offline library app (Arabic-first, RTL). Patch ONLY what is asked, surgically, against the REAL code below. Do not redesign the lesson page. Return complete replacement blocks with exact anchors.
+
+REAL CODE 1 - renderLesson stage + video wiring (app.js):
+```
+    if (!keep) {
+      const drawFrame = !calm() && onceKey("player-frame");
+      $("#v-lesson").innerHTML =
+        `<div class="wrap ls${opts.keepPage ? "" : " intro"}"><div class="ls-main">` +
+        `<div class="pframe${drawFrame ? " drawing" : ""}" id="pframe"><svg class="pf-line" aria-hidden="true"><rect pathLength="100" rx="17"/></svg><span class="corner a">${kh()}</span><span class="corner b">${kh()}</span>` +
+        `<div class="stage" dir="ltr"><video id="vid" controls playsinline preload="metadata"></video><div class="cap" id="cap" hidden></div><div class="buf" id="buf" aria-hidden="true">${kh()}</div>` +
+        `<div class="stage-empty" id="stageEmpty" role="alert">${kh("se-kh")}<div class="se-msg" id="stageMsg"></div></div></div></div>` +
+        '<div class="notice" id="notice" role="status" hidden></div><div id="lsInfo"></div><div class="panel tx" id="txPanel" hidden></div></div><aside id="lsSide"></aside></div>';
+      const video = $("#vid");
+      cur = {
+        v,
+        video,
+        cues: [],
+        capLang: "",
+        lastSave: 0,
+        tx: null,
+        txLang: q.get("tx") || "",
+      };
+      markRecent(v.id);
+      const buf = $("#buf");
+      video.addEventListener("waiting", () => buf.classList.add("on"));
+      ["playing", "canplay", "pause", "error"].forEach((ev) =>
+        video.addEventListener(ev, () => buf.classList.remove("on")),
+      );
+      video.addEventListener("play", () => Rec.stop());
+      video.addEventListener("timeupdate", () => {
+        paintCap();
+        syncTx();
+        const now = Date.now();
+        if (now - cur.lastSave > 4000) {
+          cur.lastSave = now;
+          saveProgress();
+        }
+      });
+      video.addEventListener("seeked", () => { paintCap(); syncTx(true); });
+      video.addEventListener("pause", saveProgress);
+      video.addEventListener("ended", () => setDone(v.id, true));
+      video.addEventListener("error", () => {
+        $("#pframe").classList.add("err");
+        probeError(v, p);
+      });
+      const from = q.get("resume") ? progOf(v.id) : 0;
+      if (from > 5)
+        video.addEventListener("loadedmetadata", () => {
+          if (!video.duration || from < video.duration - 2) video.currentTime = from;
+        }, { once: true });
+      video.src = v.media;
+      const cc = q.get("cc");
+      if (cc === "ar" || cc === "en") setCaptions(cc);
+      Rec.stop();
+      const pr = video.play();
+      if (pr && pr.catch) pr.catch(() => {});
+    }
+```
+
+REAL CODE 2 - actions area (app.js, inside renderLesson, after the stage block):
+```
+    $("#lsInfo").innerHTML =
+      `<h1${AR}>${esc(v.title)}</h1><div class="ls-meta"${L()}>` +
+      (p ? `<a class="pill" href="#/playlist/${encodeURIComponent(p.id)}"${AR}>${esc(p.title)}</a>` : `<span class="pill">${esc(t("no_series"))}</span>`) +
+      `<span class="pill">${esc(scholarOf(v))}</span><span class="pill ltr">${esc(dur(v.duration))}</span><span class="pill">${esc(t("published", { d: date(v.uploadDate) }))}</span></div>` +
+      `<div class="ls-acts"${L()}>${starBtn(v.id, "lg")}${doneBtn(v.id)}` +
+      (canResume(v) && !q.get("resume") ? `<button class="btn small" type="button" id="lsResume">${icon("i-resume")}${esc(t("ls_resume_at", { t: dur(progOf(v.id)) }))}</button>` : "") +
+      capBtn("ar") +
+      capBtn("en") +
+      "</div>" +
+```
+capBtn(lang) returns a small button with data-cap="ar"|"en" only when that language has subtitles; keep it.
+
+REAL CODE 3 - probeError (app.js, called on video error):
+```
+  function probeError(v, p) {
+    let code = 0;
+    try { code = (await fetch(v.media, { method: "HEAD", cache: "no-store" })).status; } catch (_) {}
+    if (!cur || cur.v.id !== v.id) return;
+    if (code === 404) {
+      let folder = null;
+      try { folder = await (await fetch("__status", { cache: "no-store" })).json(); } catch (_) {}
+      let rel = v.media;
+      try { rel = decodeURIComponent(v.media); } catch (_) {}
+      showError(
+        `<p${L()}><b>${esc(t("err_404"))}</b></p>` +
+          `<div class="acts"${L()}><a class="btn small" href="${p ? "#/playlist/" + encodeURIComponent(p.id) : "#/library"}">${esc(t(p ? "back_series" : "back_lib"))}</a></div>` +
+          `<details${L()}><summary>${esc(t("err_details"))}</summary><p style="margin-top:8px">${esc(t("err_where"))}</p><code>${esc(rel)}</code>` +
+          (folder && folder.videos_exists === false ? `<p style="margin-top:8px">${esc(t("err_nofolder"))}</p>` : "") +
+          "</details>",
+      );
+    } else {
+      showError(
+        `<p${L()}><b>${esc(t("err_format"))}</b></p><div class="acts"${L()}><a class="btn small" href="${esc(v.media)}" target="_blank" rel="noopener">${esc(t("open_file"))}</a></div>`,
+      );
+    }
+  }
+```
+showError(html) puts html into #stageMsg and adds class err to #pframe. showNotice(html) unhides #notice and sets its html.
+
+REAL CODE 4 - CSS: .stage{position:relative;background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;border:1px solid var(--line)} .stage video{width:100%;height:100%;display:block;background:#000} .btn{min-height:44px} .btn.small{min-height:36px} .ls-acts{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:16px;border-bottom:1px solid var(--line-soft);align-items:center}
+REAL CODE 5 - helpers that exist: saveProgress() saves cur.video.currentTime into st.prog[v.id]; progOf(id) returns the saved seconds; Rec.stop() stops recitation; t(key, vars) reads strings; esc(s) escapes HTML; showTranscript(v, want) renders #txPanel with AR/EN tabs and must keep working in every mode. paintCap() and syncTx() both start by reading cur.video.currentTime.
+
+VIDEO ID: decodeURIComponent(v.media) ends with [<11-char id>].mkv or .mp4 or .webm, e.g. videos/...%20%5BV1nx_qy87FM%5D.mkv. Extract with /\[([A-Za-z0-9_-]{11})\]\.(mkv|mp4|webm)$/.
+
+STRINGS (already added to S.ar and S.en, use these keys): pb_yt, pb_hosted, pb_local, pb_local_no, pb_yt_no, pb_hosted_no.
+
+REQUIREMENTS:
+- Add mode: "yt" to the cur object literal. Clicking a lesson opens YouTube mode automatically in the same page: after video.src is set and Rec.stop() runs, call setPlayMode("yt") when ytIdOf(v.media) returns an id; otherwise stay in local mode.
+- setPlayMode(mode): modes "yt", "hosted", "local". Store the mode on cur.mode. In "yt": pause the video if playing, call saveProgress(), call Rec.stop(), replace the stage content with an iframe (id ytFrame, title from t(pb_yt), src built as "https://www.youtube-nocookie.com/embed/" + id + "?rel=0", allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture", allowfullscreen, no border). Keep #cap, #buf, #stageEmpty in the stage DOM (hidden by the err class rules when needed). In "local": remove the iframe, restore the video element with its existing listeners and resume position (reuse the exact wiring from REAL CODE 1; factor the video-element creation and listener wiring into a buildVideo(v, p) helper used by both the initial render and the switch back, so listeners are never lost). In "hosted": no hosted copy is configured, so call showNotice(t(pb_hosted_no)) and do NOT change the stage; the mode buttons only reflect the choice.
+- Add the mode switch into div.ls-acts AFTER doneBtn and BEFORE the caption buttons: three buttons class "btn" (44px, NOT btn small) with data-mode yt/hosted/local, aria-pressed reflecting cur.mode, labels t(pb_yt), t(pb_hosted), t(pb_local). When the local file is confirmed missing, the Local button becomes plain status text with t(pb_local_no) instead of a button. In YouTube mode, hide the caption buttons (wrap capBtn("ar")+capBtn("en") in a span id capWrap and set capWrap.hidden in setPlayMode).
+- probeError integration: keep the existing 404 and format branches exactly. In the 404 branch, after showError, if ytIdOf(v.media) returns an id, ALSO switch to YouTube mode (setPlayMode("yt")) and change the Local button to the pb_local_no status text. In the format branch, keep everything and ALSO make sure the YouTube button stays enabled.
+- Guards: at the top of paintCap() and syncTx(), return early when there is no mounted video element (check cur.video and cur.video.isConnected). Do not redefine those functions.
+- CSS additions only: iframe fills .stage like the video (width/height 100%, border 0, display block); the active mode button uses the existing .btn[aria-pressed="true"] treatment (already in the stylesheet) so add no new colors; the pb_local_no status text uses the existing .muted class.
+- No em dash anywhere. No auto-play of audio. No placeholder wording.
+
+DELIVERABLE: numbered complete code blocks with file + exact anchor for each change. No explanation prose outside the blocks.

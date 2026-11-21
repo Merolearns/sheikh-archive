@@ -1,0 +1,5 @@
+WARNING: videos folder not found at /tmp/nov/videos. Videos will not play until the app runs from the archive root.
+Archive is running locally at: http://127.0.0.1:40695/
+Preview page: Preview/archive.html. Transcript files are served unchanged.
+This server listens only on this computer. Press Ctrl+C to stop it.
+127.0.0.1 - - [28/Oct/2026 22:55:38] "GET /__status HTTP/1.1" 200 -

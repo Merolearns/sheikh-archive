@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Chunked rendering test</title>
+<h1>Chunked rendering test</h1>
+<button id="run" type="button">Run checks</button>
+<pre id="report" aria-label="Test results"></pre>
+<div id="videos" aria-label="Synthetic videos"></div>
+<script src="chunked-render.js"></script>
+<script>
+"use strict";
+
+const items = Array.from({ length: 3977 }, (_, index) => ({
+  id: "synthetic-" + (index + 1),
+  title: "Synthetic lesson " + (index + 1),
+  duration: 60,
+  uploadDate: "2020-01-01",
+  thumbnail: "",
+  playlistIds: ["synthetic-series"],
+  media: "synthetic-" + (index + 1) + ".mp4",
+}));
+const container = document.querySelector("#videos");
+const report = document.querySelector("#report");
+let rendered = 0;
+
+function renderCard(item) {
+  rendered++;
+  return '<article data-k="' + item.id + '">' + item.title + '</article>';
+}
+
+function check(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+function runChecks() {
+  const results = [];
+  const fixtures = document.createElement("div");
+  document.body.append(fixtures);
+  function mount(items, options = {}) {
+    const list = fixtures.appendChild(document.createElement("div"));
+    renderChunked({ container: list, items, renderCard, ...options });
+    const controls = list.nextElementSibling;
+    return { list, button: controls.querySelector("button"), status: controls.querySelector('[role="status"]') };
+  }
+
+  try {
+    rendered = 0;
+    const { list, button, status } = mount(items);
+    check(list.children.length === 100 && rendered === 100, "Expected 100 initial cards");
+    check(button instanceof HTMLButtonElement && button.type === "button" &&
+      button.tabIndex === 0 && button.getAttribute("aria-controls") === list.id &&
+      document.getElementById(list.id) === list, "Expected a keyboard-focusable button controlling the list");
+    check(status.getAttribute("aria-live") === "polite" &&
+      status.textContent.includes("100 shown, 3877 remaining"), "Expected initial live counts");
+    results.push("100 initial cards, 3877 remaining");
+
+    let finalBatch = 0;
+    for (let step = 1; step <= 39; step++) {
+      const previous = [...list.children];
+      if (step === 39) button.focus();
+      button.click();
+      const shown = Math.min(100 + step * 100, items.length);
+      finalBatch = shown - previous.length;
+      check(list.children.length === shown && rendered === shown, "Unexpected card count at step " + step);
+      check(previous.every((card, index) => list.children[index] === card), "Replaced card node at step " + step);
+      check(status.textContent.includes(shown + " shown, " + (items.length - shown) + " remaining"),
+        "Incorrect live counts at step " + step);
+    }
+    check([...list.children].every((card, index) => card.dataset.k === items[index].id), "Card order changed");
+    check(!button.isConnected && status.textContent.includes("All matches shown") &&
+      document.activeElement === status, "Expected end status, removed button, and focus transfer");
+    results.push("39 activations, final batch " + finalBatch + ", all 3977 in order");
+    results.push("Every previously mounted card retained its node identity");
+
+    const empty = mount([]);
+    check(empty.list.children.length === 0 && !empty.button &&
+      empty.status.textContent.includes("0 shown, 0 remaining"), "Expected empty status without a button");
+    const short = mount(items.slice(0, 3));
+    check(short.list.children.length === 3 && !short.button, "Expected no button for a short list");
+    const capped = mount(items.slice(0, 6), { cap: 2, chunkSize: 3 });
+    check(capped.list.children.length === 2, "Expected cap to limit the first paint");
+    capped.button.click();
+    check(capped.list.children.length === 5, "Expected full chunks after initial soft cap");
+    results.push("Button semantics, live counts, end focus, empty, short, and custom cap passed");
+    report.dataset.result = "pass";
+  } catch (error) {
+    results.push("FAIL " + error.message);
+    report.dataset.result = "fail";
+  } finally {
+    fixtures.remove();
+    report.textContent = results.join("\n");
+    document.querySelector("#run").focus();
+  }
+}
+
+document.querySelector("#run").addEventListener("click", runChecks);
+runChecks();
+if (report.dataset.result === "pass") renderChunked({ container, items, renderCard });
+</script>
+</html>

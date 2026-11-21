@@ -1,0 +1,49 @@
+The v2 rebuild is finished and passed my own screenshot review. `archive-rebuild-v2.zip` (1.1 MB) is ready for Noor's review, and nothing has gone to the owner.
+
+**What I built**
+- **Taken over from the interim agent:** its server, both launchers, the 7 bundled fonts and its way of copying the catalog. I shelved its four page modules: they were never wired together and broke the brief (emoji icons, an invented description of the Sheikh, a misspelled English name, image paths that would not load, a second button on the opening). Details are in DECISIONS.md.
+- **Opening:** a new hand-built sunset (indigo to amber sky, domes, minarets, palms, gold border with 8-point stars). On it: only the verse with its ۝١١٤ end marker, the citation, the Sheikh's name and one Enter button. Seven birds fly at different sizes, speeds and depths, with real two-part wing movement. Escape skips the opening.
+- **Language:** the header and layout are laid out once, right-to-left, and never move. Measured: identical pixel positions in Arabic and English. Only the text blocks change language and direction. Scroll position and a playing video both survive a language switch.
+- **Pages:**
+  - The home page has the hero search, Browse Library and Continue Watching buttons, then rails for Continue Watching, Featured Series and Scholars.
+  - The library has a 4-column grid with arch-topped series cards, an 8-item sidebar, search and sort.
+  - The series page has search limited to that series.
+  - The lesson page has the player, captions, transcripts, and previous/next lesson links.
+  - The other pages are Where to Start, About, Mission (three pillars), About the Sheikh (monogram, catalog facts only, everything else marked [to be confirmed]) and Saved.
+- **Six themes:** each one restyles the whole app.
+- **Player errors:** a missing file shows "Video file not found on this computer" with the expected location. A file the browser can't decode shows the VLC message.
+- **Server:** `/__status` returns `videos_exists` and `videos_count`, and the startup log warns when the videos folder is missing. I added one extra field, `recitation`, so the page can tell whether a recording is present.
+- **Recitation:** the controls sit in the footer and ship disabled, with "Recitation licence pending, no recording bundled."
+- **Saved progress carries over:** v2 reads the v1 storage keys, so the owner's existing saved lessons and progress keep working.
+
+**Test results** (all run on this VM; full outputs in TEST-RESULTS.md)
+- **Syntax:** the page script and the server both pass their syntax checks.
+- **Catalog:** identical to the baseline: 3,977 videos, 71 playlists, 4,320 memberships, same IDs and order.
+- **Server:** 16 of 16 checks pass. These cover the main page, an Arabic-named video file, partial (Range) requests, `/__status`, missing files and HEAD requests, plus the "no videos folder" warning.
+- **Screenshots:** 71 desktop and mobile shots of every view, both languages and all six themes, with no console errors, broken images or sideways overflow. One shot flags a 404 because my test folder has transcript files for only one lesson; that's my test data, not the app.
+- **Behavior:** 11 of 11 checks pass. Two first failed because of how the tests were written, not the app; I fixed the tests and re-ran.
+
+**Not verified**
+- **This VM's browser blocks localhost**, so the test scripts passed each browser request through to the real server under a stand-in address. I didn't change any browser security setting. The server itself was checked directly.
+- **Real videos:** only small generated test files played here. Real playback of the 1.02 TB library and its MKV formats needs the owner's Windows machine.
+- **Launchers:** neither was run (no Windows or macOS here). Both are byte-identical to the baseline.
+- **Other browsers:** Safari and Firefox rendering of the verse font and markers is untested; only Chromium was available.
+- **Recitation with a file present:** the enabled path is untested because no recording is bundled, by design.
+
+**Decisions the owner should confirm**
+- Most playlists in the catalog run newest-first, so they are not in teaching order. I left the catalog untouched and pointed "Start" buttons at each series' earliest upload, labelled "Start with the earliest lesson".
+- There is no confirmed 20-minute first lesson. Where to Start uses lesson 1 of the Names of Allah series, which is 13 minutes, and shows its real length.
+- Which series belong to each of the six Where to Start steps is my suggestion, marked [to be confirmed].
+
+These and five other gaps in the design standard are logged in DESIGN-STANDARD-FIXES.md for Noor.
+
+**Housekeeping**
+- I stopped a leftover test server the interim agent had left running on port 8765.
+- I added the browser quirks I hit to `~/AGENTS.md` so future sessions don't repeat them.
+
+Files are in `~/workspace/archive-rebuild/`:
+- archive-rebuild-v2.zip
+- TEST-RESULTS.md
+- DECISIONS.md
+- DESIGN-STANDARD-FIXES.md
+- shots/

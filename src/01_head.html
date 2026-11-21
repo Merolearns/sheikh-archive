@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="emerald">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مكتبة الشيخ الدكتور مصطفى كامل | Sheikh Dr. Moustafa Kamel Library</title>
+<style>
+/* ============ FONTS (bundled offline, OFL licensed) ============ */
+@font-face{font-family:'Amiri Quran';src:url('Preview/assets/fonts/amiri-quran-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Noto Sans Arabic';src:url('Preview/assets/fonts/noto-sans-arabic-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Noto Sans Arabic';src:url('Preview/assets/fonts/noto-sans-arabic-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Noto Sans Arabic';src:url('Preview/assets/fonts/noto-sans-arabic-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Amiri';src:url('Preview/assets/fonts/amiri-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Amiri';src:url('Preview/assets/fonts/amiri-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Reem Kufi';src:url('Preview/assets/fonts/reem-kufi-400.woff2') format('woff2');font-weight:400;font-display:swap}
+
+/* ============ DESIGN TOKENS ============ */
+:root{
+  --font-verse:'Amiri Quran','Amiri',serif;
+  --font-head:'Amiri','Noto Sans Arabic',serif;
+  --font-ar:'Noto Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  --font-kufi:'Reem Kufi','Noto Sans Arabic',sans-serif;
+  --font-lat:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --gold:#C9A227; --gold-2:#E3C566;
+  --r:14px; --r-s:9px;
+  --shadow:0 10px 30px rgba(0,0,0,.28);
+  --ease:cubic-bezier(.22,.8,.28,1);
+}
+[data-theme="emerald"]{
+  --bg:#0A2A20; --bg2:#0E3527; --bg3:#123C2D; --bg4:#164231;
+  --ink:#F6F0DF; --ink2:#CFC39F; --ink3:#93A892;
+  --line:rgba(201,162,39,.30); --line-soft:rgba(246,240,223,.10);
+  --brand:#1E7A52; --brand-ink:#FFF9E8; --brand-deep:#0B3D2E;
+  --gold:#C9A227; --gold-2:#E9CE7A;
+  --card-shadow:0 12px 34px rgba(0,0,0,.40);
+  --pattern-op:.07; --hero-veil:rgba(6,26,19,.42);
+}
+[data-theme="parchment"]{
+  --bg:#F7F3EA; --bg2:#FFFFFF; --bg3:#EFE7D2; --bg4:#E7DCC0;
+  --ink:#20302A; --ink2:#4C5C52; --ink3:#7E8B81;
+  --line:#DCCFAF; --line-soft:rgba(32,48,42,.10);
+  --brand:#0B3D2E; --brand-ink:#F7F3EA; --brand-deep:#0B3D2E;
+  --gold:#A88420; --gold-2:#C9A227;
+  --card-shadow:0 10px 26px rgba(60,50,20,.14);
+  --pattern-op:.06; --hero-veil:rgba(30,40,30,.30);
+}
+[data-theme="midnight"]{
+  --bg:#0A1628; --bg2:#0F1F38; --bg3:#15294A; --bg4:#1B3255;
+  --ink:#EDF1F7; --ink2:#B7C3D6; --ink3:#7F8DA3;
+  --line:rgba(201,162,39,.28); --line-soft:rgba(237,241,247,.10);
+  --brand:#1D4E89; --brand-ink:#F2F6FC; --brand-deep:#0A1628;
+  --gold:#C9A227; --gold-2:#E9CE7A;
+  --card-shadow:0 12px 34px rgba(0,0,0,.45);
+  --pattern-op:.07; --hero-veil:rgba(5,12,24,.45);
+}
+[data-theme="sand"]{
+  --bg:#EFE2C8; --bg2:#FAF4E6; --bg3:#E4D3B1; --bg4:#DCC89E;
+  --ink:#2F2517; --ink2:#5D4E37; --ink3:#8B7A5F;
+  --line:#D3BE93; --line-soft:rgba(47,37,23,.10);
+  --brand:#7A5C2E; --brand-ink:#FBF6E9; --brand-deep:#4A3A1E;
+  --gold:#96741F; --gold-2:#B08D2E;
+  --card-shadow:0 10px 26px rgba(90,70,30,.16);
+  --pattern-op:.07; --hero-veil:rgba(60,45,20,.28);
+}
+[data-theme="sunset"]{
+  --bg:#2B2138; --bg2:#392B47; --bg3:#453452; --bg4:#4F3E5E;
+  --ink:#F8EEE1; --ink2:#DAC4AC; --ink3:#A78F78;
+  --line:rgba(227,197,102,.30); --line-soft:rgba(248,238,225,.10);
+  --brand:#8A4B3A; --brand-ink:#FBF1E3; --brand-deep:#3A2430;
+  --gold:#E3C566; --gold-2:#F2DDA0;
+  --card-shadow:0 12px 34px rgba(0,0,0,.42);
+  --pattern-op:.08; --hero-veil:rgba(30,18,32,.42);
+}
+[data-theme="puredark"]{
+  --bg:#0B0B0D; --bg2:#151518; --bg3:#1D1D22; --bg4:#242429;
+  --ink:#F1F0EB; --ink2:#C5C4BC; --ink3:#8C8B84;
+  --line:#2C2C31; --line-soft:rgba(241,240,235,.09);
+  --brand:#2E6B4F; --brand-ink:#F1F0EB; --brand-deep:#0B0B0D;
+  --gold:#C9A227; --gold-2:#E9CE7A;
+  --card-shadow:0 12px 34px rgba(0,0,0,.55);
+  --pattern-op:.06; --hero-veil:rgba(0,0,0,.5);
+}
+
+/* ============ BASE ============ */
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ar);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+[lang="en"] body, body.en{font-family:var(--font-lat)}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.6;margin:0 0 .5em}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+::selection{background:var(--gold);color:#111}
+:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.view{display:none;animation:viewIn .45s var(--ease)}
+.view.on{display:block}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+.kufi{font-family:var(--font-kufi)}
+.gold{color:var(--gold-2)}
+.rule{height:1px;background:linear-gradient(to left,transparent,var(--gold),transparent);border:0;margin:26px auto;max-width:520px;opacity:.7}

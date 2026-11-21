@@ -1,0 +1,73 @@
+You are patching a vanilla-JS single-file offline library app (Arabic-first, RTL). Patch ONLY what is asked, surgically, against the REAL code below. Do not redesign the splash. Do not replace whole functions. Return complete replacement blocks with exact anchors.
+
+REAL CODE 1 - body.html enter button (inside #splash > .sp-stage > .sp-page > .sp-in, after the verse, cite, ornament and name):
+```
+        <button class="sp-enter" id="enterBtn" type="button">
+          <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+          <span class="sp-fill" aria-hidden="true"></span>
+          <span class="sp-lbl">ادخل المكتبة <span lang="en" dir="ltr">Enter</span></span>
+        </button>
+```
+Static HTML strings use data-t="key" attributes; paintChrome() at boot fills every [data-t] element from S[lang]. The splash is hidden until splash() runs.
+
+REAL CODE 2 - splash() enter flow (app.js, inside the IIFE):
+```
+    const enter = (withVerse) => {
+      anims.forEach((a) => { try { a.finish(); } catch (_) {} });
+      try { sessionStorage.setItem("archive-v3-entered", "1"); } catch (_) {}
+      sp.classList.add("gone");
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", lay);
+      setTimeout(() => { sp.hidden = true; sky.innerHTML = ""; }, calm() ? 0 : 520);
+      if (withVerse) Rec.play(true); else Rec.stop();
+      $("#main").focus({ preventScroll: true });
+    };
+    const onKey = (e) => { if (e.key === "Escape") enter(false); };
+    document.addEventListener("keydown", onKey);
+    $("#enterBtn").addEventListener("click", () => enter(true));
+    setTimeout(() => $("#enterBtn").focus({ preventScroll: true }), 50);
+```
+splash() also starts with a skip check: if sessionStorage archive-v3-entered is "1" or ?splash=0, it returns early without showing the splash.
+
+REAL CODE 3 - storage (app.js):
+```
+  const K = {
+    fav: "archive-favorites-v4",
+    prog: "archive-progress-v4",
+    done: "archive-v2-done",
+    recent: "archive-v2-recent",
+    lang: "archive-v2-lang",
+    theme: "archive-v2-theme",
+    path: "archive-v2-path",
+    tx: "archive-v2-text-cache",
+    vol: "archive-v2-rec-vol",
+    mute: "archive-v2-rec-mute",
+    calm: "archive-v3-calm",
+    sort: "archive-v3-sort",
+    days: "archive-v3-days",
+  };
+  function load(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (_) { return d; } }
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+```
+Add a new key acct: "archive-v5-account" to K.
+
+REAL CODE 4 - header tools area (body.html):
+```
+    <div class="tools">
+      <button class="icon-btn" id="themeBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="themePop"><svg class="i"><use href="#i-palette"/></svg></button>
+      <div class="seg" id="langSeg" role="group" aria-label="Language / اللغة" data-on="ar"> ... </div>
+    </div>
+```
+
+STRINGS (already added to S.ar and S.en, use these keys): lg_guest, lg_email, lg_email_l, lg_pass_l, lg_submit, lg_noconfig, lg_signedin (takes {email}), lg_signout, lg_bad.
+
+REQUIREMENTS:
+- Replace ONLY the enter button block in body.html with a two-option block: guest button keeps id enterBtn and class sp-enter (primary, first); a secondary button id signinBtn (class sp-enter sp-alt) with a data-t="lg_email" span; a hidden form div id lgForm containing: label + input type email id lgEmail (autocomplete username, inputmode email), label + input type password id lgPass (autocomplete current-password), submit button id lgSubmit (class sp-enter), a back button id lgBack (class sp-enter sp-alt) with data-t lg_guest, and a notice paragraph id lgNotice (role=status, hidden) with data-t lg_noconfig. All labels use data-t attributes. Keep the verse, cite, ornament and name exactly as they are.
+- In splash(): after the skip check, if load(K.acct) has mode email and an access_token, skip the splash AND call showAcctChip(email) then return. Otherwise wire: enterBtn click enters as today; signinBtn click shows the form (hide both option buttons, show form, focus email); lgBack hides the form and restores the two buttons; lgSubmit runs signInEmail(). Escape key still enters as guest.
+- signInEmail(): read lgEmail/lgPass values; if either is empty, do nothing. Load config from Preview/assets/supabase-config.json with fetch (cache no-store); tolerate any failure. If config url or anonKey is empty, show lgNotice (unhide it, text from t(lg_noconfig)) and return, never pretending success. If configured, POST config.url + "/auth/v1/token?grant_type=password" with headers apikey and Content-Type application/json, body {email, password}; on HTTP 200 with access_token, store {mode:"email", email, access_token, refresh_token, expires_at} under K.acct, then enter(true). On any failure, show the notice with t(lg_bad), clear the password field, focus it. Never store the password anywhere. Add a separate syncAccountProgress() function that does nothing when unconfigured (stub, one comment line, no network call).
+- showAcctChip(email): append a small chip into .tools: a span with t(lg_signedin, {email}) and a button with data-t lg_signout that clears K.acct (store null) and reloads the page.
+- CSS additions only: use existing theme tokens (var(--gold), var(--gold-2), var(--line), var(--ink), var(--bg3), var(--brand), var(--brand-ink)); no new literal colors; 44px minimum touch targets; the form must fit inside .sp-page on a 390px screen; inputs use the app font stack.
+- No em dash character anywhere. No alert(). No placeholder wording.
+
+DELIVERABLE: numbered complete code blocks with file + exact anchor for each change. No explanation prose outside the blocks.

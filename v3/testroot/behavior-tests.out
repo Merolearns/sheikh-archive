@@ -1,0 +1,15 @@
+PASS chrome does not move on AR->EN :: [[".brand",1135,11],["#langSeg",84,13],["#nav",310,14],["#themeBtn",250,14]] vs [[".brand",1135,11],["#langSeg",84,13],["#nav",310,14],["#themeBtn",250,14]]
+PASS html stays dir=rtl, scroll kept :: {"dir":"rtl","y":900,"nav":5,"navText":"Home|Library|Where to Start|Saved|About"}
+PASS nav has exactly 5 items :: Home|Library|Where to Start|Saved|About
+PASS opening has exactly one control :: {"controls":1,"verse":"وَقُل رَّبِّ زِدْنِي عِلْمًا ۝١١٤","birds":4,"running":45}
+PASS opening is mid-sequence at 900ms (animations running) :: running=45
+PASS Enter mid-sequence enters the library :: {"hidden":true,"entered":"1"}
+PASS reduced motion: nothing running, verse and button visible :: {"running":0,"verseOpacity":"1","btnOpacity":"1"}
+PASS swatch switches theme live without reload :: rgb(10, 34, 25) -> {"theme":"parchment","bg":"rgb(247, 243, 234)","stored":"\"parchment\"","popOpen":true,"swatches":6}
+PASS tapping transcript line 2 jumps the video to 0:05 and highlights it :: {"t":6.329749,"now":["1"]}
+PASS 404 shows the human message with a closed Details disclosure :: {"text":"فيديو هذا الدرس غير موجود على هذا الجهاز.\n\nعُد إلى السلسلة\nالتفاصيل\nفقه الصيام س","hasDetails":true,"open":false,"codeInDetails":true,"codeOutside":0}
+PASS recitation: controls hidden, plain status, no audio src :: {"ctlHidden":true,"status":"لا توجد تلاوة مرفقة في هذه النسخة.","src":null}
+PASS v2 favorite (archive-favorites-v4) shows on Saved :: found=true
+PASS one Sort disclosure, default first, choice remembered after reload :: {"n":1,"selects":0,"checked":"order","opts":["order","new","old","long","short","az"],"pick":"new","afterReload":"new"}
+PASS offline: page renders, fonts load locally, zero external requests :: {"online":false,"cards":31,"font":6,"ext":0,"errs":[]}
+FAILURES: 0

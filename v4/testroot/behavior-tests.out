@@ -1,0 +1,38 @@
+PASS chrome does not move on AR->EN :: [[".brand",1135,11],["#langSeg",84,13],["#nav",310,14],["#themeBtn",250,14]] vs [[".brand",1135,11],["#langSeg",84,13],["#nav",310,14],["#themeBtn",250,14]]
+PASS html stays dir=rtl, scroll kept :: {"dir":"rtl","y":900,"nav":5,"navText":"Home|Library|Where to Start|Saved|About"}
+PASS nav has exactly 5 items :: Home|Library|Where to Start|Saved|About
+PASS opening has exactly one control :: {"controls":1,"verse":"وَقُل رَّبِّ زِدْنِي عِلْمًا ۝١١٤","birds":4,"running":45}
+PASS opening is mid-sequence at 900ms (animations running) :: running=45
+PASS Enter mid-sequence enters the library :: {"hidden":true,"entered":"1"}
+PASS reduced motion: nothing running, verse and button visible :: {"running":0,"verseOpacity":"1","btnOpacity":"1"}
+PASS swatch switches theme live without reload :: rgb(10, 34, 25) -> {"theme":"parchment","bg":"rgb(247, 243, 234)","stored":"\"parchment\"","popOpen":true,"swatches":6}
+PASS tapping transcript line 2 jumps the video to 0:05 and highlights it :: {"t":6.422116,"now":["1"]}
+PASS 404 shows the human message with a closed Details disclosure :: {"text":"فيديو هذا الدرس غير موجود على هذا الجهاز.\n\nعُد إلى السلسلة\nالتفاصيل\nفقه الصيام س","hasDetails":true,"open":false,"codeInDetails":true,"codeOutside":0}
+PASS recitation: controls shown, ready status, silent by default :: {"ctlHidden":false,"status":"تلاوة الآية جاهزة.","paused":true,"src":null}
+PASS v2 favorite (archive-favorites-v4) shows on Saved :: found=true
+PASS one Sort disclosure, default first, choice remembered after reload :: {"n":1,"selects":0,"checked":"order","opts":["order","new","old","long","short","az"],"pick":"new","afterReload":"new"}
+PASS offline: page renders, fonts load locally, zero external requests :: {"online":false,"cards":29,"font":5,"ext":0,"errs":[]}
+PASS Enter plays the recitation :: {"paused":false,"t":2.37,"src":"Preview/assets/recitation.mp3","dur":20.8}
+PASS lesson video starting stops the recitation :: {"rec":{"paused":true,"t":0,"src":"Preview/assets/recitation.mp3","dur":20.8},"vid":{"paused":false,"t":1.713774}}
+PASS pressing play on the recitation pauses the lesson video :: {"rec":{"paused":false,"t":0.84,"src":"Preview/assets/recitation.mp3","dur":20.8},"vidPaused":true}
+PASS recitation pause and mute controls work :: {"paused":true,"t":0.88,"src":"Preview/assets/recitation.mp3","dur":20.8,"muted":true}
+PASS skip (Escape) enters silently :: {"paused":true,"t":0,"src":null,"dur":0,"gone":true}
+PASS home has no Scholars section and no Bayoun rail card :: {"sch":0,"heading":false,"imadLink":false,"imadName":false}
+PASS Bayoun series reachable: Beliefs pillar, search (3 terms), direct URL with byline :: {"libraryPillar":true,"عماد":true,"Bayoun":true,"عقيدة":true,"url":{"h1":"Aqeeda by Dr Imad Bayoun","by":"الدكتور عماد بيون","eps":4}}
+PASS no wrong Arabic plural forms on 7 screens :: 0 bad lines
+PASS dual and 3-10 forms render (درسان / ٣-١٠ دروس) :: {"few":"٧ دروس","two":"درسان"}
+PASS Arabic durations use Arabic-Indic digits :: 24 chips, latin: 
+PASS no series but N lessons: one honest message, Show lessons primary, Browse second :: {"probe":"المسلمة-","h1":"نتائج البحث","empty":"لا توجد سلاسل مطابقة.\nعدد الدروس المطابقة لبحثك: ٧.\n\nاعرض الدروس المطابقة\nتصفح المكتبة","primary":"#/library?scope=all&q=%D8%A7%D9%84%D9%85%D8%B3%D9%84%D9%85%D8%A9-","btns":2,"zeroCount":false,"scopeLine":false,"framed":true}
+PASS true no-results: clear search plus quiet Browse the library :: {"text":"لا توجد نتائج مطابقة. جرّب كلمة أقصر.\n\nامسح البحث\nتصفح المكتبة","links":["امسح البحث","تصفح المكتبة"]}
+PASS 404: player hidden, khatam empty state with the notice :: {"err":true,"videoShown":false,"emblem":true,"msg":"فيديو هذا الدرس غير موجود على هذا الجهاز.\n\nعُد إلى السلسلة\nا"}
+PASS format: player hidden, khatam empty state with the notice :: {"err":true,"videoShown":false,"emblem":true,"msg":"لم يعمل هذا الفيديو هنا. جرّب برنامج VLC.\n\nافتحه في برنامج آ"}
+PASS mark as watched persists across reload and can be undone :: {"mw":{"pressed":"true","label":"شاهدتَه","stored":1},"mw2":{"pressed":"false","stored":0}}
+PASS home: staggered card entrances and a drawing divider :: {"rise":6,"drawing":2,"running":19}
+PASS golden thread: bar sits on the tapped line, line washes gold :: {"on":true,"y":"translateY(47px)","lineTop":47,"h":"43px","wash":"1"}
+PASS calm: no hidden pending elements, no finite animations running, dividers drawn :: {"pend":0,"running":0,"medalKh":true}
+PASS reduce: no hidden pending elements, no finite animations running, dividers drawn :: {"pend":0,"running":0,"medalKh":true}
+PASS missing folder: one calm banner on Library, hidden after Hide :: {"n":1,"text":"مقاطع الفيديو ليست على هذا الجهاز الآن\n\nيمكنك تصفح","role":null,"afterHide":0}
+PASS 40-day terminus shows when complete; Start again clears the ticks :: {"de":{"line":"أنهيت الأيام الأربعين. ابدأ من جديد أو اختر أي سلسلة.\nابدأ من جديد"},"de2":{"line":false,"stored":"{}","checked":0}}
+PASS 390px: five nav items fully visible :: [[317,376],[259,312],[175,255],[92,171],[14,88]]
+PASS 390px: theme picker and all swatches inside the screen :: {"l":12,"r":378,"swMin":27,"swMax":363}
+FAILURES: 0

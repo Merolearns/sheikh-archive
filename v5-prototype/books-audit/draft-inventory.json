@@ -1,0 +1,817 @@
+{
+ "inventory": [
+  {
+   "id": "book-01",
+   "title_ar": "الفرقة بين الزوجين",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 1057,
+   "format": "pdf",
+   "files": [
+    "______-___-_______-____________-____.pdf",
+    "______-___-_______-____________-____-2.pdf",
+    "______-___-_______-____________-____-3.pdf",
+    "______-___-_______-____________-____-4.pdf"
+   ],
+   "part": null,
+   "parts": [
+    {
+     "part": 1,
+     "file": "______-___-_______-____________-____.pdf",
+     "pages": 330
+    },
+    {
+     "part": 2,
+     "file": "______-___-_______-____________-____-2.pdf",
+     "pages": 230
+    },
+    {
+     "part": 3,
+     "file": "______-___-_______-____________-____-3.pdf",
+     "pages": 286
+    },
+    {
+     "part": 4,
+     "file": "______-___-_______-____________-____-4.pdf",
+     "pages": 211
+    }
+   ],
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "The Sheikh's PhD book (dissertation, Graduate Theological Foundation 2014-2015, supervisor Dr. Salah al-Sawi); one title with four ordered parts per design verdict D15"
+  },
+  {
+   "id": "book-02",
+   "title_ar": "إضاءات من سورة الفاتحة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 50,
+   "format": "pdf",
+   "files": [
+    "_______-__-____-_______-_____-______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-37",
+   "scan": false,
+   "notes": "Subtitle: خواطر العشاء; companion: English edition"
+  },
+  {
+   "id": "book-03",
+   "title_ar": "أنت تسأل والشيخ يجيب",
+   "title_en": "Anta Tasalu wa al-Shaikhu Yujib",
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 256,
+   "format": "pdf",
+   "files": [
+    "Part1_Interior_256pp.pdf"
+   ],
+   "part": 1,
+   "parts": null,
+   "cover_file": "anta-v1-front.jpg",
+   "companion": null,
+   "scan": false,
+   "notes": "Vol 1; 405 questions, 15 chapters; compiled by Amr Mahmoud (cover credit جمع وإعداد: م. عمرو محمود); cover Part1_Cover_Wraparound.pdf"
+  },
+  {
+   "id": "book-04",
+   "title_ar": "أنت تسأل والشيخ يجيب",
+   "title_en": "Anta Tasalu wa al-Shaikhu Yujib",
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 204,
+   "format": "pdf",
+   "files": [
+    "Part2_Interior_204pp.pdf"
+   ],
+   "part": 2,
+   "parts": null,
+   "cover_file": "anta-v2-front.jpg",
+   "companion": null,
+   "scan": false,
+   "notes": "Vol 2; 303 questions, 15 chapters; compiled by Amr Mahmoud; cover Part2_Cover_Wraparound.pdf"
+  },
+  {
+   "id": "book-05",
+   "title_ar": "خطب الأخلاق",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 99,
+   "format": "pdf",
+   "files": [
+    "___-________-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-06",
+   "title_ar": "خطب الأسرة والتربية",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 32,
+   "format": "pdf",
+   "files": [
+    "___-_______-________-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-07",
+   "title_ar": "خطب الأنبياء",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 32,
+   "format": "pdf",
+   "files": [
+    "___-_________-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-08",
+   "title_ar": "خطب أول العام",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 25,
+   "format": "pdf",
+   "files": [
+    "___-____-_____-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-09",
+   "title_ar": "خطب الإيمان",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 73,
+   "format": "pdf",
+   "files": [
+    "___-________-____-2.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-10",
+   "title_ar": "خطب تزكية النفوس",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 62,
+   "format": "pdf",
+   "files": [
+    "___-_____-______-____-2.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-11",
+   "title_ar": "خطب الحج",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 39,
+   "format": "pdf",
+   "files": [
+    "___-____-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-12",
+   "title_ar": "خطب الحديث القدسي",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 6,
+   "format": "pdf",
+   "files": [
+    "___-______-______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-13",
+   "title_ar": "خطب الدعوة والإصلاح",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 21,
+   "format": "pdf",
+   "files": [
+    "___-______-_________-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-14",
+   "title_ar": "خطب رجب",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 10,
+   "format": "pdf",
+   "files": [
+    "___-___-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-15",
+   "title_ar": "خطب رمضان",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 88,
+   "format": "pdf",
+   "files": [
+    "___-_____-____-2.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-16",
+   "title_ar": "خطب سبعة يظلهم الله",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 18,
+   "format": "pdf",
+   "files": [
+    "___-____-_____-____-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-17",
+   "title_ar": "خطب السيرة النبوية",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 68,
+   "format": "pdf",
+   "files": [
+    "___-______-_______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-18",
+   "title_ar": "خطب شعبان",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 35,
+   "format": "pdf",
+   "files": [
+    "___-_____-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-19",
+   "title_ar": "خطب الصحابة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 17,
+   "format": "pdf",
+   "files": [
+    "___-_______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-20",
+   "title_ar": "خطب العبادات",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 36,
+   "format": "pdf",
+   "files": [
+    "___-________-____-3.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-21",
+   "title_ar": "خطب قضايا الأمة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 119,
+   "format": "pdf",
+   "files": [
+    "___-_____-______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-22",
+   "title_ar": "خطب المجتمع والمسلم في الغرب",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 58,
+   "format": "pdf",
+   "files": [
+    "___-_______-_______-__-_____-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-23",
+   "title_ar": "خطب الموت والآخرة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 56,
+   "format": "pdf",
+   "files": [
+    "___-_____-________-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-24",
+   "title_ar": "خطب الهجرة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 24,
+   "format": "pdf",
+   "files": [
+    "___-______-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Khutba collection"
+  },
+  {
+   "id": "book-25",
+   "title_ar": "دروس أصول الفقه للمبتدئين",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 25,
+   "format": "pdf",
+   "files": [
+    "usul-al-fiqh-lessons-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": null
+  },
+  {
+   "id": "book-26",
+   "title_ar": "دروس مؤتمر MAS LA",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 43,
+   "format": "pdf",
+   "files": [
+    "mas-la-introductions-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Lessons printed: العزم والتوكل، قيادة تلهم، الهجرة"
+  },
+  {
+   "id": "book-27",
+   "title_ar": "دروس من كتاب الفضيلة",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 26,
+   "format": "pdf",
+   "files": [
+    "al-fadila-lessons-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "The Sheikh's lessons ON al-Manfaluti's book الفضيلة; do not present the book itself as the Sheikh's own work"
+  },
+  {
+   "id": "book-28",
+   "title_ar": "فقه الزواج الميسر",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 350,
+   "format": "pdf",
+   "files": [
+    "___-______-______-____-2.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Subtitle printed: نحو أسرة مسلمة سعيدة"
+  },
+  {
+   "id": "book-29",
+   "title_ar": "قصص الأنبياء",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 369,
+   "format": "pdf",
+   "files": [
+    "prophets-stories-complete-book-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Subtitle printed: الكتاب الكامل"
+  },
+  {
+   "id": "book-30",
+   "title_ar": "قصة موسى عليه السلام",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 108,
+   "format": "pdf",
+   "files": [
+    "moses-story-book-____.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": null
+  },
+  {
+   "id": "book-31",
+   "title_ar": "مسائل في مشكلات الحياة الزوجية",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 32,
+   "format": "docx",
+   "files": [
+    "_______________________________.docx"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Distinct work; 32 pp verified by LibreOffice render; sent by the Sheikh Nov 7"
+  },
+  {
+   "id": "book-32",
+   "title_ar": "من فضائل القرآن الكريم",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 5,
+   "format": "pdf",
+   "files": [
+    "____________________________________________________.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Short booklet (5 pp); Friday Nov 13 khutba text: الثقة، الاستقامة، نبذ الباطل"
+  },
+  {
+   "id": "book-33",
+   "title_ar": "وقفات من السيرة النبوية",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 92,
+   "format": "pdf",
+   "files": [
+    "_____-__-______-_______-_____-______-____.pdf"
+   ],
+   "part": 1,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-35",
+   "scan": false,
+   "notes": "Part 1 of 2 (Arabic), 92 pp"
+  },
+  {
+   "id": "book-34",
+   "title_ar": "وقفات من السيرة النبوية",
+   "title_en": null,
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "ar",
+   "pages": 55,
+   "format": "pdf",
+   "files": [
+    "_____-__-______-_______-_____-______-____-2.pdf"
+   ],
+   "part": 2,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-36",
+   "scan": false,
+   "notes": "Part 2 of 2 (Arabic), 55 pp"
+  },
+  {
+   "id": "book-35",
+   "title_ar": "وقفات من السيرة النبوية",
+   "title_en": "Educational Reflections on the Seerah",
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "en",
+   "pages": 124,
+   "format": "pdf",
+   "files": [
+    "educational-reflections-on-the-seerah-part-one.pdf"
+   ],
+   "part": 1,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-33",
+   "scan": false,
+   "notes": "Part 1 of 2 (English); Arabic title from the parallel Arabic edition"
+  },
+  {
+   "id": "book-36",
+   "title_ar": "وقفات من السيرة النبوية",
+   "title_en": "Educational Reflections on the Seerah",
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "en",
+   "pages": 76,
+   "format": "pdf",
+   "files": [
+    "educational-reflections-on-the-seerah-part-two.pdf"
+   ],
+   "part": 2,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-34",
+   "scan": false,
+   "notes": "Part 2 of 2 (English)"
+  },
+  {
+   "id": "book-37",
+   "title_ar": "إضاءات من سورة الفاتحة",
+   "title_en": "Illuminations from Surah al-Fatiha (Dinner Reflections)",
+   "author_ar": "د. مصطفى سليمان كامل",
+   "author_en": "Dr. Moustafa Suleiman Kamel",
+   "language": "en",
+   "pages": 67,
+   "format": "pdf",
+   "files": [
+    "illuminations-from-surah-al-fatiha-dinner-reflections.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": "book-02",
+   "scan": false,
+   "notes": "English companion of the Arabic Fatiha book"
+  },
+  {
+   "id": "book-38",
+   "title_ar": null,
+   "title_en": "Proud To Be Muslims",
+   "author_ar": null,
+   "author_en": null,
+   "language": "en",
+   "pages": 10,
+   "format": "pdf",
+   "files": [
+    "_16-_Series_of_-Proud_To_Be_Muslims-.pdf"
+   ],
+   "part": null,
+   "parts": null,
+   "cover_file": null,
+   "companion": null,
+   "scan": false,
+   "notes": "Series #16; title from filename; author NOT stated in the file — confirm authorship before crediting"
+  }
+ ],
+ "review": [
+  {
+   "group": "kahf",
+   "issue": "duplicate",
+   "rule": "normalized title match — three successive versions of one work",
+   "files": [
+    "kahf-khutbas-____-3.pdf",
+    "kahf-khutbas-____-2.pdf",
+    "kahf-khutbas-____.pdf"
+   ],
+   "matches": "إضاءات من سورة الكهف — الجزء الأول, 126 pp (Nov 16) / 135 pp (Nov 18) / 138 pp (Nov 19)",
+   "recommendation": "Owner keeps ONE version (likely the latest 138 pp, Nov 19); list it once decided"
+  },
+  {
+   "group": "infidelity",
+   "issue": "duplicate",
+   "rule": "normalized title match — two versions of one work",
+   "files": [
+    "-_____.pdf",
+    "_______-_______-____-_______-____-____.pdf"
+   ],
+   "matches": "الخيانة الزوجية وسبل التعامل معها, 16 pp (Nov 7) vs 17 pp (Nov 17)",
+   "recommendation": "Owner keeps ONE version (likely the later 17 pp, Nov 17); list it once decided"
+  },
+  {
+   "group": "phd-docx",
+   "issue": "duplicate",
+   "rule": "same work, different format — source manuscript of the PhD book",
+   "files": [
+    "______________________________________________.docx"
+   ],
+   "matches": "PhD book الفرقة بين الزوجين (4 parts, 1,057 pp total)",
+   "recommendation": "Attach as the source-manuscript format of the PhD entry, not a separate book"
+  },
+  {
+   "group": "newsletters",
+   "issue": "not-sheikh-authored",
+   "rule": "authorship — the owner's own Noor Sprouts newsletter project",
+   "files": [
+    "Noor-Sprouts-Newsletter-01-EN.pdf",
+    "Noor-Sprouts-Newsletter-02-EN.pdf",
+    "_______-________-02-_______-____-_____.pdf"
+   ],
+   "matches": "—",
+   "recommendation": "Exclude from the Sheikh's Books list; owner decides whether to list elsewhere and under what credit"
+  }
+ ],
+ "cover_assets": [
+  {
+   "file": "Part1_Cover_Wraparound.pdf",
+   "for_book": "anta-v1",
+   "front_jpg": "anta-v1-front.jpg"
+  },
+  {
+   "file": "Part2_Cover_Wraparound.pdf",
+   "for_book": "anta-v2",
+   "front_jpg": "anta-v2-front.jpg"
+  }
+ ],
+ "counts": {
+  "files_total": 52,
+  "listed": 38,
+  "review_groups": 4,
+  "review_files": 9,
+  "cover_assets": 2
+ },
+ "unaccounted_files": []
+}

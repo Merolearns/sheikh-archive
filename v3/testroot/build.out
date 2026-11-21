@@ -1,0 +1,22 @@
+catalog byte-identical to v2 in archive.html and catalog.js (version 3c30b87ae0c1): 3977 media entries, 71 playlists, 4320 memberships
+curation resolves: 71 playlists mapped, 40 days, 3 first lessons, all IDs in the catalog
+shell: no em dash, no external URL, no placeholder language (both flavors)
+launchers and server byte-identical to v2
+node --check app.js OK
+  Preview/archive-hosted.html  180760 bytes
+  Preview/archive.html  6803699 bytes
+  Preview/archive_server.py  5979 bytes
+  Preview/assets/fonts/amiri-400.woff2  108560 bytes
+  Preview/assets/fonts/amiri-700.woff2  99968 bytes
+  Preview/assets/fonts/amiri-quran-400.woff2  45680 bytes
+  Preview/assets/fonts/noto-sans-arabic-400.woff2  48840 bytes
+  Preview/assets/fonts/noto-sans-arabic-500.woff2  53120 bytes
+  Preview/assets/fonts/noto-sans-arabic-700.woff2  50228 bytes
+  Preview/assets/fonts/reem-kufi-400.woff2  8948 bytes
+  Preview/assets/img/girih.svg  11179 bytes
+  Preview/assets/img/ornament.svg  485 bytes
+  Preview/assets/img/sunset.svg  6544 bytes
+  Preview/catalog.js  6623117 bytes
+  Preview/docs/server-contract.md  4855 bytes
+  Start Archive - Windows.bat  1010 bytes
+  Start_Archive_-_macOS.command  703 bytes

@@ -1,0 +1,501 @@
+[
+ {
+  "name": "_______-_______-____-_______-____-____.pdf",
+  "sha256": "4f2f2c85b10ecc068efabb93386f3d722c2f48afe2c7800a7b3b0b8417eb47e3",
+  "status": "saved",
+  "origin": "browser-download-20261120T233521.257902796Z-0-_______-_______-____-_______-____-____.pdf",
+  "bytes": 157375
+ },
+ {
+  "name": "______________________________________________.docx",
+  "sha256": "bc4158cce27c134a7dde4dfa319e60d66e17d84a2db39e8c080b16b0bf283a47",
+  "status": "saved",
+  "origin": "browser-download-20261120T234201.818076046Z-1-______________________________________________.docx",
+  "bytes": 1768577
+ },
+ {
+  "name": "_______________________________.docx",
+  "sha256": "d1d58a79737b3fb8dd2a43ab0b2d7e4965bbe5d9eaef4fe13f89769bee76c55a",
+  "status": "saved",
+  "origin": "browser-download-20261120T234256.784270680Z-2-_______________________________.docx",
+  "bytes": 137565
+ },
+ {
+  "name": "-_____.pdf",
+  "sha256": "f4af981d8508116217ef3387ada8134c9677e27450aa3f713d63108454ce0941",
+  "status": "saved",
+  "origin": "browser-download-20261120T234310.824400239Z-3--_____.pdf",
+  "bytes": 310100
+ },
+ {
+  "name": "Noor-Sprouts-Newsletter-01-EN.pdf",
+  "sha256": "f77159c936a397ac0b9471644b6fdd1aa9d9850767e9b3a7d2218a1b23c53b95",
+  "status": "saved",
+  "origin": "browser-download-20261120T234530.029922731Z-4-Noor-Sprouts-Newsletter-01-EN.pdf",
+  "bytes": 1788969
+ },
+ {
+  "name": "illuminations-from-surah-al-fatiha-dinner-reflections.pdf",
+  "sha256": "e09cfe7393fc64ae22fdaacd740290afc49bdb58e4ece2a156ef6a0d3cee9fd4",
+  "status": "saved",
+  "origin": "browser-download-20261120T234704.445595866Z-5-illuminations-from-surah-al-fatiha-dinner-reflections.pdf",
+  "bytes": 339202
+ },
+ {
+  "name": "_______-__-____-_______-_____-______-____.pdf",
+  "sha256": "14ea18d6bb004122d2eb4500c9130b0d4a4296181311e8b40d79ef985fda1f5c",
+  "status": "saved",
+  "origin": "browser-download-20261120T234730.120464080Z-6-_______-__-____-_______-_____-______-____.pdf",
+  "bytes": 316194
+ },
+ {
+  "name": "kahf-khutbas-____.pdf",
+  "sha256": "2c01de4be66636e9a8eda1b8bff222c15bca2d5df3d95e6de670e2f191bb9e8b",
+  "status": "saved",
+  "origin": "browser-download-20261120T234744.259368143Z-7-kahf-khutbas-____.pdf",
+  "bytes": 2299448
+ },
+ {
+  "name": "_____-__-______-_______-_____-______-____.pdf",
+  "sha256": "d9f716791ac9f62fc3784ac5c3c682400c66c441a4d1a9f54ce65b339acc5199",
+  "status": "saved",
+  "origin": "browser-download-20261120T234821.451069707Z-8-_____-__-______-_______-_____-______-____.pdf",
+  "bytes": 1198845
+ },
+ {
+  "name": "educational-reflections-on-the-seerah-part-one.pdf",
+  "sha256": "05ce1014321720ae76f36c841ad781b5e456453c2a50af8d29e6baf5589ee746",
+  "status": "saved",
+  "origin": "browser-download-20261120T234835.245909976Z-9-educational-reflections-on-the-seerah-part-one.pdf",
+  "bytes": 1130592
+ },
+ {
+  "name": "_____-__-______-_______-_____-______-____-2.pdf",
+  "sha256": "256be14c50d347f2eca13744bed593e2c4f47218b432e8d3f7cdb71688e5c557",
+  "status": "saved",
+  "origin": "browser-download-20261120T234857.237560518Z-10-_____-__-______-_______-_____-______-____.pdf",
+  "bytes": 806141
+ },
+ {
+  "name": "educational-reflections-on-the-seerah-part-two.pdf",
+  "sha256": "80d7addbbfe4185b8ae310a4913b34a2faca1cbe5aa490d055b4c70350327ba1",
+  "status": "saved",
+  "origin": "browser-download-20261120T234911.270239101Z-11-educational-reflections-on-the-seerah-part-two.pdf",
+  "bytes": 773981
+ },
+ {
+  "name": "kahf-khutbas-____-2.pdf",
+  "sha256": "fa9969ea2ab6b10806edc1e8944b4ee9e2dece96741c52a69d945c589a1516dd",
+  "status": "saved",
+  "origin": "browser-download-20261120T234935.503679186Z-12-kahf-khutbas-____.pdf",
+  "bytes": 2285275
+ },
+ {
+  "name": "___-_______-____.pdf",
+  "sha256": "29af974a89f69f8b920ee09fbf95047fccec195180b935d9f485d4c9b7dfbf10",
+  "status": "saved",
+  "origin": "browser-download-20261120T234956.095342105Z-13-___-_______-____.pdf",
+  "bytes": 190904
+ },
+ {
+  "name": "___-_______-____.pdf",
+  "sha256": "29af974a89f69f8b920ee09fbf95047fccec195180b935d9f485d4c9b7dfbf10",
+  "status": "DUPLICATE of ___-_______-____.pdf",
+  "origin": "browser-download-20261120T235004.969182943Z-14-___-_______-____.pdf"
+ },
+ {
+  "name": "___-_____-______-____.pdf",
+  "sha256": "e42994cf7bcf80265f9681b459fd9f7f177063a50f44d41c913ccc39c8d8f7f1",
+  "status": "saved",
+  "origin": "browser-download-20261120T235018.275170994Z-15-___-_____-______-____.pdf",
+  "bytes": 1168130
+ },
+ {
+  "name": "___-______-_________-____.pdf",
+  "sha256": "9110d963ff1ddfa492cbff2e44b1fdfdb9ba303fec215e27c865114a3321835f",
+  "status": "saved",
+  "origin": "browser-download-20261120T235029.804574196Z-16-___-______-_________-____.pdf",
+  "bytes": 220634
+ },
+ {
+  "name": "___-______-_________-____.pdf",
+  "sha256": "9110d963ff1ddfa492cbff2e44b1fdfdb9ba303fec215e27c865114a3321835f",
+  "status": "DUPLICATE of ___-______-_________-____.pdf",
+  "origin": "browser-download-20261120T235038.871142912Z-17-___-______-_________-____.pdf"
+ },
+ {
+  "name": "___-______-______-____.pdf",
+  "sha256": "0af40910f22dca4a2b75d4e1639472ff848a3442461c6a5b4c6b54eec2dfa908",
+  "status": "saved",
+  "origin": "browser-download-20261120T235055.390647109Z-18-___-______-______-____.pdf",
+  "bytes": 83696
+ },
+ {
+  "name": "___-_____-______-____-2.pdf",
+  "sha256": "a48e9a1770e2d87e1ef19332a78d5613cfcabdc37049fb808c15e26a95d282dd",
+  "status": "saved",
+  "origin": "browser-download-20261120T235124.216251737Z-19-___-_____-______-____.pdf",
+  "bytes": 625459
+ },
+ {
+  "name": "___-_______-________-____.pdf",
+  "sha256": "461b32e887bb4d1b3061dff38256125c3a4d6a18b3e8e695b3b822fa3aa6fddb",
+  "status": "saved",
+  "origin": "browser-download-20261120T235136.182384694Z-20-___-_______-________-____.pdf",
+  "bytes": 314150
+ },
+ {
+  "name": "___-_______-_______-__-_____-____.pdf",
+  "sha256": "f470d4b1a4cb6327c1c2403cca52746c26ee9d7fe39cc067953a1264e4d91a1f",
+  "status": "saved",
+  "origin": "browser-download-20261120T235150.697975216Z-21-___-_______-_______-__-_____-____.pdf",
+  "bytes": 547938
+ },
+ {
+  "name": "___-______-_______-____.pdf",
+  "sha256": "a9a30b024f2b114f378176270fccd51039971e9f9b3a95b36a542f26b66a97b1",
+  "status": "saved",
+  "origin": "browser-download-20261120T235201.937673025Z-22-___-______-_______-____.pdf",
+  "bytes": 653382
+ },
+ {
+  "name": "___-______-____.pdf",
+  "sha256": "dec697dc6700e95cb676e7a259f635bc7fa1f6a9f031fd1df8599d0f2feeeb17",
+  "status": "saved",
+  "origin": "browser-download-20261120T235212.994428807Z-23-___-______-____.pdf",
+  "bytes": 255093
+ },
+ {
+  "name": "___-_________-____.pdf",
+  "sha256": "4b477fbc22741cdb3cfe3d923aade40c09cbde9152ad934c5888fc31b7db3092",
+  "status": "saved",
+  "origin": "browser-download-20261120T235223.319352028Z-24-___-_________-____.pdf",
+  "bytes": 345673
+ },
+ {
+  "name": "___-________-____.pdf",
+  "sha256": "2f0a09eefa9e5011de63576758480305e23e7cb858af11672442523ac0bf2c1b",
+  "status": "saved",
+  "origin": "browser-download-20261120T235246.977586291Z-25-___-________-____.pdf",
+  "bytes": 931705
+ },
+ {
+  "name": "___-____-_____-____-____.pdf",
+  "sha256": "4aea3e7c251d3367bbe195a0f6e9c02f32d75248c628fccbc0097fe8a497a4e7",
+  "status": "saved",
+  "origin": "browser-download-20261120T235256.578200915Z-26-___-____-_____-____-____.pdf",
+  "bytes": 214783
+ },
+ {
+  "name": "___-_____-________-____.pdf",
+  "sha256": "d5d2ad244fab11450b82512e58e2252c0b6389277ce4b6513d0f071686ba2a99",
+  "status": "saved",
+  "origin": "browser-download-20261120T235308.631387589Z-27-___-_____-________-____.pdf",
+  "bytes": 522703
+ },
+ {
+  "name": "___-________-____-2.pdf",
+  "sha256": "159acf94fbb9a9ead22018f33dc05a1cb7b49fec0386d9e8781df57e5a56144c",
+  "status": "saved",
+  "origin": "browser-download-20261120T235320.322087480Z-28-___-________-____.pdf",
+  "bytes": 694182
+ },
+ {
+  "name": "___-________-____-3.pdf",
+  "sha256": "9d4b8e4a51be766e5d1220c21c8e15dcd7eff23f11f81a40896eafb77f6b92eb",
+  "status": "saved",
+  "origin": "browser-download-20261120T235331.498573617Z-29-___-________-____.pdf",
+  "bytes": 476147
+ },
+ {
+  "name": "___-____-____.pdf",
+  "sha256": "11d8800395264ee1eda5fabf69d57b6ff98f66c22f4c56ac3894d107e7b5beef",
+  "status": "saved",
+  "origin": "browser-download-20261120T235341.494471883Z-30-___-____-____.pdf",
+  "bytes": 407897
+ },
+ {
+  "name": "___-____-_____-____.pdf",
+  "sha256": "6712c5c6226faacb588d4953b0c30f642158a04d8e09cf145edb245e76de326f",
+  "status": "saved",
+  "origin": "browser-download-20261120T235354.008213671Z-31-___-____-_____-____.pdf",
+  "bytes": 254012
+ },
+ {
+  "name": "___-___-____.pdf",
+  "sha256": "276f914ea15e91fffec01a4137b95fadbe9029f8f1907d366082ba4f0b661466",
+  "status": "saved",
+  "origin": "browser-download-20261120T235404.882481930Z-32-___-___-____.pdf",
+  "bytes": 123165
+ },
+ {
+  "name": "___-_____-____.pdf",
+  "sha256": "347b5f72cf0166769e6a695436a67c6588619ecd26ead25d4f434bf0d09face1",
+  "status": "saved",
+  "origin": "browser-download-20261120T235415.186221227Z-33-___-_____-____.pdf",
+  "bytes": 331020
+ },
+ {
+  "name": "___-_____-____-2.pdf",
+  "sha256": "847e08d1f62a8f8a92e39f1c54e5c7f23b363085db9232be44bb2fbfcddc1c44",
+  "status": "saved",
+  "origin": "browser-download-20261120T235440.510759430Z-34-___-_____-____.pdf",
+  "bytes": 852869
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-17_at_12.47.36_PM.jpeg",
+  "sha256": "97aeef6e3eee2c932c48a5ad9fee5162a1c4d2d623885ac4463762911b93f91d",
+  "status": "saved",
+  "origin": "browser-download-20261120T235451.239963890Z-35-WhatsApp_Image_2026-11-17_at_12.47.36_PM.jpeg",
+  "bytes": 230885
+ },
+ {
+  "name": "al-fadila-lessons-____.pdf",
+  "sha256": "bc8eb0e0e74c4ddb8b1dbe559cace26c41eb203b424f40a867f1c14e33ead484",
+  "status": "saved",
+  "origin": "browser-download-20261120T235521.521339750Z-36-al-fadila-lessons-____.pdf",
+  "bytes": 826885
+ },
+ {
+  "name": "usul-al-fiqh-lessons-____.pdf",
+  "sha256": "947c96eccf1154a1cff142c246ce30526e8ad0063e76fd8743c6e7d155c63063",
+  "status": "saved",
+  "origin": "browser-download-20261120T235532.981874918Z-37-usul-al-fiqh-lessons-____.pdf",
+  "bytes": 294842
+ },
+ {
+  "name": "mas-la-introductions-____.pdf",
+  "sha256": "02a73a6d746fe5fb1427ab7f52aac70f3e4b6c82bc097a4235624f9f549fc925",
+  "status": "saved",
+  "origin": "browser-download-20261120T235544.346447044Z-38-mas-la-introductions-____.pdf",
+  "bytes": 195980
+ },
+ {
+  "name": "moses-story-book-____.pdf",
+  "sha256": "f5d7de386ebfb0f6b7951a01909256e40651eaa9773891de9abb74d8ca148384",
+  "status": "saved",
+  "origin": "browser-download-20261120T235557.519082038Z-39-moses-story-book-____.pdf",
+  "bytes": 363732
+ },
+ {
+  "name": "kahf-khutbas-____-3.pdf",
+  "sha256": "9d6312ca8de1e6966746f68f74f328d5b7f4ca66be37b87170385e692908fcdd",
+  "status": "saved",
+  "origin": "browser-download-20261120T235625.062193471Z-40-kahf-khutbas-____.pdf",
+  "bytes": 2194209
+ },
+ {
+  "name": "prophets-stories-complete-book-____.pdf",
+  "sha256": "330af33dd592c36ccb136b23c884f644a3946822889ad040d3ef70fd9df01989",
+  "status": "saved",
+  "origin": "browser-download-20261120T235639.326277890Z-41-prophets-stories-complete-book-____.pdf",
+  "bytes": 1208574
+ },
+ {
+  "name": "______-___-_______-____________-____.pdf",
+  "sha256": "09a40591d5f74b38bea1d39d6f449e1dbc6e35da6a970d65c00f8cba8e1c6a08",
+  "status": "saved",
+  "origin": "browser-download-20261120T235652.956168806Z-42-______-___-_______-____________-____.pdf",
+  "bytes": 3400402
+ },
+ {
+  "name": "______-___-_______-____________-____-2.pdf",
+  "sha256": "bf8b2f91dd8adcefb75cf9d963cda63b60f336393ef0844882b10ae6606c03c6",
+  "status": "saved",
+  "origin": "browser-download-20261120T235708.091602307Z-43-______-___-_______-____________-____.pdf",
+  "bytes": 2740594
+ },
+ {
+  "name": "______-___-_______-____________-____-3.pdf",
+  "sha256": "4195c3e10cca6b183704eda5d60eebb8ace91bb5d6ecfac3d575bec4f3d8140e",
+  "status": "saved",
+  "origin": "browser-download-20261120T235720.786827492Z-44-______-___-_______-____________-____.pdf",
+  "bytes": 2707690
+ },
+ {
+  "name": "______-___-_______-____________-____-4.pdf",
+  "sha256": "b2ceca51f66d0c372f70cfd460a85a9e74585b30e3fc4a49323ea0c8482d8e82",
+  "status": "saved",
+  "origin": "browser-download-20261120T235735.845778898Z-45-______-___-_______-____________-____.pdf",
+  "bytes": 2249804
+ },
+ {
+  "name": "___-______-______-____-2.pdf",
+  "sha256": "9dfca5d6fbcd51cdeaf3c928137df5f9332a1b5917fa101f9ec1707dd099b114",
+  "status": "saved",
+  "origin": "browser-download-20261120T235749.248066586Z-46-___-______-______-____.pdf",
+  "bytes": 1672869
+ },
+ {
+  "name": "_16-_Series_of_-Proud_To_Be_Muslims-.pdf",
+  "sha256": "0368432108c326a1f8375c7efe9903fc7fd57b456f372fde3a2cf894e20b28d1",
+  "status": "saved",
+  "origin": "browser-download-20261120T235819.335387636Z-47-_16-_Series_of_-Proud_To_Be_Muslims-.pdf",
+  "bytes": 2707134
+ },
+ {
+  "name": "____________________________________________________.pdf",
+  "sha256": "d7efb2b21dd8b0e5ff31d919f9c86ce28b002154a228ed73e212caf75bd00b0e",
+  "status": "saved",
+  "origin": "browser-download-20261120T235941.159145929Z-48-____________________________________________________.pdf",
+  "bytes": 235195
+ },
+ {
+  "name": "_______-________-02-_______-____-_____.pdf",
+  "sha256": "3e1d3e59dc5ba97a3bf41619c3520dded0291208a57137a4422b2fbcab3920c6",
+  "status": "saved",
+  "origin": "browser-download-20261121T000014.088042529Z-49-_______-________-02-_______-____-_____.pdf",
+  "bytes": 1713840
+ },
+ {
+  "name": "Noor-Sprouts-Newsletter-02-EN.pdf",
+  "sha256": "bab99aa46958e97675c2e4d47435405dceb94339b42b089862e1a62a3aa1fab4",
+  "status": "saved",
+  "origin": "browser-download-20261121T000030.048292662Z-50-Noor-Sprouts-Newsletter-02-EN.pdf",
+  "bytes": 1727427
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_6.49.41_PM.jpeg",
+  "sha256": "a894826d0f986f1dcb84a1a99d4cbbb810476182d6a0d9fcc9992abf38c7a56d",
+  "status": "saved",
+  "origin": "browser-download-20261121T000156.794675446Z-51-WhatsApp_Image_2026-11-18_at_6.49.41_PM.jpeg",
+  "bytes": 93802
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_6.49.41_PM-2.jpeg",
+  "sha256": "e13b75d8dbfed3b7b606d4cc04af1db1ea3d0869d1c2b87564357d30136e9f77",
+  "status": "saved",
+  "origin": "browser-download-20261121T000239.945291303Z-54-WhatsApp_Image_2026-11-18_at_6.49.41_PM.jpeg",
+  "bytes": 90478
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_7.41.05_PM.jpeg",
+  "sha256": "9eaaea7351c49bc0cbdfba8399cbdc071c8d247c72c3f05e9fdcbc7a5586f51b",
+  "status": "saved",
+  "origin": "browser-download-20261121T000303.553331939Z-55-WhatsApp_Image_2026-11-18_at_7.41.05_PM.jpeg",
+  "bytes": 40620
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_8.08.56_PM.jpeg",
+  "sha256": "6b52075e2c94890c4099f35dbdf1a3b613d273c9e8ad50b250c4a368bfdd2009",
+  "status": "saved",
+  "origin": "browser-download-20261121T000320.403821434Z-56-WhatsApp_Image_2026-11-18_at_8.08.56_PM.jpeg",
+  "bytes": 63408
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_8.08.56_PM-2.jpeg",
+  "sha256": "57e69f8414e41da6fbc0b63516602142c1fbbffcf544df319707a99c013dba88",
+  "status": "saved",
+  "origin": "browser-download-20261121T000337.485018757Z-57-WhatsApp_Image_2026-11-18_at_8.08.56_PM.jpeg",
+  "bytes": 93121
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_8.08.57_PM.jpeg",
+  "sha256": "a6fea5be54327b808eedebc14ffa7c04a3f85207b31cb482ea81d050b4243e5f",
+  "status": "saved",
+  "origin": "browser-download-20261121T000348.739739Z-58-WhatsApp_Image_2026-11-18_at_8.08.57_PM.jpeg",
+  "bytes": 58308
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_8.08.57_PM-2.jpeg",
+  "sha256": "df202e557c7cf2a0e0768fa4d906ea0fbe59a48638327ae4f5de0774a753366a",
+  "status": "saved",
+  "origin": "browser-download-20261121T000402.491935817Z-59-WhatsApp_Image_2026-11-18_at_8.08.57_PM.jpeg",
+  "bytes": 54303
+ },
+ {
+  "name": "WhatsApp_Image_2026-11-18_at_6.49.41_PM-3.jpeg",
+  "sha256": "7e2589a4251414cdf71edec05bed4f14d9fe671d9eb5faa4dd2e61bc571f66c7",
+  "status": "saved",
+  "origin": "browser-download-20261121T000452.478632384Z-60-WhatsApp_Image_2026-11-18_at_6.49.41_PM.jpeg",
+  "bytes": 70716
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-19_at_6.47.18_PM.ogg",
+  "sha256": "5423bcf5aa6b60a8dbe6c276aca8329f8851b8e386f5ae5fc262acd4d1c44d5e",
+  "status": "saved",
+  "origin": "browser-download-20261121T000624.069711713Z-61-WhatsApp_Ptt_2026-11-19_at_6.47.18_PM.ogg",
+  "bytes": 44984
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-20_at_1.00.19_AM.ogg",
+  "sha256": "19b4ac2c52b1fa75ff6c869c66f7c15a628307774b82cde9ee530763f4ce2c4e",
+  "status": "saved",
+  "origin": "browser-download-20261121T000635.738666658Z-62-WhatsApp_Ptt_2026-11-20_at_1.00.19_AM.ogg",
+  "bytes": 55993
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-20_at_1.01.06_AM.ogg",
+  "sha256": "5ae76372cdd37cd34b19737ef96bcae78e3e42d7752e4d024f58419f069c338d",
+  "status": "saved",
+  "origin": "browser-download-20261121T000643.750410054Z-63-WhatsApp_Ptt_2026-11-20_at_1.01.06_AM.ogg",
+  "bytes": 77524
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-18_at_3.17.14_PM.ogg",
+  "sha256": "a1206c584eb6b242e18cee4eae476b03ee256249a85f33390cc3618ce5493416",
+  "status": "saved",
+  "origin": "browser-download-20261121T000701.328253797Z-64-WhatsApp_Ptt_2026-11-18_at_3.17.14_PM.ogg",
+  "bytes": 4931
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-18_at_3.11.08_PM.ogg",
+  "sha256": "61bd69e3b233b702356ec54eb00cfde7719949496b16f5fc3d232077c6617422",
+  "status": "saved",
+  "origin": "browser-download-20261121T000713.072183584Z-65-WhatsApp_Ptt_2026-11-18_at_3.11.08_PM.ogg",
+  "bytes": 24913
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-18_at_3.14.15_PM.ogg",
+  "sha256": "8659ddadcb80e8bef86ad2c813b8e31decfd3dc2700c26aa42fc01cb50c6b1fa",
+  "status": "saved",
+  "origin": "browser-download-20261121T000723.532133665Z-66-WhatsApp_Ptt_2026-11-18_at_3.14.15_PM.ogg",
+  "bytes": 70834
+ },
+ {
+  "name": "WhatsApp_Ptt_2026-11-18_at_5.48.44_PM.ogg",
+  "sha256": "c617cd242686ad2f7c6ab64f4fffd91d3c9de46f5eb0e7bb3c771f46d6d28e2d",
+  "status": "saved",
+  "origin": "browser-download-20261121T000734.067953010Z-67-WhatsApp_Ptt_2026-11-18_at_5.48.44_PM.ogg",
+  "bytes": 14233
+ },
+ {
+  "name": "illuminations-from-surah-al-fatiha-dinner-reflections.pdf",
+  "sha256": "e09cfe7393fc64ae22fdaacd740290afc49bdb58e4ece2a156ef6a0d3cee9fd4",
+  "status": "DUPLICATE of illuminations-from-surah-al-fatiha-dinner-reflections.pdf",
+  "origin": "browser-download-20261121T001056.905546851Z-68-illuminations-from-surah-al-fatiha-dinner-reflections.pdf"
+ },
+ {
+  "name": "WhatsApp Image 2026-11-18 at 6.49.41 PM.jpeg",
+  "sha256": "ef4b4f179ba33d7b18326ef5eb5c64b5650fc1d4f4575e72da502338d5bbc55a",
+  "status": "saved",
+  "origin": "browser-download-20261121T000210.256109853Z-52-WhatsApp_Unknown_2026-11-20_at_4.02.11_PM.zip",
+  "bytes": 119842
+ },
+ {
+  "name": "WhatsApp Image 2026-11-18 at 6.49.41 PM (1).jpeg",
+  "sha256": "e13b75d8dbfed3b7b606d4cc04af1db1ea3d0869d1c2b87564357d30136e9f77",
+  "status": "DUPLICATE of WhatsApp_Image_2026-11-18_at_6.49.41_PM-2.jpeg",
+  "origin": "browser-download-20261121T000210.256109853Z-52-WhatsApp_Unknown_2026-11-20_at_4.02.11_PM.zip"
+ },
+ {
+  "name": "WhatsApp Image 2026-11-18 at 6.49.41 PM.jpeg",
+  "sha256": "ef4b4f179ba33d7b18326ef5eb5c64b5650fc1d4f4575e72da502338d5bbc55a",
+  "status": "DUPLICATE of WhatsApp Image 2026-11-18 at 6.49.41 PM.jpeg",
+  "origin": "browser-download-20261121T000221.885690935Z-53-WhatsApp_Unknown_2026-11-20_at_4.02.23_PM.zip"
+ },
+ {
+  "name": "WhatsApp Image 2026-11-18 at 6.49.41 PM (1).jpeg",
+  "sha256": "e13b75d8dbfed3b7b606d4cc04af1db1ea3d0869d1c2b87564357d30136e9f77",
+  "status": "DUPLICATE of WhatsApp_Image_2026-11-18_at_6.49.41_PM-2.jpeg",
+  "origin": "browser-download-20261121T000221.885690935Z-53-WhatsApp_Unknown_2026-11-20_at_4.02.23_PM.zip"
+ },
+ {
+  "name": "whatsapp-chat-export-2026-11-20.zip",
+  "sha256": "646e4556a8e56a1cb0500b0c6fc075272679dfc21afa5c5f66c4c616c1149fb1",
+  "status": "saved",
+  "origin": "browser-download-20261121T001458.016523026Z-70-Dr._Moustafa_Kamel_____________.zip",
+  "bytes": 410544,
+  "note": "full-chat export, 249 messages, whole chat from Aug 22 onward"
+ }
+]

@@ -1,0 +1,174 @@
+/* Splash track: opening sunset screen. All classes/ids prefixed sp-. Tokens only. */
+
+#sp-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+#sp-splash.sp-hidden { display: none; }
+
+.sp-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 52%, var(--hero-veil));
+}
+
+/* ---- birds layer ---- */
+.sp-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sp-bird {
+  position: absolute;
+  left: 0;
+  top: var(--top);
+  opacity: var(--op);
+  animation: sp-fly var(--dur) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.sp-bob { animation: sp-bob var(--bob, 4s) ease-in-out infinite; }
+
+.sp-bird-svg { fill: var(--ink); }
+
+.sp-wing { transform-box: fill-box; }
+.sp-wing-near {
+  transform-origin: 88% 88%;
+  animation: sp-flap-n var(--flap, 1.3s) ease-in-out infinite;
+}
+.sp-wing-far {
+  transform-origin: 88% 12%;
+  opacity: 0.55;
+  animation: sp-flap-f var(--flap, 1.3s) ease-in-out infinite;
+}
+
+@keyframes sp-fly {
+  from { transform: translateX(-15vw); }
+  to   { transform: translateX(112vw); }
+}
+@keyframes sp-bob {
+  0%, 100% { transform: translateY(-8px); }
+  50%      { transform: translateY(8px); }
+}
+@keyframes sp-flap-n {
+  0%, 100% { transform: rotate(14deg); }
+  50%      { transform: rotate(-26deg); }
+}
+@keyframes sp-flap-f {
+  0%, 100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(16deg); }
+}
+
+/* ---- centered content ---- */
+.sp-stage {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 1.5rem;
+  max-width: 46rem;
+  width: 100%;
+}
+
+.sp-panel {
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--gold);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* Verse text itself is never animated. */
+.sp-verse {
+  font-family: var(--font-verse);
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  line-height: 2.2;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+
+.sp-cite {
+  font-family: var(--font-ar);
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin: 0 0 1.25rem;
+}
+
+.sp-sheikh {
+  font-family: var(--font-head);
+  font-size: clamp(1.3rem, 3.4vw, 1.9rem);
+  color: var(--ink);
+  margin: 0 0 1.75rem;
+}
+
+.sp-enter {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  background: var(--brand);
+  color: var(--brand-ink);
+  border: none;
+  border-radius: var(--r);
+  padding: 0.9rem 2.75rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.sp-enter:hover { transform: translateY(-2px); }
+.sp-enter:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; }
+
+.sp-recite {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sp-recite-btn {
+  font-family: var(--font-ar);
+  font-size: 0.95rem;
+  background: transparent;
+  color: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-s);
+  padding: 0.55rem 1.25rem;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease);
+}
+.sp-recite-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.sp-recite-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.sp-recite-status {
+  font-family: var(--font-ar);
+  font-size: 0.85rem;
+  color: var(--ink3);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-bird,
+  .sp-bob,
+  .sp-wing-near,
+  .sp-wing-far { animation: none; }
+  .sp-enter,
+  .sp-recite-btn { transition: none; }
+}

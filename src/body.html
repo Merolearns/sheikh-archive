@@ -1,0 +1,95 @@
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+  <symbol id="i-saved" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z" fill="currentColor"/></symbol>
+  <symbol id="i-resume" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 8-8"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></symbol>
+  <symbol id="i-off" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-1 1-2-.7-1.2 0-2.5 1.5-2.5H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
+
+<a class="sr" href="#main" data-t="skip"></a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/home" aria-label="مكتبة الشيخ الدكتور مصطفى كامل">
+      <span class="star" aria-hidden="true"></span>
+      <span class="brand-txt">
+        <span class="brand-ar" lang="ar" dir="rtl">مكتبة الشيخ مصطفى كامل</span>
+        <span class="brand-sub" data-t="brand_sub"></span>
+      </span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#/home" data-r="home" data-t="nav_home"></a>
+      <a href="#/library" data-r="library" data-t="nav_library"></a>
+      <a href="#/start" data-r="start" data-t="nav_start"></a>
+      <a href="#/saved" data-r="saved" data-t="nav_saved"></a>
+      <a href="#/about" data-r="about" data-t="nav_about"></a>
+      <a href="#/mission" data-r="mission" data-t="nav_mission"></a>
+      <a href="#/sheikh" data-r="sheikh" data-t="nav_sheikh"></a>
+    </nav>
+    <div class="tools">
+      <button class="icon-btn" id="themeBtn" type="button" aria-haspopup="true" aria-expanded="false"><svg class="i"><use href="#i-palette"/></svg></button>
+      <div class="seg" id="langSeg" role="group" aria-label="Language / اللغة" data-on="ar">
+        <span class="thumb" aria-hidden="true"></span>
+        <button type="button" lang="ar" dir="rtl" data-lang="ar" aria-pressed="true">العربية</button>
+        <button type="button" lang="en" dir="ltr" data-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+  </div>
+  <div class="theme-pop" id="themePop" role="group" hidden></div>
+</header>
+
+<main id="main" tabindex="-1">
+  <section class="view" id="v-home"></section>
+  <section class="view" id="v-library"></section>
+  <section class="view" id="v-playlist"></section>
+  <section class="view" id="v-lesson"></section>
+  <section class="view" id="v-start"></section>
+  <section class="view" id="v-saved"></section>
+  <section class="view" id="v-about"></section>
+  <section class="view" id="v-mission"></section>
+  <section class="view" id="v-sheikh"></section>
+</main>
+
+<footer class="foot-bar">
+  <div class="wrap">
+    <div class="rec" id="rec" dir="rtl">
+      <span data-t="rec_label"></span>
+      <button class="icon-btn" type="button" id="recPlay" disabled><svg class="i"><use href="#i-play"/></svg></button>
+      <button class="icon-btn" type="button" id="recReplay" disabled><svg class="i"><use href="#i-replay"/></svg></button>
+      <button class="icon-btn" type="button" id="recMute" disabled><svg class="i"><use href="#i-vol"/></svg></button>
+      <input type="range" id="recVol" min="0" max="1" step="0.05" value="0.8" disabled>
+      <span class="rec-status" id="recStatus" role="status"></span>
+    </div>
+    <span data-t="foot_note"></span>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg-h"><h2 id="dlgTitle"></h2><button class="icon-btn" type="button" id="dlgClose"><svg class="i"><use href="#i-close"/></svg></button></div>
+  <div class="dlg-b" id="dlgBody"></div>
+</dialog>
+
+<div id="splash" lang="ar" dir="rtl" hidden>
+  <img class="art" src="Preview/assets/img/sunset.svg" alt="">
+  <div class="veil" aria-hidden="true"></div>
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <div class="sp-stage">
+    <div class="sp-panel">
+      <h1 class="sp-verse">وَقُل رَّبِّ زِدْنِي عِلْمًا ۝١١٤</h1>
+      <p class="sp-cite sp-fade">سورة طه، الآية ١١٤<span class="sep" aria-hidden="true">·</span><span lang="en" dir="ltr">Ta Ha 20:114</span></p>
+      <div class="sp-orn sp-fade d2" aria-hidden="true"><span class="star"></span></div>
+      <p class="sp-name sp-fade d2">فضيلة الشيخ الدكتور مصطفى كامل</p>
+      <button class="sp-enter sp-fade d3" id="enterBtn" type="button">ادخل المكتبة <span lang="en" dir="ltr">Enter</span></button>
+    </div>
+  </div>
+</div>
+<audio id="recAudio" preload="none"></audio>

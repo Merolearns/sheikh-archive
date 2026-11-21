@@ -1,0 +1,24 @@
+PASS GET / full page :: 200 text/html 6803699 bytes (file 6803699)
+PASS GET Arabic URL-encoded .mkv :: 200 video/x-matroska 1198628 bytes, Accept-Ranges=bytes
+PASS Range bytes=0-99 :: 206 Content-Range=bytes 0-99/1198628 len=100
+PASS Range suffix bytes=-50 :: 206 Content-Range=bytes 1198578-1198627/1198628
+PASS Range past end -> 416 :: 416 Content-Range=bytes */1198628
+PASS /__status JSON :: 200 {"videos_exists": true, "videos_count": 3983, "recitation": false}
+PASS GET missing media -> 404 :: 404
+PASS HEAD missing media -> 404 :: 404
+PASS HEAD existing media -> 200 :: 200 Content-Length=1198628
+PASS HEAD / -> 200 :: 200 text/html
+PASS GET .vtt MIME :: 200 text/vtt; charset=utf-8
+PASS GET .txt UTF-8 :: 200 text/plain; charset=utf-8
+PASS GET catalog.js :: 200 text/javascript; charset=utf-8 6623117 bytes, 3977 media entries
+PASS GET versioned catalog.js?v= :: 200 version 3c30b87ae0c1
+PASS GET hosted flavor :: 200 180760 bytes, no inlined DATA
+PASS /__status recitation boolean :: recitation=False
+PASS asset Preview/docs/server-contract.md :: 200 text/markdown 4855 bytes
+PASS asset Preview/assets/img/sunset.svg :: 200 image/svg+xml 6544 bytes
+PASS asset Preview/assets/img/ornament.svg :: 200 image/svg+xml 485 bytes
+PASS asset Preview/assets/img/girih.svg :: 200 image/svg+xml 11179 bytes
+PASS asset Preview/assets/fonts/amiri-quran-400.woff2 :: 200 font/woff2 45680 bytes
+PASS asset Preview/assets/fonts/noto-sans-arabic-400.woff2 :: 200 font/woff2 48840 bytes
+PASS asset Preview/assets/fonts/reem-kufi-400.woff2 :: 200 font/woff2 8948 bytes
+FAILURES: 0

@@ -1,0 +1,4 @@
+catalog deep-equal OK: 3977 videos, 71 playlists, 4320 memberships, same IDs and order
+node --check app.js OK
+wrote /home/hatch/workspace/archive-rebuild/build/Preview/archive.html 6755398 bytes
+py_compile archive_server.py OK
