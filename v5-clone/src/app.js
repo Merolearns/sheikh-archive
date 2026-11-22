@@ -6,6 +6,25 @@
     PLAYLISTS = DATA.playlists;
   const byId = new Map(VIDEOS.map((v) => [v.id, v]));
   const plById = new Map(PLAYLISTS.map((p) => [p.id, p]));
+  // Admin overrides (src/admin-overrides.json, injected by build.py):
+  // series and video title changes apply here, in memory only, so the
+  // catalog literal stays byte-identical to v4 and the build guard holds.
+  try {
+    if (typeof ADMIN_OVERRIDES !== "undefined" && ADMIN_OVERRIDES) {
+      const so = ADMIN_OVERRIDES.series || {},
+        vo = ADMIN_OVERRIDES.videos || {};
+      for (const p of PLAYLISTS) {
+        const o = so[p.id];
+        if (!o) continue;
+        if (o.title) p.title = o.title;
+        if (o.titleEn) p.titleEn = o.titleEn;
+      }
+      for (const v of VIDEOS) {
+        const o = vo[v.id];
+        if (o && o.title) v.title = o.title;
+      }
+    }
+  } catch (_) {}
   const IMAD_PL = "PLXKSrZvHoN9dOyWCCK6Qm8AS4blW3Ylwm"; // "Aqeeda by Dr Imad Bayoun"
   // Hosted flavor (archive-hosted.html) carries <meta name="archive-flavor"
   // content="hosted">; the installed app has no such tag. The hosted site
@@ -859,6 +878,65 @@
     days: load(K.days, {}),
   };
 
+  /* ---------- Admin: the admin page is visible only to the owner's account.
+     The check is a UI gate only: nothing privileged exists in the browser
+     (anon key only), and admin edits land only as a committed data file. ---------- */
+  const ADMIN_EMAIL = "meroatschool@gmail.com";
+  function isAdminSession() {
+    const a = load(K.acct, null);
+    return !!(
+      a &&
+      a.mode === "email" &&
+      a.access_token &&
+      String(a.email || "").toLowerCase() === ADMIN_EMAIL
+    );
+  }
+  function adminSettings() {
+    try {
+      if (
+        typeof ADMIN_OVERRIDES !== "undefined" &&
+        ADMIN_OVERRIDES &&
+        ADMIN_OVERRIDES.settings
+      )
+        return ADMIN_OVERRIDES.settings;
+    } catch (_) {}
+    return {};
+  }
+  function adminLiveEnabled() {
+    return adminSettings().liveEnabled !== false;
+  }
+  function adminAnnouncement() {
+    const a = String(adminSettings().announcement || "").trim();
+    if (!a) return "";
+    try {
+      if (sessionStorage.getItem("archive-v5-ann") === "0") return "";
+    } catch (_) {}
+    return a;
+  }
+  function paintAdminLink() {
+    const nav = $("#nav");
+    if (!nav) return;
+    const old = $("#adminLink", nav);
+    if (!isAdminSession()) {
+      if (old) old.remove();
+      return;
+    }
+    if (old) return;
+    const a = document.createElement("a");
+    a.id = "adminLink";
+    a.href = "#/admin";
+    a.dataset.r = "admin";
+    a.textContent = st.lang === "en" ? "Admin" : "الإدارة";
+    nav.appendChild(a);
+  }
+  function renderAdmin(arg, q) {
+    if (typeof window.__adminRender === "function") {
+      window.__adminRender(arg, q);
+      return;
+    }
+    go("#/home");
+  }
+
   /* ---------- Helpers ---------- */
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -1475,6 +1553,7 @@
     about: renderAbout,
     books: renderBooks,
     book: renderBook,
+    admin: renderAdmin,
   };
   const REDIRECT = { mission: "#/about/mission", sheikh: "#/about/sheikh" };
   function go(hash) {
@@ -1491,6 +1570,11 @@
       );
     if (!VIEWS[route.name])
       route = { name: "home", arg: "", q: new URLSearchParams() };
+    // Admin is a gated view: anyone who is not the admin lands on Home
+    // and never sees the admin page, the same rule as the nav link.
+    if (route.name === "admin" && !isAdminSession())
+      route = { name: "home", arg: "", q: new URLSearchParams() };
+    paintAdminLink();
     if (
       prev.name === "lesson" &&
       (route.name !== "lesson" || route.arg !== prev.arg)
@@ -1602,13 +1686,20 @@
       drawn = sessionStorage.getItem("archive-v3-hero") === "1";
       sessionStorage.setItem("archive-v3-hero", "1");
     } catch (_) {}
+    const ann = adminAnnouncement();
+    const liveBtn = adminLiveEnabled()
+      ? `<a class="btn live" href="https://www.youtube.com/@dr.moustafakamel508/live" target="_blank" rel="noopener"><span class="live-dot" aria-hidden="true"></span>${esc(t("live_watch"))}</a>`
+      : "";
     $("#v-home").innerHTML =
+      (ann
+        ? `<div class="admin-ann" role="status"><span>${esc(ann)}</span><button type="button" id="annHide" aria-label="${esc(t("hide"))}">×</button></div>`
+        : "") +
       '<div class="hero"><span class="girih" aria-hidden="true"></span><span class="girih b" aria-hidden="true"></span><div class="hero-in">' +
       kh("hero-kh" + (drawn ? "" : " drawing")) +
       `<h1${L()}>${esc(t("hero_title"))}</h1><p class="promise"${L()}>${esc(t("hero_promise"))}</p>` +
       `<form class="search" role="search" id="heroSearch">${icon("i-search")}<input type="search" name="q" dir="auto" placeholder="${esc(t("search_ph"))}" aria-label="${esc(t("search_ph"))}">` +
       `<button class="btn primary small" type="submit"${L()}>${esc(t("search_go"))}</button></form>` +
-      `<div class="hero-btns"${L()}><a class="btn primary" href="#/library">${esc(t("browse"))}</a><a class="btn" href="#/start">${esc(t("go_start"))}</a><a class="btn live" href="https://www.youtube.com/@dr.moustafakamel508/live" target="_blank" rel="noopener"><span class="live-dot" aria-hidden="true"></span>${esc(t("live_watch"))}</a></div>` +
+      `<div class="hero-btns"${L()}><a class="btn primary" href="#/library">${esc(t("browse"))}</a><a class="btn" href="#/start">${esc(t("go_start"))}</a>${liveBtn}</div>` +
       '</div></div><div class="wrap">' +
       (cont.length
         ? '<section class="block">' +
@@ -1676,6 +1767,15 @@
       const q = e.target.q.value.trim();
       go("#/library?scope=all" + (q ? "&q=" + encodeURIComponent(q) : ""));
     });
+    const annBtn = $("#annHide");
+    if (annBtn)
+      annBtn.addEventListener("click", () => {
+        try {
+          sessionStorage.setItem("archive-v5-ann", "0");
+        } catch (_) {}
+        const n = $(".admin-ann");
+        if (n) n.remove();
+      });
     wireFirst();
     if (!opts.keepPage) enterSections($("#v-home"));
     drawLines($("#v-home"));
@@ -3598,6 +3698,25 @@
       (showFn || lgShow)("lg_noconfig");
       return null;
     }
+    // Admin Users list (see src/admin-profiles.sql): the anon key can
+    // never list Auth users, so each sign-up and sign-in writes one
+    // profile row for its own account. Best effort only: a failed
+    // write never blocks the sign-in, and nothing here reads the list.
+    function recordProfile(cfg, d, email) {
+      try {
+        if (!d || !d.user || !d.user.id || !d.access_token) return;
+        fetch(String(cfg.url).replace(/\/$/, "") + "/rest/v1/profiles", {
+          method: "POST",
+          headers: {
+            apikey: cfg.anonKey,
+            Authorization: "Bearer " + d.access_token,
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          },
+          body: JSON.stringify({ id: d.user.id, email: email }),
+        }).catch(function () {});
+      } catch (_) {}
+    }
     async function signUpEmail() {
       const email = $("#lgEmail").value.trim();
       const pass = $("#lgPass").value;
@@ -3644,6 +3763,7 @@
               refresh_token: d.refresh_token || "",
               expires_at: Math.floor(Date.now() / 1000) + (d.expires_in || 0),
             });
+            recordProfile(cfg, d, email);
             enter(true);
             return;
           }
@@ -3764,6 +3884,7 @@
               refresh_token: d.refresh_token || "",
               expires_at: Math.floor(Date.now() / 1000) + (d.expires_in || 0),
             });
+            recordProfile(cfg, d, email);
             enter(true);
             return;
           }

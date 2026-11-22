@@ -158,6 +158,19 @@ check(
     b"v4 \xc2\xb7 " in b and b'const CATALOG_VERSION = "' in b,
     f"{len(b)} bytes",
 )
+# Admin page (V5): the view, the committed overrides and the admin
+# script ship in the page; no privileged key ever appears in it.
+check(
+    "admin: view + overrides + held book present, no service key",
+    'id="v-admin"' in html
+    and "const ADMIN_OVERRIDES =" in html
+    and '"book-06"' in html
+    and "Proud To Be Muslims" in html
+    and "window.__adminRender" in html
+    and "service_role" not in html
+    and "service-role" not in html,
+    "v-admin + ADMIN_OVERRIDES + ADMIN_HELD in archive.html",
+)
 for a in (
     "Preview/docs/server-contract.md",
     "Preview/assets/img/sunset.svg",

@@ -88,8 +88,62 @@ def data_literal(html):
     return obj, html[j : j + end]
 
 
+def admin_overrides():
+    """The admin page's committed overrides (src/admin-overrides.json)."""
+    ov = json.loads((SRC / "admin-overrides.json").read_text(encoding="utf-8"))
+    assert set(ov) == {"books", "series", "videos", "settings"}, (
+        "admin-overrides.json must have books, series, videos, settings"
+    )
+    for b_id, o in (ov.get("books") or {}).items():
+        assert set(o) <= {
+            "pages",
+            "title_ar",
+            "title_en",
+            "hidden",
+            "note",
+            "status",
+        }, f"admin override for {b_id}: unknown key"
+        if o.get("pages") is not None:
+            assert isinstance(o["pages"], int) and o["pages"] > 0, (
+                f"admin override for {b_id}: pages must be a positive number"
+            )
+    st = ov.get("settings") or {}
+    assert set(st) <= {"announcement", "liveEnabled"}, (
+        "admin settings allow only announcement and liveEnabled"
+    )
+    assert isinstance(st.get("announcement", ""), str), (
+        "admin announcement must be text"
+    )
+    assert isinstance(st.get("liveEnabled", True), bool), (
+        "admin liveEnabled must be true or false"
+    )
+    return ov
+
+
+def held_books():
+    """Books held out of the public list (BOOKS_HELD), with their titles,
+    so the admin page can show them as held instead of hiding all trace."""
+    s = (V5P / "books" / "books-data.js").read_text(encoding="utf-8")
+    src = json.loads(s[s.index("{") : s.rindex("}") + 1])["books"]
+    out = []
+    for b in src:
+        if b["id"] in BOOKS_HELD:
+            out.append(
+                {
+                    "id": b["id"],
+                    "title_ar": b["title_ar"],
+                    "title_en": b["title_en"],
+                    "reason": "held: the file is not on GitHub and authorship is not confirmed; needs the Sheikh",
+                }
+            )
+    return out
+
+
 def shell(head_extra, data_script):
     css = (SRC / "app.css").read_text(encoding="utf-8")
+    admin_css = (SRC / "admin.css").read_text(encoding="utf-8")
+    admin_js = (SRC / "admin.js").read_text(encoding="utf-8")
+    overrides = admin_overrides()
     body = (SRC / "body.html").read_text(encoding="utf-8")
     app = (SRC / "app.js").read_text(encoding="utf-8")
     renderer = (V5P / "render" / "chunked-render.js").read_text(encoding="utf-8")
@@ -106,16 +160,26 @@ def shell(head_extra, data_script):
         + head_extra
         + "<style>\n"
         + css
+        + "\n"
+        + admin_css
         + "</style>\n</head>\n<body>\n"
         + body
         + data_script
         + "<script>const BOOKS = "
         + books_literal()[0]
         + ";</script>\n"
+        + "<script>const ADMIN_OVERRIDES = "
+        + json.dumps(overrides, ensure_ascii=False, separators=(",", ":"))
+        + ";</script>\n"
+        + "<script>const ADMIN_HELD = "
+        + json.dumps(held_books(), ensure_ascii=False, separators=(",", ":"))
+        + ";</script>\n"
         + "<script>const CURATION = "
         + curation
         + ";</script>\n<script>\n"
         + renderer
+        + "\n</script>\n<script>\n"
+        + admin_js
         + "\n</script>\n<script>\n"
         + app
         + "</script>\n</body>\n</html>\n"
@@ -236,10 +300,25 @@ def books_literal():
         return "books/" + name
     s = (V5P / "books" / "books-data.js").read_text(encoding="utf-8")
     src = json.loads(s[s.index("{") : s.rindex("}") + 1])["books"]
+    # Admin overrides (src/admin-overrides.json): a hidden book stays out
+    # of the public list; a title or page count override replaces the
+    # catalogued value before works are grouped.
+    books_ov = admin_overrides().get("books", {})
+    unknown = sorted(set(books_ov) - {b["id"] for b in src})
+    assert not unknown, f"admin overrides name unknown books: {unknown}"
     works, by_book = [], {}
     for b in src:
         if b["id"] in BOOKS_HELD:
             continue
+        o = books_ov.get(b["id"], {})
+        if o.get("hidden"):
+            continue
+        if o.get("title_ar"):
+            b["title_ar"] = o["title_ar"]
+        if o.get("title_en"):
+            b["title_en"] = o["title_en"]
+        if o.get("pages"):
+            b["pages"] = int(o["pages"])
         key = (b["title_ar"] or b["title_en"], b["language"])
         w = next((w for w in works if w["key"] == key), None)
         if w is None:
@@ -345,6 +424,17 @@ def main():
     assert all(f["id"] in ids and f["pl"] in pls for f in cur["first"].values())
     _, n_works, n_files = books_literal()
     print(f"books: {n_works} works, {n_files} files, no title or file listed twice; held for owner: {sorted(BOOKS_HELD)}")
+    ov = admin_overrides()
+    bad_series = sorted(set(ov.get("series", {})) - {p["id"] for p in base["playlists"]})
+    bad_videos = sorted(set(ov.get("videos", {})) - {v["id"] for v in base["videos"]})
+    assert not bad_series, f"admin overrides name unknown series: {bad_series}"
+    assert not bad_videos, f"admin overrides name unknown videos: {bad_videos}"
+    print(
+        f"admin overrides: {len(ov.get('books', {}))} book entries, "
+        f"{len(ov.get('series', {}))} series, {len(ov.get('videos', {}))} videos; "
+        f"announcement {'set' if (ov.get('settings', {}).get('announcement')) else 'empty'}, "
+        f"live {'on' if ov.get('settings', {}).get('liveEnabled', True) else 'off'}"
+    )
     print(
         "curation resolves: 71 playlists mapped, 40 days, 3 first lessons, all IDs in the catalog"
     )
@@ -429,6 +519,13 @@ def main():
     if r.returncode:
         sys.exit("JS syntax error:\n" + r.stderr)
     print("node --check app.js OK")
+
+    r = subprocess.run(
+        ["node", "--check", str(SRC / "admin.js")], capture_output=True, text=True
+    )
+    if r.returncode:
+        sys.exit("JS syntax error in admin.js:\n" + r.stderr)
+    print("node --check admin.js OK")
 
     guard = V5P / "guard" / "network_guard.py"
     guard_cmd = [sys.executable, str(guard), str(PV)]

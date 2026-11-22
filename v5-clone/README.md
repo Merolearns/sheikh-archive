@@ -37,6 +37,28 @@ public anon key and URL, already published in the live build. The
 notice area starts empty and hidden and only shows a message after a
 failed sign-in or sign-up attempt.
 
+## Admin page
+
+`#/admin` is visible only to the owner's account
+(meroatschool@gmail.com): other signed-in users never see the admin
+link and are sent back to Home. The page has four tabs: Books (list
+with page counts, edit title/count, hide/show; book-38 "Proud To Be
+Muslims" stays held with no author shown until the Sheikh confirms
+it), Series and videos (edit series and video titles), Users (sign-up
+list), Settings (announcement banner, live-video button toggle).
+
+Design, honestly: the anon key can never list Auth users, so the Users
+list reads a `profiles` table written at sign-up and sign-in
+(`src/admin-profiles.sql` — run once in the Supabase SQL Editor; only
+the admin email can read it). Until that SQL is run, the Users tab
+says so and shows no users. Admin edits are staged in the browser and
+shown as `src/admin-overrides.json`; they take effect only after that
+file is committed to the repo and the site is republished. Nothing
+privileged exists in the browser: anon key only, never a service key.
+Book-06's count is corrected to 32 pages in the overrides file. Tests:
+`node tools/admin_tests.js http://127.0.0.1:8765` (15 checks, run by
+`tools/run_all.sh` after the behaviour suite).
+
 ## Layout
 
 - `src/` app source: `app.js`, `app.css`, `body.html`, `content.json`,
