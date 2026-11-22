@@ -1,0 +1,196 @@
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8C6D1F"/><stop offset=".5" stop-color="#E8C96A"/><stop offset="1" stop-color="#C9A227"/>
+    </linearGradient>
+  </defs>
+  <!-- the one khatam geometry, reused at every scale: two rotated squares in a circle, inner rosette, centre dot -->
+  <symbol id="khatam" viewBox="-50 -50 100 100">
+    <g fill="none" stroke="url(#gg)" stroke-linejoin="miter">
+      <circle r="46" pathLength="100" stroke-width="2.2"/>
+      <rect x="-32.5" y="-32.5" width="65" height="65" pathLength="100" stroke-width="2.6"/>
+      <rect x="-32.5" y="-32.5" width="65" height="65" transform="rotate(45)" pathLength="100" stroke-width="2.6"/>
+      <circle r="17.5" pathLength="100" stroke-width="1.6"/>
+      <rect x="-12" y="-12" width="24" height="24" transform="rotate(22.5)" pathLength="100" stroke-width="1.4"/>
+      <rect x="-12" y="-12" width="24" height="24" transform="rotate(67.5)" pathLength="100" stroke-width="1.4"/>
+    </g>
+    <circle r="3.4" fill="url(#gg)"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.7 6.1 6.5.6-4.9 4.3 1.5 6.4L12 16.9l-5.8 3.3 1.5-6.4-4.9-4.3 6.5-.6z"/></symbol>
+  <symbol id="i-resume" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 8-8"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 7h16M7 12h10M10 17h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" pathLength="100"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.6-1 1-2-.7-1.2 0-2.5 1.5-2.5H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
+
+<a class="sr" href="#main" data-t="skip"></a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/home" aria-label="مكتبة الشيخ الدكتور مصطفى كامل">
+      <svg class="kh brand-kh" aria-hidden="true"><use href="#khatam"/></svg>
+      <span class="brand-txt">
+        <span class="brand-ar" lang="ar" dir="rtl">مكتبة الشيخ مصطفى كامل</span>
+        <span class="brand-sub" data-t="brand_sub"></span>
+      </span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="#/home" data-r="home" data-t="nav_home"></a>
+      <a href="#/library" data-r="library" data-t="nav_library"></a>
+      <a href="#/start" data-r="start" data-t="nav_start"></a>
+      <a href="#/saved" data-r="saved" data-t="nav_saved"></a>
+      <a href="#/about" data-r="about" data-t="nav_about"></a>
+    </nav>
+    <div class="tools">
+      <button class="icon-btn" id="themeBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="themePop"><svg class="i"><use href="#i-palette"/></svg></button>
+      <div class="seg" id="langSeg" role="group" aria-label="Language / اللغة" data-on="ar">
+        <span class="thumb" aria-hidden="true"></span>
+        <button type="button" lang="ar" dir="rtl" data-lang="ar" aria-pressed="true">العربية</button>
+        <button type="button" lang="en" dir="ltr" data-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+  </div>
+  <div class="theme-pop" id="themePop" role="group" hidden>
+    <div class="sw-grid" id="swGrid"></div>
+    <label class="calm-row"><span data-t="calm"></span><input type="checkbox" id="calmBox" role="switch"><span class="sw-track" aria-hidden="true"></span></label>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <section class="view" id="v-home"></section>
+  <section class="view" id="v-library"></section>
+  <section class="view" id="v-playlist"></section>
+  <section class="view" id="v-lesson"></section>
+  <section class="view" id="v-start"></section>
+  <section class="view" id="v-saved"></section>
+  <section class="view" id="v-about"></section>
+  <section class="view" id="v-books"></section>
+  <section class="view" id="v-book"></section>
+</main>
+
+<footer class="foot-bar">
+  <div class="medal foot-medal" aria-hidden="true"><svg class="kh"><use href="#khatam"/></svg></div>
+  <div class="wrap">
+    <div class="rec" id="rec">
+      <span class="rec-ctl" id="recCtl" hidden>
+        <button class="icon-btn" type="button" id="recPlay"><svg class="i"><use href="#i-play"/></svg></button>
+        <button class="icon-btn" type="button" id="recReplay"><svg class="i"><use href="#i-replay"/></svg></button>
+        <button class="icon-btn" type="button" id="recMute"><svg class="i"><use href="#i-vol"/></svg></button>
+        <input type="range" id="recVol" min="0" max="1" step="0.05" value="0.8">
+      </span>
+      <span class="rec-status" id="recStatus" role="status"></span>
+    </div>
+    <span data-t="foot_note"></span>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <svg class="kh dlg-kh" aria-hidden="true"><use href="#khatam"/></svg>
+  <div class="dlg-h"><h2 id="dlgTitle"></h2><button class="icon-btn" type="button" id="dlgClose"><svg class="i"><use href="#i-close"/></svg></button></div>
+  <div class="dlg-b" id="dlgBody"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<!-- Opening: "The Illuminated Page". Verse, then three choices: Sign In, Sign Up, Enter as Guest. -->
+<div id="splash" lang="ar" dir="rtl" hidden>
+  <img class="art" src="Preview/assets/img/sunset.svg" alt="">
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <div class="scrim" id="spScrim" aria-hidden="true"></div>
+  <div class="sp-stage">
+    <div class="sp-page" id="spPage">
+      <svg class="sp-frame" viewBox="0 0 300 400" aria-hidden="true">
+        <defs>
+          <linearGradient id="spg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F4DC8C"/><stop offset=".55" stop-color="#E3C566"/><stop offset="1" stop-color="#B8902A"/>
+          </linearGradient>
+        </defs>
+        <g class="sp-gold" fill="none" stroke="url(#spg)" stroke-linecap="round">
+          <path class="d arch-l" pathLength="100" stroke-width="2" d="M14,394 V156 C14,92 82,50 150,14"/>
+          <path class="d arch-r" pathLength="100" stroke-width="2" d="M286,394 V156 C286,92 218,50 150,14"/>
+          <path class="d arch-il" pathLength="100" stroke-width=".8" opacity=".7" d="M24,384 V160 C24,102 88,62 150,28"/>
+          <path class="d arch-ir" pathLength="100" stroke-width=".8" opacity=".7" d="M276,384 V160 C276,102 212,62 150,28"/>
+          <path class="d base" pathLength="100" stroke-width="1.2" opacity=".8" d="M14,394 H286"/>
+          <g class="apex" transform="translate(150 22)">
+            <rect class="d sq1" pathLength="100" stroke-width="1.6" x="-11" y="-11" width="22" height="22"/>
+            <rect class="d sq2" pathLength="100" stroke-width="1.6" x="-11" y="-11" width="22" height="22" transform="rotate(45)"/>
+            <circle class="d ring" pathLength="100" stroke-width="1" r="16"/>
+            <circle class="dot" r="2.4" fill="#F4DC8C" stroke="none"/>
+          </g>
+          <path class="d fl-l" pathLength="100" stroke-width="1.1" d="M24,376 C40,376 50,366 50,354 C50,344 42,338 35,342 C29,346 31,355 38,355 M50,354 C56,364 66,368 78,366 M24,376 C26,360 34,350 44,346"/>
+          <path class="d fl-r" pathLength="100" stroke-width="1.1" d="M276,376 C260,376 250,366 250,354 C250,344 258,338 265,342 C271,346 269,355 262,355 M250,354 C244,364 234,368 222,366 M276,376 C274,360 266,350 256,346"/>
+        </g>
+      </svg>
+      <div class="sp-in">
+        <h1 class="sp-verse" id="spVerse">وَقُل رَّبِّ زِدْنِي عِلْمًا ۝١١٤</h1>
+        <p class="sp-cite" id="spCite">سورة طه، الآية ١١٤<span class="sep" aria-hidden="true">·</span><span lang="en" dir="ltr">Ta Ha 20:114</span></p>
+        <div class="sp-orn" id="spOrn" aria-hidden="true"><svg class="kh"><use href="#khatam"/></svg></div>
+        <p class="sp-name" id="spName">فضيلة الشيخ الدكتور مصطفى كامل</p>
+        <button class="sp-enter" id="signinBtn" type="button">
+          <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+          <span class="sp-fill" aria-hidden="true"></span>
+          <span class="sp-lbl" data-t="lg_signin_btn"></span>
+        </button>
+        <button class="sp-enter sp-alt" id="signupBtn" type="button">
+          <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+          <span class="sp-fill" aria-hidden="true"></span>
+          <span class="sp-lbl" data-t="lg_signup_btn"></span>
+        </button>
+        <button class="sp-enter sp-alt" id="enterBtn" type="button">
+          <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+          <span class="sp-fill" aria-hidden="true"></span>
+          <span class="sp-lbl" data-t="lg_guest"></span>
+        </button>
+        <div id="lgForm" hidden>
+          <p id="lgTitle" data-t="lg_signin_title" style="color:#F3DFA8;font-family:var(--font-head);font-weight:700;font-size:19px;line-height:1.6;margin:0;text-align:center"></p>
+          <label for="lgEmail" data-t="lg_email_l"></label>
+          <input type="email" id="lgEmail" autocomplete="username" inputmode="email" spellcheck="false" aria-describedby="lgNotice">
+          <label for="lgPass" data-t="lg_pass_l"></label>
+          <input type="password" id="lgPass" autocomplete="current-password" spellcheck="false" aria-describedby="lgNotice">
+          <label for="lgConfirm" id="lgConfirmL" data-t="lg_confirm_l" hidden></label>
+          <input type="password" id="lgConfirm" autocomplete="new-password" spellcheck="false" aria-describedby="lgNotice" hidden>
+          <button class="sp-enter" id="lgSubmit" type="button">
+            <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+            <span class="sp-fill" aria-hidden="true"></span>
+            <span class="sp-lbl" data-t="lg_submit"></span>
+          </button>
+          <div id="lgLinks" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <button type="button" id="lgModeToggle" data-t="lg_to_signup" style="background:none;border:0;color:#EBD9B6;text-decoration:underline;cursor:pointer;font:inherit;font-size:14px;padding:6px 0;text-align:start"></button>
+            <button type="button" id="lgForgot" data-t="lg_forgot" style="background:none;border:0;color:#EBD9B6;text-decoration:underline;cursor:pointer;font:inherit;font-size:14px;padding:6px 0;text-align:end"></button>
+          </div>
+          <button class="sp-enter sp-alt" id="lgBack" type="button">
+            <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+            <span class="sp-fill" aria-hidden="true"></span>
+            <span class="sp-lbl" data-t="lg_back"></span>
+          </button>
+          <p id="lgNotice" role="status" hidden></p>
+          <button type="button" id="lgResend" data-t="lg_resend" hidden style="background:none;border:0;color:#EBD9B6;text-decoration:underline;cursor:pointer;font:inherit;font-size:14px;padding:6px 0;text-align:start"></button>
+        </div>
+        <div id="lgResetForm" hidden>
+          <p data-t="lg_reset_title" style="color:#EBD9B6;font-size:15px;line-height:1.6;margin:0"></p>
+          <label for="lgNewPass" data-t="lg_new_pass_l"></label>
+          <input type="password" id="lgNewPass" autocomplete="new-password" spellcheck="false" aria-describedby="lgResetNotice">
+          <label for="lgNewConfirm" data-t="lg_new_pass_c_l"></label>
+          <input type="password" id="lgNewConfirm" autocomplete="new-password" spellcheck="false" aria-describedby="lgResetNotice">
+          <button class="sp-enter" id="lgResetSubmit" type="button">
+            <svg class="sp-bf" aria-hidden="true"><rect class="d" pathLength="100" width="100%" height="100%" rx="26"/></svg>
+            <span class="sp-fill" aria-hidden="true"></span>
+            <span class="sp-lbl" data-t="lg_reset_submit"></span>
+          </button>
+          <p id="lgResetNotice" role="status" hidden></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<audio id="recAudio" preload="none"></audio>
