@@ -92,6 +92,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ar);f
 :lang(en){font-family:var(--font-lat);line-height:1.55}
 h1,h2,h3{font-family:var(--font-head);font-weight:700;line-height:1.6;margin:0}
 h1:lang(en),h2:lang(en),h3:lang(en){font-family:var(--font-lat-head);line-height:1.3}
+/* Arabic subtitle under an English title (Nov 22, 2026 translation fix) */
+.ar-sub{font-size:15px;color:var(--ink3);margin:6px 0 0;font-weight:400}
 p{margin:0}
 a{color:inherit;text-decoration:none}
 button,input,select{font:inherit;color:inherit}

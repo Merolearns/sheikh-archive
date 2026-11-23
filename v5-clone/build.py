@@ -88,6 +88,21 @@ def data_literal(html):
     return obj, html[j : j + end]
 
 
+def strip_title_en(obj):
+    """Deep copy of a catalog with every titleEn dropped.
+
+    English titles are the one field where v5 deliberately differs from v4
+    (Nov 22, 2026 translation fix): the v4-equality guard compares the
+    catalogs with titleEn stripped, so a filled English title never trips it
+    while any other drift still fails loudly.
+    """
+    if isinstance(obj, dict):
+        return {k: strip_title_en(v) for k, v in obj.items() if k != "titleEn"}
+    if isinstance(obj, list):
+        return [strip_title_en(x) for x in obj]
+    return obj
+
+
 def admin_overrides():
     """The admin page's committed overrides (src/admin-overrides.json)."""
     ov = json.loads((SRC / "admin-overrides.json").read_text(encoding="utf-8"))
@@ -355,7 +370,9 @@ def main():
     base, literal = data_literal(rec_text)
     v4_html = (V4 / "Preview/archive.html").read_text(encoding="utf-8")
     v4_base, _ = data_literal(v4_html)
-    assert base == v4_base, "reconciled DATA is not deep-equal to v4 DATA"
+    assert strip_title_en(base) == strip_title_en(v4_base), (
+        "reconciled DATA differs from v4 DATA outside titleEn"
+    )
     counts = json.loads((V5P / "audit" / "counts.json").read_text(encoding="utf-8"))
     n_videos = counts["reconciled_video_ids"]["value"]
     n_playlists = counts["reconciled_playlists"]["value"]
@@ -411,7 +428,7 @@ def main():
         assert len(built["videos"]) == n_videos and len(built["playlists"]) == n_playlists
         assert sum(len(p["items"]) for p in built["playlists"]) == n_entries
     print(
-        f"catalog from audit/catalog-reconciled.js (deep-equal to v4, version {version}): {n_videos} media entries, {n_playlists} playlists, {n_entries} memberships"
+        f"catalog from audit/catalog-reconciled.js (deep-equal to v4 except titleEn, version {version}): {n_videos} media entries, {n_playlists} playlists, {n_entries} memberships"
     )
 
     ids = {v["id"] for v in base["videos"]}

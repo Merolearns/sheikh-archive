@@ -906,8 +906,8 @@ const G = "http://archive.test";
     side: null,
   }));
   check(
-    "books: 34 works listed, no title twice",
-    bl.cards === 34 && new Set(bl.titles).size === bl.titles.length,
+    "books: 52 works listed, no title twice",
+    bl.cards === 52 && new Set(bl.titles).size === bl.titles.length,
     `cards=${bl.cards} unique=${new Set(bl.titles).size}`,
   );
   await pg.goto(G + "/?splash=0#/books?lang=en");
@@ -915,7 +915,7 @@ const G = "http://archive.test";
   const en = await pg.evaluate(
     () => document.querySelectorAll("#bkGrid .scard").length,
   );
-  check("books: language filter English", en === 2, "cards=" + en);
+  check("books: language filter English", en === 11, "cards=" + en);
   await pg.goto(G + "/?splash=0#/book/b01");
   await pg.waitForTimeout(1500);
   const d1 = await pg.evaluate(() =>
@@ -998,6 +998,101 @@ const G = "http://archive.test";
     "about: Books link present, years-of-publishing dropped, 2 verified stats",
     ab.link && !ab.years && ab.stats === 2,
     JSON.stringify(ab),
+  );
+  await pg.context().close();
+
+  // English titles (Nov 22, 2026 translation fix): EN mode shows English
+  // series/lesson titles with the Arabic kept as a subtitle on detail pages,
+  // English search finds things, and Arabic mode is unchanged.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/library");
+  await pg.waitForTimeout(800);
+  await pg.evaluate(() =>
+    document.querySelector("#langSeg button[data-lang=en]").click(),
+  );
+  await pg.waitForTimeout(800);
+  const enLib = await pg.evaluate(() => ({
+    stitles: [...document.querySelectorAll("#v-library .stitle")].map(
+      (a) => a.textContent,
+    ),
+  }));
+  const AR_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  // The ﷺ ligature is kept in English titles too, so it does not count as Arabic here.
+  const hasArabic = (s) => AR_RE.test(s.replace(/ﷺ/g, ""));
+  const enArabic = enLib.stitles.filter((s) => hasArabic(s));
+  check(
+    "EN library: 71 series cards, 70 English + the 1 held title still Arabic",
+    enLib.stitles.length === 71 &&
+      enArabic.length === 1 &&
+      enArabic[0] === "خطب أحوال النفوس وتؤكيتها" &&
+      enLib.stitles.includes("Explanation of Sahih al-Bukhari") &&
+      enLib.stitles.includes("Friday Sermons") &&
+      enLib.stitles.includes("The Prophetic Seerah"),
+    `cards=${enLib.stitles.length} arabic=${JSON.stringify(enArabic)} sample=${enLib.stitles.slice(0, 3).join(" | ")}`,
+  );
+  await pg.goto(
+    G + "/?splash=0#/playlist/PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0",
+  );
+  await pg.waitForTimeout(1200);
+  const enPl = await pg.evaluate(() => ({
+    h1: document.querySelector("#v-playlist h1")?.textContent,
+    sub: document.querySelector("#v-playlist .ar-sub")?.textContent,
+    first: document.querySelector("#v-playlist .ltitle")?.textContent,
+  }));
+  check(
+    "EN playlist: h1 English, Arabic subtitle kept, first lesson English",
+    enPl.h1 === "Explanation of Sahih al-Bukhari" &&
+      enPl.sub === "شرح صحيح الإمام البخاري" &&
+      !!enPl.first &&
+      !hasArabic(enPl.first) &&
+      /Bukhari/.test(enPl.first),
+    JSON.stringify(enPl),
+  );
+  await pg.goto(G + "/?splash=0#/library?q=" + encodeURIComponent("Seerah"));
+  await pg.waitForTimeout(1000);
+  const enSe = await pg.evaluate(() => ({
+    series: [...document.querySelectorAll("#v-library .stitle")]
+      .map((a) => a.textContent)
+      .filter((s) => /Seerah/i.test(s)).length,
+  }));
+  check(
+    "EN search 'Seerah' finds series",
+    enSe.series >= 1,
+    JSON.stringify(enSe),
+  );
+  // Lessons live in the lessons scope: the series view only shows series
+  // cards plus a "N lessons match" note, so search lessons there.
+  await pg.goto(
+    G + "/?splash=0#/library?scope=all&q=" + encodeURIComponent("Bukhari"),
+  );
+  await pg.waitForTimeout(1000);
+  const enBu = await pg.evaluate(() => ({
+    lessons: [...document.querySelectorAll("#v-library .ltitle")]
+      .map((a) => a.textContent)
+      .filter((s) => /Bukhari/i.test(s)).length,
+  }));
+  check(
+    "EN search 'Bukhari' finds lessons",
+    enBu.lessons >= 1,
+    JSON.stringify(enBu),
+  );
+  await pg.context().close();
+
+  // Arabic mode unchanged: series cards still Arabic
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/library");
+  await pg.waitForTimeout(800);
+  const arLib = await pg.evaluate(() => ({
+    stitles: [...document.querySelectorAll("#v-library .stitle")].map(
+      (a) => a.textContent,
+    ),
+  }));
+  check(
+    "AR library: series cards still show Arabic titles",
+    arLib.stitles.length === 71 &&
+      arLib.stitles.includes("شرح صحيح الإمام البخاري") &&
+      arLib.stitles.includes("السيرة النبوية"),
+    `cards=${arLib.stitles.length} sample=${arLib.stitles.slice(0, 3).join(" | ")}`,
   );
   await pg.context().close();
   await browser.close();

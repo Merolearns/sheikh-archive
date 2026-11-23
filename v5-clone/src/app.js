@@ -957,6 +957,18 @@
   const L = () =>
     st.lang === "en" ? ' lang="en" dir="ltr"' : ' lang="ar" dir="rtl"';
   const AR = ' lang="ar" dir="rtl"';
+  // Display title (Nov 22, 2026 translation fix): in English mode prefer the
+  // English title when one exists, otherwise fall back to Arabic. The lang/dir
+  // follows the language actually shown, so a held (untranslated) title still
+  // renders right-to-left.
+  const dTitle = (o) => (st.lang === "en" && o.titleEn ? o.titleEn : o.title);
+  const dLang = (o) => (st.lang === "en" && o.titleEn ? L() : AR);
+  // Arabic subtitle under an English title on detail pages: the Arabic stays
+  // visible so a bad translation is spotted, and Arabic readers keep their title.
+  const arSub = (o) =>
+    st.lang === "en" && o.titleEn && o.title !== o.titleEn
+      ? `<p class="ar-sub"${AR}>${esc(o.title)}</p>`
+      : "";
   const nf = (n) =>
     new Intl.NumberFormat(st.lang === "ar" ? "ar-EG" : "en").format(n);
   function dur(sec) {
@@ -1426,8 +1438,8 @@
         ? `<span class="prog"><i style="--p:${pct.toFixed(3)}"></i></span>`
         : "") +
       `</a>${starBtn(v.id)}</div>` +
-      `<div class="lbody"><span class="eyebrow"${p ? AR : L()}>${esc(p ? p.title : t("no_series"))}</span>` +
-      `<a class="ltitle" href="${href}"${AR}>${esc(v.title)}</a>` +
+      `<div class="lbody"><span class="eyebrow"${p ? dLang(p) : L()}>${esc(p ? dTitle(p) : t("no_series"))}</span>` +
+      `<a class="ltitle" href="${href}"${dLang(v)}>${esc(dTitle(v))}</a>` +
       `<div class="lmeta"${L()}><span>${esc(scholarOf(v))}</span><span>${esc(t("published", { d: date(v.uploadDate) }))}</span></div>` +
       `<div class="lacts"${L()}><a class="btn primary" href="${res ? lessonHref(v, ctx, "resume=1") : href}">${icon(res ? "i-resume" : "i-play")}${esc(t(res ? "resume" : "play"))}</a>` +
       (hasText(v)
@@ -1447,9 +1459,9 @@
       (featured
         ? `<span class="corner a">${kh()}</span><span class="corner b">${kh()}</span>`
         : "") +
-      `<a class="arch" href="${href}" tabindex="-1" aria-hidden="true">${p.cover ? imgTag(p.cover) : `<span class="bkart"><span class="bkart-t">${esc(p.title)}</span><span class="bkart-a">${esc(scholarOfPl(p.id))}</span></span>`}</a>` +
+      `<a class="arch" href="${href}" tabindex="-1" aria-hidden="true">${p.cover ? imgTag(p.cover) : `<span class="bkart"><span class="bkart-t">${esc(dTitle(p))}</span><span class="bkart-a">${esc(scholarOfPl(p.id))}</span></span>`}</a>` +
       `<div class="sbody"><span class="eyebrow"${L()}>${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span>` +
-      `<a class="stitle" href="${href}"${AR}>${esc(p.title)}</a>` +
+      `<a class="stitle" href="${href}"${dLang(p)}>${esc(dTitle(p))}</a>` +
       `<div class="lmeta"${L()}><span>${esc(scholarOfPl(p.id))}</span>${lvlPill(p.id)}</div>` +
       `<div class="sbar"><i style="--p:${seriesPct(p).toFixed(3)}"></i></div>` +
       `<div class="lacts"${L()}><a class="btn" href="${href}">${esc(t("open_series"))}</a></div>` +
@@ -1633,7 +1645,7 @@
       d.lessons
         .map(
           (v) =>
-            `<li><a href="${lessonHref(v, seriesOf(v).id)}"${AR}>${esc(v.title)}</a></li>`,
+            `<li><a href="${lessonHref(v, seriesOf(v).id)}"${dLang(v)}>${esc(dTitle(v))}</a></li>`,
         )
         .join("") +
       `</ol><div class="dfoot"${L()}><span>${esc(count("minute", Math.round(d.sec / 60)))}</span>` +
@@ -1657,8 +1669,8 @@
           "</div>"
         : `<span class="eyebrow"${L()}>${esc(t("st_first_tag"))}</span>`) +
       `<h2${L()}>${esc(t("st_first_t"))}</h2>` +
-      `<p class="ttl"${AR}>${esc(v.title)} <span class="muted ltr">(${esc(dur(v.duration))})</span></p>` +
-      `<p${AR} class="muted">${esc(plById.get(f.pl).title)}</p>` +
+      `<p class="ttl"${dLang(v)}>${esc(dTitle(v))} <span class="muted ltr">(${esc(dur(v.duration))})</span></p>` +
+      `<p${dLang(plById.get(f.pl))} class="muted">${esc(dTitle(plById.get(f.pl)))}</p>` +
       `<p${L()}>${esc(t("st_first_p"))}</p>` +
       `<div class="acts"${L()}><a class="btn primary" href="${lessonHref(v, f.pl)}">${icon("i-play")}${esc(t("st_watch"))}</a>` +
       (withTabs
@@ -1815,7 +1827,7 @@
   ];
   function sortVideos(list, sort) {
     const a = list.slice(),
-      col = new Intl.Collator("ar", { numeric: true, sensitivity: "base" });
+      col = new Intl.Collator(st.lang === "en" ? "en" : "ar", { numeric: true, sensitivity: "base" });
     if (sort === "new")
       a.sort((x, y) => (y.uploadDate || "").localeCompare(x.uploadDate || ""));
     else if (sort === "old")
@@ -1824,7 +1836,7 @@
       a.sort((x, y) => (y.duration || 0) - (x.duration || 0));
     else if (sort === "short")
       a.sort((x, y) => (x.duration || 0) - (y.duration || 0));
-    else if (sort === "az") a.sort((x, y) => col.compare(x.title, y.title));
+    else if (sort === "az") a.sort((x, y) => col.compare(dTitle(x), dTitle(y)));
     return a;
   }
   function libVideos(scope) {
@@ -1913,12 +1925,12 @@
             (!qq || pNorm.get(p.id).includes(qq)) &&
             (!pillar || pillarOf(p.id) === pillar),
         );
-        const col = new Intl.Collator("ar", {
+        const col = new Intl.Collator(st.lang === "en" ? "en" : "ar", {
           numeric: true,
           sensitivity: "base",
         });
         if (sort === "az")
-          list = list.slice().sort((a, b) => col.compare(a.title, b.title));
+          list = list.slice().sort((a, b) => col.compare(dTitle(a), dTitle(b)));
         if (sort === "most")
           list = list.slice().sort((a, b) => plCount(b.id) - plCount(a.id));
         if (sort === "new") {
@@ -2092,9 +2104,9 @@
     const first = earliest(p);
     $("#v-playlist").innerHTML =
       `<div class="wrap${opts.keepPage ? "" : " intro"}"><div class="pl-band" aria-hidden="true"></div>` +
-      `<nav class="crumb"${L()}><a href="#/library">${esc(t("back_lib"))}</a>${icon("i-chev", "arrow fwd")}<span${AR}>${esc(p.title)}</span></nav>` +
-      `<header class="ph"><div class="cover framed scard" id="phCover"><span class="corner a">${kh()}</span><span class="corner b">${kh()}</span><span class="arch">${p.cover ? imgTag(p.cover) : `<span class="bkart"><span class="bkart-t">${esc(p.title)}</span><span class="bkart-a">${esc(scholarOfPl(p.id))}</span></span>`}</span></div>` +
-      `<div>${kh("ph-kh")}<span class="eyebrow"${L()}>${esc(notSheikh(p.id) ? scholarOfPl(p.id) : t("sheikh_full"))}</span><h1${AR}>${esc(p.title)}</h1>` +
+      `<nav class="crumb"${L()}><a href="#/library">${esc(t("back_lib"))}</a>${icon("i-chev", "arrow fwd")}<span${dLang(p)}>${esc(dTitle(p))}</span></nav>` +
+      `<header class="ph"><div class="cover framed scard" id="phCover"><span class="corner a">${kh()}</span><span class="corner b">${kh()}</span><span class="arch">${p.cover ? imgTag(p.cover) : `<span class="bkart"><span class="bkart-t">${esc(dTitle(p))}</span><span class="bkart-a">${esc(scholarOfPl(p.id))}</span></span>`}</span></div>` +
+      `<div>${kh("ph-kh")}<span class="eyebrow"${L()}>${esc(notSheikh(p.id) ? scholarOfPl(p.id) : t("sheikh_full"))}</span><h1${dLang(p)}>${esc(dTitle(p))}</h1>${arSub(p)}` +
       `<div class="facts"${L()}><span class="pill">${esc(t("p_" + pillarOf(p.id)))}</span>${lvlPill(p.id)}<span class="pill">${esc(lessonsN(items.length))}</span><span class="pill">${esc(t("pl_hours", { h: hours(plDur.get(p.id)) }))}</span></div>` +
       `<div class="acts"${L()}>` +
       (firstResume
@@ -2368,9 +2380,9 @@
         : "";
     };
     $("#lsInfo").innerHTML =
-      `<h1${AR}>${esc(v.title)}</h1><div class="ls-meta"${L()}>` +
+      `<h1${dLang(v)}>${esc(dTitle(v))}</h1>${arSub(v)}<div class="ls-meta"${L()}>` +
       (p
-        ? `<a class="pill" href="#/playlist/${encodeURIComponent(p.id)}"${AR}>${esc(p.title)}</a>`
+        ? `<a class="pill" href="#/playlist/${encodeURIComponent(p.id)}"${dLang(p)}>${esc(dTitle(p))}</a>`
         : `<span class="pill">${esc(t("no_series"))}</span>`) +
       `<span class="pill">${esc(scholarOf(v))}</span><span class="pill ltr">${esc(dur(v.duration))}</span><span class="pill">${esc(t("published", { d: date(v.uploadDate) }))}</span></div>` +
       `<div class="ls-acts"${L()}>${starBtn(v.id, "lg")}${doneBtn(v.id)}` +
@@ -2390,10 +2402,10 @@
       (prev || next
         ? `<div class="nextprev"${L()}>` +
           (prev
-            ? `<a class="framed" href="${lk(prev)}">${corners()}${icon("i-chev", "arrow back")}<span class="t"><small>${esc(t("ls_prev"))}</small><span${AR}>${esc(prev.title)}</span></span></a>`
+            ? `<a class="framed" href="${lk(prev)}">${corners()}${icon("i-chev", "arrow back")}<span class="t"><small>${esc(t("ls_prev"))}</small><span${dLang(prev)}>${esc(dTitle(prev))}</span></span></a>`
             : "") +
           (next
-            ? `<a class="framed" href="${lk(next)}">${corners()}<span class="t"><small>${esc(t("ls_next"))}</small><span${AR}>${esc(next.title)}</span></span>${icon("i-chev", "arrow fwd")}</a>`
+            ? `<a class="framed" href="${lk(next)}">${corners()}<span class="t"><small>${esc(t("ls_next"))}</small><span${dLang(next)}>${esc(dTitle(next))}</span></span>${icon("i-chev", "arrow fwd")}</a>`
             : "") +
           "</div>"
         : "");
@@ -2416,7 +2428,7 @@
           .map(
             (x) =>
               `<a href="${lk(x)}"${x.id === v.id ? ' class="cur" aria-current="true"' : ""}>` +
-              `<span class="thumb${x.thumbnail ? "" : " noimg"}">${imgTag(x.thumbnail)}</span><span class="tt"${AR}>${esc(x.title)}</span></a>`,
+              `<span class="thumb${x.thumbnail ? "" : " noimg"}">${imgTag(x.thumbnail)}</span><span class="tt"${dLang(x)}>${esc(dTitle(x))}</span></a>`,
           )
           .join("") +
         `</div><div style="margin-top:12px"${L()}><a class="btn small" href="#/playlist/${encodeURIComponent(p.id)}">${esc(t("ls_all_series"))}</a></div></div>`
@@ -2713,7 +2725,7 @@
       })
       .join("");
     $("#dlgBody").innerHTML =
-      `<p${AR} style="font-weight:500">${esc(v.title)}</p>` + rows;
+      `<p${dLang(v)} style="font-weight:500">${esc(dTitle(v))}</p>` + rows;
     $$("a", dlg).forEach((a) => a.addEventListener("click", () => dlg.close()));
     if (!dlg.open) dlg.showModal();
   }
@@ -2742,7 +2754,7 @@
           return (
             `<a class="card" href="#step-${si + 1}" data-step="${si + 1}"><span class="q" aria-hidden="true">${GLYPH[s.k]}</span><h3${L()}>${esc(t("q_" + k + "_t"))}</h3><p${L()}>${esc(t("q_" + k + "_p"))}</p>` +
             `<div class="foot"><span class="pill lvl" style="align-self:flex-start"${L()}>${esc(t("sort_from", { n: nf(si + 1) }))}</span>` +
-            `<p${L()}>${esc(t("sort_first"))} <span${AR}>${esc(f.title)}</span></p><p class="muted"${L()}>${esc(t("sort_time", { h: hours(stepTime(s)) }))}</p></div></a>`
+            `<p${L()}>${esc(t("sort_first"))} <span${dLang(f)}>${esc(dTitle(f))}</span></p><p class="muted"${L()}>${esc(t("sort_time", { h: hours(stepTime(s)) }))}</p></div></a>`
           );
         })
         .join("") +
@@ -2763,11 +2775,11 @@
             .map((id) => plById.get(id))
             .map(
               (p) =>
-                `<li><a href="#/playlist/${encodeURIComponent(p.id)}"${AR}>${esc(p.title)}</a><span class="m lv">${esc(t("lv_" + levelOf(p.id)))}</span><span class="m">${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span></li>`,
+                `<li><a href="#/playlist/${encodeURIComponent(p.id)}"${dLang(p)}>${esc(dTitle(p))}</a><span class="m lv">${esc(t("lv_" + levelOf(p.id)))}</span><span class="m">${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span></li>`,
             )
             .join("") +
           (s.arabic
-            ? `<li class="sub"><span class="k">${esc(t("arabic_k"))}</span><span>${esc(t("arabic_v"))} <a href="#/playlist/${encodeURIComponent(s.arabic)}"${AR}>${esc(plById.get(s.arabic).title)}</a></span></li>`
+            ? `<li class="sub"><span class="k">${esc(t("arabic_k"))}</span><span>${esc(t("arabic_v"))} <a href="#/playlist/${encodeURIComponent(s.arabic)}"${dLang(plById.get(s.arabic))}>${esc(dTitle(plById.get(s.arabic)))}</a></span></li>`
             : "") +
           `<li class="tot">${esc(t("step_total", { n: lessonsN(stepCount(s)), h: hours(stepTime(s)) }))}</li></ul></div>` +
           `<label class="tick"${L()}><input type="checkbox" data-tick="${s.k}"${done ? " checked" : ""}><span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" pathLength="100"/></svg></span>${esc(t("done_tick"))}</label></li>`
@@ -3065,7 +3077,7 @@
                   ls
                     .map(
                       (p) =>
-                        `<li><a href="#/playlist/${encodeURIComponent(p.id)}"${AR}>${esc(p.title)}</a><span class="m">${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span></li>`,
+                        `<li><a href="#/playlist/${encodeURIComponent(p.id)}"${dLang(p)}>${esc(dTitle(p))}</a><span class="m">${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span></li>`,
                     )
                     .join("") +
                   "</ul>"
