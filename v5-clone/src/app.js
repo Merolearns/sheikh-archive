@@ -2879,14 +2879,41 @@
   // the browser either way, and a part whose file is not there shows the
   // installed-app note on the hosted site instead of a dead button.
   const bookById = new Map(BOOKS.map((b) => [b.id, b]));
+  // Display title (Nov 24, 2026 bilingual fix): in English mode a book
+  // shows its English title when one exists, so bilingual (ar-en) books
+  // read in English like the series and videos do; otherwise Arabic.
+  // Arabic mode is unchanged: a book shows the title in its own language,
+  // so an English book keeps its English title there.
+  const bookShown = (b) =>
+    st.lang === "en"
+      ? b.en || b.ar
+      : b.lang === "en" && b.en
+        ? b.en
+        : b.ar;
+  const bookShownEn = (b) =>
+    st.lang === "en" ? !!b.en : b.lang === "en" && !!b.en;
   const bookTitle = (b) =>
-    b.lang === "en" && b.en
-      ? `<span lang="en" dir="ltr">${esc(b.en)}</span>`
-      : `<span lang="ar" dir="rtl">${esc(b.ar)}</span>`;
+    bookShownEn(b)
+      ? `<span lang="en" dir="ltr">${esc(bookShown(b))}</span>`
+      : `<span lang="ar" dir="rtl">${esc(bookShown(b))}</span>`;
+  // Arabic subtitle under a displayed English title on the detail page,
+  // matching the series pattern: the Arabic stays visible so a bad
+  // translation is spotted. Shown whenever the title on display is
+  // English, in either site language.
+  const bookArSub = (b) =>
+    bookShownEn(b) && b.ar && bookShown(b) !== b.ar
+      ? `<p lang="ar" dir="rtl">${esc(b.ar)}</p>`
+      : "";
   const bookAuthor = (b) =>
     st.lang === "en" ? b.author_en || "" : b.author_ar || "";
   const langPill = (b) =>
-    `<span class="pill">${b.lang === "en" ? '<span lang="en" dir="ltr">English</span>' : '<span lang="ar">العربية</span>'}</span>`;
+    `<span class="pill">${
+      b.lang === "ar-en"
+        ? '<span lang="ar">العربية</span> · <span lang="en" dir="ltr">English</span>'
+        : b.lang === "en"
+          ? '<span lang="en" dir="ltr">English</span>'
+          : '<span lang="ar">العربية</span>'
+    }</span>`;
   // Designed cover for books with no cover image: the Q&A cover in miniature
   // (assessment §3-§5) - dark green panel, double gold frame with corner
   // stars, gold Ruqaa title, cream author line. No personal credit is put
@@ -2910,13 +2937,19 @@
     const lang = ["ar", "en"].includes(q.get("lang")) ? q.get("lang") : "";
     // Books list in alphabetical order, so the order is plain to see.
     const bcol = new Intl.Collator("ar", { numeric: true, sensitivity: "base" });
-    const list = BOOKS.filter((b) => !lang || b.lang === lang).sort((a, b) =>
+    // The English tab lists every book that has an English title (the
+    // English books and the bilingual ar-en editions); the Arabic tab
+    // lists the Arabic and bilingual editions. One Arabic work (b03, the
+    // Q and A book) also carries an English title in the data, so it
+    // appears on the English tab too.
+    const list = BOOKS.filter(
+      (b) =>
+        !lang ||
+        (lang === "en" ? !!b.en : b.lang === "ar" || b.lang === "ar-en"),
+    ).sort((a, b) =>
       // Sort by the title actually shown on the card, so a translated book
       // sits with the other books in its own language, not beside its twin.
-      bcol.compare(
-        (a.lang === "en" && a.en ? a.en : a.ar) || "",
-        (b.lang === "en" && b.en ? b.en : b.ar) || "",
-      ),
+      bcol.compare(bookShown(a) || "", bookShown(b) || ""),
     );
     const chip = (k, label) =>
       `<a class="chipf${k === lang ? " on" : ""}" href="#/books${k ? "?lang=" + k : ""}"${k === lang ? ' aria-current="true"' : ""}>${label}</a>`;
@@ -2958,7 +2991,7 @@
         ? `<div class="bk-cover"><img src="${esc(b.cover)}" alt=""></div>`
         : `<div class="bk-cover bk-cover-css">${bookCoverArt(b)}</div>`) +
       `<h1>${bookTitle(b)}</h1>` +
-      (b.lang === "en" && b.ar ? `<p lang="ar" dir="rtl">${esc(b.ar)}</p>` : "") +
+      bookArSub(b) +
       `<p${L()}>${esc(bookAuthor(b))}</p>` +
       (b.blurb
         ? `<p${L()}>${esc(st.lang === "en" ? b.blurb.en : b.blurb.ar)}</p>`

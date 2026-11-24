@@ -900,14 +900,20 @@ const G = "http://archive.test";
   await pg.waitForTimeout(1500);
   const bl = await pg.evaluate(() => ({
     cards: document.querySelectorAll("#bkGrid .scard").length,
-    titles: [...document.querySelectorAll("#bkGrid .stitle")].map(
-      (a) => a.textContent,
-    ),
+    // A card is identified by its displayed title + page count: the
+    // bilingual (ar-en) editions share the Arabic title of their
+    // single-language twin but differ in pages and file, so bare-title
+    // uniqueness would flag a real edition as a duplicate (Nov 23 2026).
+    titles: [...document.querySelectorAll("#bkGrid .scard")].map((c) => {
+      const t = c.querySelector(".stitle");
+      const p = c.querySelector(".eyebrow");
+      return (t ? t.textContent : "") + " | " + (p ? p.textContent : "");
+    }),
     side: null,
   }));
   check(
-    "books: 52 works listed, no title twice",
-    bl.cards === 52 && new Set(bl.titles).size === bl.titles.length,
+    "books: 98 works listed, no title+pages twice",
+    bl.cards === 98 && new Set(bl.titles).size === bl.titles.length,
     `cards=${bl.cards} unique=${new Set(bl.titles).size}`,
   );
   await pg.goto(G + "/?splash=0#/books?lang=en");
@@ -915,7 +921,9 @@ const G = "http://archive.test";
   const en = await pg.evaluate(
     () => document.querySelectorAll("#bkGrid .scard").length,
   );
-  check("books: language filter English", en === 11, "cards=" + en);
+  // English tab: 11 English books + 46 bilingual (ar-en) editions + b03,
+  // the Arabic Q and A book that carries an English title in the data.
+  check("books: language filter English", en === 58, "cards=" + en);
   await pg.goto(G + "/?splash=0#/book/b01");
   await pg.waitForTimeout(1500);
   const d1 = await pg.evaluate(() =>
@@ -1075,6 +1083,44 @@ const G = "http://archive.test";
     "EN search 'Bukhari' finds lessons",
     enBu.lessons >= 1,
     JSON.stringify(enBu),
+  );
+  // Bilingual books (Nov 24, 2026): in English mode a bilingual (ar-en)
+  // book shows its English title, with the Arabic kept as a subtitle on
+  // its detail page, and the English tab lists it.
+  await pg.goto(G + "/?splash=0#/books");
+  await pg.waitForTimeout(1000);
+  const enBk = await pg.evaluate(() => ({
+    b85: document.querySelector('[data-k="b85"] .stitle')?.textContent,
+    b84: document.querySelector('[data-k="b84"] .stitle')?.textContent,
+  }));
+  check(
+    "EN books: bilingual b85 and b84 show their English titles",
+    enBk.b85 === "The Facilitated Fiqh of Marriage Part One" &&
+      enBk.b84 ===
+        "Divorce in America, the Rulings of Divorced Women, and From the Rulings of Separation Between Spouses (Divorce Rulings in Civil Courts) Part Twelve",
+    JSON.stringify(enBk),
+  );
+  await pg.goto(G + "/?splash=0#/book/b85");
+  await pg.waitForTimeout(1200);
+  const enBkD = await pg.evaluate(() => ({
+    h1: document.querySelector("#v-book h1")?.textContent,
+    sub: document.querySelector('#v-book .bk-h p[lang="ar"]')?.textContent,
+  }));
+  check(
+    "EN book detail: h1 English, Arabic subtitle kept",
+    enBkD.h1 === "The Facilitated Fiqh of Marriage Part One" &&
+      enBkD.sub === "فقه الزواج الميسر الجزء الأول",
+    JSON.stringify(enBkD),
+  );
+  await pg.goto(G + "/?splash=0#/books?lang=en");
+  await pg.waitForTimeout(1000);
+  const enBkTab = await pg.evaluate(
+    () => document.querySelectorAll("#bkGrid .scard").length,
+  );
+  check(
+    "EN books: English tab lists the bilingual books",
+    enBkTab === 58,
+    "cards=" + enBkTab,
   );
   await pg.context().close();
 
