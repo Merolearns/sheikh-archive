@@ -284,8 +284,9 @@ def preview_bundle(pv, out):
 # WORK (volumes and parts nest inside it, so no title is listed twice).
 # Held back until the owner rules: everything on books/owner-review-list.json,
 # and book-38 (no author stated in the file; listing it here would imply the
-# Sheikh wrote it).
-BOOKS_HELD = {"book-38"}
+# Sheikh wrote it). book-66 is the same series (#17, Nov 23 2026 daily
+# fetch): same authorship question, same hold.
+BOOKS_HELD = {"book-38", "book-66"}
 
 
 def books_literal():

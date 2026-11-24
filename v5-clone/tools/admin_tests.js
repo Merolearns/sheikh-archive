@@ -101,7 +101,7 @@ const G = "http://archive.test";
   );
   await pg.context().close();
 
-  // 3. Admin: link appears, page renders, 34 books, book-06 at 32 pages,
+  // 3. Admin: link appears, page renders, 98 books, book-06 at 32 pages,
   // book-38 held with no author shown
   pg = await page(browser, ADMIN);
   await pg.goto(G + "/?splash=0#/admin");
@@ -115,17 +115,30 @@ const G = "http://archive.test";
       books: document.querySelectorAll("#v-admin [data-adm-book]").length,
       b06: b06 && b06.innerText.replace(/\s+/g, " ").slice(0, 120),
       held: held && held.innerText.replace(/\s+/g, " ").slice(0, 200),
+      held66:
+        document.querySelector('[data-adm-held="book-66"]') &&
+        document
+          .querySelector('[data-adm-held="book-66"]')
+          .innerText.replace(/\s+/g, " ")
+          .slice(0, 200),
     };
   });
   check(
-    "admin: link present, page renders, 34 books listed",
-    a1.link && a1.adminOn && a1.books === 34,
+    "admin: link present, page renders, 98 books listed",
+    a1.link && a1.adminOn && a1.books === 98,
     `link=${a1.link} books=${a1.books}`,
   );
   check(
     "book-06 shows 32 pages (corrected count)",
     !!a1.b06 && /32/.test(a1.b06) && !/62/.test(a1.b06),
     a1.b06 || "no b06 row",
+  );
+  check(
+    "book-66 held: title shown, no author named, flagged hidden",
+    !!a1.held66 &&
+      /Proud To Be Muslims/.test(a1.held66) &&
+      !/Moustafa|Mustafa|مصطفى/.test(a1.held66),
+    a1.held66 || "no held row",
   );
   check(
     "book-38 held: title shown, no author named, flagged hidden",

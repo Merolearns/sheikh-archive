@@ -1,0 +1,112 @@
+{
+  "app_video_ids": {
+    "value": 3977,
+    "unit": "unique video IDs",
+    "source": "catalog.js DATA.videos IDs"
+  },
+  "public_video_ids": {
+    "value": 3940,
+    "unit": "unique video IDs",
+    "source": "all_ids.txt and union of flat_videos.tsv, flat_shorts.tsv and flat_streams.tsv"
+  },
+  "app_video_ids_outside_public_inventory": {
+    "value": 37,
+    "unit": "unique video IDs",
+    "source": "catalog.js DATA.videos IDs absent from all_ids.txt"
+  },
+  "app_playlists": {
+    "value": 71,
+    "unit": "playlists",
+    "source": "catalog.js DATA.playlists IDs"
+  },
+  "tsv_playlists": {
+    "value": 71,
+    "unit": "playlists",
+    "source": "pl_entries_*.tsv filenames"
+  },
+  "app_entries": {
+    "value": 4320,
+    "unit": "playlist occurrences",
+    "source": "catalog.js DATA.playlists item lists"
+  },
+  "app_declared_entries": {
+    "value": 4320,
+    "unit": "playlist occurrences",
+    "source": "catalog.js DATA.playlists count fields"
+  },
+  "app_declared_count_mismatches": {
+    "value": 0,
+    "unit": "playlists",
+    "source": "catalog.js DATA.playlists count versus item list length"
+  },
+  "playlist_count_deltas": {
+    "value": 8,
+    "unit": "playlists",
+    "source": "catalog.js item lists and count fields versus pl_entries_*.tsv"
+  },
+  "tsv_entries": {
+    "value": 4332,
+    "unit": "playlist occurrences",
+    "source": "pl_entries_*.tsv rows"
+  },
+  "tsv_only_entries": {
+    "value": 13,
+    "unit": "playlist occurrences",
+    "source": "ordered occurrence join of catalog.js and pl_entries_*.tsv"
+  },
+  "tsv_only_video_ids": {
+    "value": 10,
+    "unit": "unique video IDs",
+    "source": "distinct IDs among TSV-only occurrences"
+  },
+  "app_only_entries": {
+    "value": 1,
+    "unit": "playlist occurrences",
+    "source": "ordered occurrence join of catalog.js and pl_entries_*.tsv"
+  },
+  "bukhari_app_entries": {
+    "value": 1128,
+    "unit": "playlist occurrences",
+    "source": "catalog.js DATA.playlists items for PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0"
+  },
+  "bukhari_app_video_ids": {
+    "value": 996,
+    "unit": "unique video IDs",
+    "source": "catalog.js DATA.playlists item IDs for PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0"
+  },
+  "bukhari_tsv_entries": {
+    "value": 1131,
+    "unit": "playlist occurrences",
+    "source": "pl_entries_PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0.tsv rows"
+  },
+  "bukhari_tsv_video_ids": {
+    "value": 999,
+    "unit": "unique video IDs",
+    "source": "pl_entries_PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0.tsv video_id column"
+  },
+  "bukhari_reconciled_entries": {
+    "value": 1128,
+    "unit": "playlist occurrences",
+    "source": "catalog-reconciled.json items for PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0"
+  },
+  "bukhari_reconciled_video_ids": {
+    "value": 996,
+    "unit": "unique video IDs",
+    "source": "catalog-reconciled.json item IDs for PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0"
+  },
+  "reconciled_playlists": {
+    "value": 71,
+    "unit": "playlists",
+    "source": "catalog-reconciled.json DATA.playlists IDs"
+  },
+  "reconciled_video_ids": {
+    "value": 3977,
+    "unit": "unique video IDs",
+    "source": "catalog-reconciled.json DATA.videos IDs"
+  },
+  "reconciled_entries": {
+    "value": 4320,
+    "unit": "playlist occurrences",
+    "source": "catalog-reconciled.json DATA.playlists item lists and count fields"
+  }
+}

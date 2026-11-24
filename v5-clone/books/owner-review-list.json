@@ -61,6 +61,17 @@
    ],
    "rule_fired": "authorship unconfirmed",
    "recommendation": "Confirm with the Sheikh whether it is his; credit him only if confirmed"
+  },
+  {
+   "id": "review-06",
+   "group": "proud-authorship",
+   "question": "Who wrote Proud To Be Muslims #17?",
+   "detail": "The file (8 pp, English, series #17, sent Nov 22, 2026) states no author anywhere. It is listed with the author omitted rather than guessed. Same question as #16 (review-05).",
+   "files": [
+    "_17-_Series_of_-Proud_To_Be_Muslims-.pdf"
+   ],
+   "rule_fired": "authorship unconfirmed",
+   "recommendation": "Confirm with the Sheikh whether it is his; credit him only if confirmed"
   }
  ]
 }

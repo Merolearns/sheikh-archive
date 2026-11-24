@@ -202,7 +202,6 @@ html.vt-theme::view-transition-old(root){animation-name:vtOut}
 .sec-h .more{font-size:14px;color:var(--gold-2);white-space:nowrap}
 .sec-h .more:hover{text-decoration:underline}
 .sec-eyebrow{display:block;font-size:13px;color:var(--gold-2);margin-bottom:2px}
-.sec-eyebrow:lang(en){text-transform:uppercase;letter-spacing:.1em;font-size:11.5px}
 .sec-promise{color:var(--ink2);font-size:15px;margin:-10px 0 18px}
 .medal{display:flex;align-items:center;justify-content:center;gap:16px;padding:34px 0 0;max-width:520px;margin:0 auto}
 .medal::before,.medal::after{content:"";flex:1;height:1px}
@@ -210,7 +209,6 @@ html.vt-theme::view-transition-old(root){animation-name:vtOut}
 .medal::after{background:linear-gradient(to right,var(--line),transparent)}
 .medal .kh{width:30px;height:30px;opacity:.95}
 .eyebrow{font-size:13px;color:var(--gold-2);font-weight:500}
-.eyebrow:lang(en){text-transform:uppercase;letter-spacing:.08em;font-size:12px}
 .muted{color:var(--ink3)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:3px 11px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
 .pill.lvl{color:var(--gold-2)}
