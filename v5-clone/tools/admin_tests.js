@@ -634,6 +634,37 @@ const G = "http://archive.test";
     JSON.stringify({ second, owner }),
   );
 
+  // [new] The Sheikh is on the committed admin list; the gate ignores case on both sides.
+  const sheikhOv = {
+    ...n7,
+    settings: { adminEmails: [ADMIN, "SheikhMoustafaKamel@gmail.com"] },
+  };
+  // No rewrite = the built site with the committed overrides.
+  const gate = async (email, ov) => {
+    const p = await page(browser, email, ov && withOverrides(ov));
+    await p.goto(G + "/?splash=0#/admin");
+    await p.waitForTimeout(900);
+    const on = await p.evaluate(
+      () =>
+        !!document.querySelector("#adminLink") &&
+        document.querySelector("#v-admin").classList.contains("on"),
+    );
+    await p.context().close();
+    return on;
+  };
+  const sk = {
+    lower: await gate("sheikhmoustafakamel@gmail.com"),
+    caps: await gate("SheikhMoustafaKamel@gmail.com"),
+    capsInList: await gate("sheikhmoustafakamel@gmail.com", sheikhOv),
+    owner: await gate(ADMIN),
+    unlisted: await gate("someone-else@example.com"),
+  };
+  check(
+    "[new] the Sheikh's email gets the admin page in any letter case; an unlisted email does not",
+    sk.lower && sk.caps && sk.capsInList && sk.owner && !sk.unlisted,
+    JSON.stringify(sk),
+  );
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);

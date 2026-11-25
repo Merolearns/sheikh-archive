@@ -19,6 +19,6 @@ create policy "profiles_no_update" on public.profiles
   for update using (false);
 create policy "profiles_no_delete" on public.profiles
   for delete using (false);
--- Only the admin account may read the list.
+-- Only the admin accounts may read the list.
 create policy "profiles_select_admin" on public.profiles
-  for select using ((auth.jwt() ->> 'email') = 'meroatschool@gmail.com');
+  for select using (lower(auth.jwt() ->> 'email') in ('meroatschool@gmail.com', 'sheikhmoustafakamel@gmail.com'));

@@ -5,7 +5,7 @@
    Supabase directly, and no privileged key is used anywhere. */
 (function () {
   "use strict";
-  var DEFAULT_ADMINS = ["meroatschool@gmail.com"];
+  var DEFAULT_ADMINS = ["meroatschool@gmail.com", "sheikhmoustafakamel@gmail.com"];
   var STAGED_KEY = "archive-v5-admin-staged";
   var ACCT_KEY = "archive-v5-account";
   var LANG_KEY = "archive-v2-lang";
@@ -216,7 +216,8 @@
   // The admin list comes from the committed overrides only, never from staged edits.
   function adminEmails() {
     var s = committed().settings || {};
-    return Array.isArray(s.adminEmails) && s.adminEmails.length ? s.adminEmails : DEFAULT_ADMINS;
+    var list = Array.isArray(s.adminEmails) && s.adminEmails.length ? s.adminEmails : DEFAULT_ADMINS;
+    return list.map(function (e) { return String(e).toLowerCase(); });
   }
   function copy(o) { return JSON.parse(JSON.stringify(o || {})); }
   function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }

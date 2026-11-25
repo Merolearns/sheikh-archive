@@ -922,7 +922,9 @@
      (anon key only), and admin edits land only as a committed data file. ---------- */
   function isAdminSession() {
     const a = load(K.acct, null);
-    const list = adminSettings().adminEmails || ["meroatschool@gmail.com"];
+    const list = (
+      adminSettings().adminEmails || ["meroatschool@gmail.com", "sheikhmoustafakamel@gmail.com"]
+    ).map((e) => String(e).toLowerCase());
     return !!(
       a &&
       a.mode === "email" &&
