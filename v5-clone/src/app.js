@@ -4,27 +4,66 @@
   /* ---------- Catalog (DATA comes from catalog.js, verbatim) and the library's curation ---------- */
   const VIDEOS = DATA.videos,
     PLAYLISTS = DATA.playlists;
-  const byId = new Map(VIDEOS.map((v) => [v.id, v]));
-  const plById = new Map(PLAYLISTS.map((p) => [p.id, p]));
   // Admin overrides (src/admin-overrides.json, injected by build.py):
-  // series and video title changes apply here, in memory only, so the
-  // catalog literal stays byte-identical to v4 and the build guard holds.
+  // title changes, added series and videos, and series membership apply
+  // here, in memory only, so the catalog literal stays byte-identical to
+  // v4 and the build guard holds. build.py has already validated them.
   try {
     if (typeof ADMIN_OVERRIDES !== "undefined" && ADMIN_OVERRIDES) {
       const so = ADMIN_OVERRIDES.series || {},
         vo = ADMIN_OVERRIDES.videos || {};
+      for (const [id, o] of Object.entries(vo))
+        if (o.new)
+          // An added video has no local file: it plays on YouTube only.
+          VIDEOS.push({
+            id,
+            title: o.title || o.titleEn || "",
+            titleEn: o.titleEn || "",
+            media: "videos/[" + id + "].mp4",
+            thumbnail: "",
+            subtitles: [],
+            playlistIds: [],
+            categories: ["videos"],
+            uploadDate: "",
+            duration: 0,
+            added: true,
+          });
+      for (const [id, o] of Object.entries(so))
+        if (o.new)
+          PLAYLISTS.push({
+            id,
+            title: o.title || o.titleEn || "",
+            titleEn: o.titleEn || "",
+            cover: "",
+            items: [],
+          });
+      const edited = new Map(); // series id -> its new item ids
       for (const p of PLAYLISTS) {
         const o = so[p.id];
         if (!o) continue;
         if (o.title) p.title = o.title;
         if (o.titleEn) p.titleEn = o.titleEn;
+        if (o.items) {
+          p.items = o.items.map((id) => ({ id }));
+          p.count = p.items.length;
+          edited.set(p.id, new Set(o.items));
+        }
       }
       for (const v of VIDEOS) {
         const o = vo[v.id];
         if (o && o.title) v.title = o.title;
+        // only series with an edited item list change a video's membership
+        for (const [pid, ids] of edited) {
+          const has = v.playlistIds.includes(pid);
+          if (ids.has(v.id) && !has) v.playlistIds.push(pid);
+          if (!ids.has(v.id) && has)
+            v.playlistIds = v.playlistIds.filter((x) => x !== pid);
+        }
       }
     }
   } catch (_) {}
+  const byId = new Map(VIDEOS.map((v) => [v.id, v]));
+  const plById = new Map(PLAYLISTS.map((p) => [p.id, p]));
   const IMAD_PL = "PLXKSrZvHoN9dOyWCCK6Qm8AS4blW3Ylwm"; // "Aqeeda by Dr Imad Bayoun"
   // Hosted flavor (archive-hosted.html) carries <meta name="archive-flavor"
   // content="hosted">; the installed app has no such tag. The hosted site
@@ -881,14 +920,14 @@
   /* ---------- Admin: the admin page is visible only to the owner's account.
      The check is a UI gate only: nothing privileged exists in the browser
      (anon key only), and admin edits land only as a committed data file. ---------- */
-  const ADMIN_EMAIL = "meroatschool@gmail.com";
   function isAdminSession() {
     const a = load(K.acct, null);
+    const list = adminSettings().adminEmails || ["meroatschool@gmail.com"];
     return !!(
       a &&
       a.mode === "email" &&
       a.access_token &&
-      String(a.email || "").toLowerCase() === ADMIN_EMAIL
+      list.includes(String(a.email || "").toLowerCase())
     );
   }
   function adminSettings() {
@@ -2356,11 +2395,12 @@
           },
           { once: true },
         );
-      if (!HOSTED) video.src = v.media;
+      const ytFirst = HOSTED || v.added;
+      if (!ytFirst) video.src = v.media;
       const cc = q.get("cc");
-      if (!HOSTED && (cc === "ar" || cc === "en")) setCaptions(cc);
+      if (!ytFirst && (cc === "ar" || cc === "en")) setCaptions(cc);
       Rec.stop();
-      if (HOSTED) setPlayMode("yt");
+      if (ytFirst) setPlayMode("yt");
       else {
         cur.mode = "local";
         const pr = video.play();
@@ -3445,6 +3485,7 @@
     // landing always shows the set-new-password form, even with ?splash=0.
     const isRecovery = checkRecoveryHash();
     if (skip && !force && !isRecovery) {
+      sp.hidden = true;
       const acct = load(K.acct, null);
       if (acct && acct.mode === "email" && acct.access_token)
         showAcctChip(acct.email);
@@ -3517,6 +3558,7 @@
         500,
         "cubic-bezier(0,0,.2,1)",
       );
+      A("#spLang", fade, 2700, 350, "cubic-bezier(0,0,.2,1)");
       A(".sp-bf .d", draw, 2700, 500);
       A(".sp-lbl", fade, 2850, 350, "cubic-bezier(0,0,.2,1)");
       A(".sp-fill", fade, 3150, 250, "cubic-bezier(0,0,.2,1)");
@@ -3525,6 +3567,24 @@
         .then(() => $(".sp-gold", sp).classList.add("sheen"))
         .catch(() => {});
     }
+    // Every entrance now holds its first frame (or, in calm mode, the page is
+    // its final frame), so the contents can show without an early button.
+    sp.classList.remove("pre");
+    // Language first: English / Arabic switches the opening and the whole site.
+    const syncSplashLang = () => {
+      sp.lang = st.lang;
+      sp.dir = st.lang === "en" ? "ltr" : "rtl";
+      $$("#spLang button").forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.lang === st.lang)),
+      );
+    };
+    syncSplashLang();
+    $$("#spLang button").forEach((b) =>
+      b.addEventListener("click", () => {
+        setLang(b.dataset.lang);
+        syncSplashLang();
+      }),
+    );
     const enter = (withVerse) => {
       // nobody waits on the choreography: jump to the final frame, then enter
       anims.forEach((a) => {
@@ -3987,7 +4047,23 @@
       chip.append(who, btn);
       tools.appendChild(chip);
     }
-    setTimeout(() => $("#signinBtn").focus({ preventScroll: true }), 50);
+    // Focus Sign In only once its entrance has finished (at the first frame
+    // in calm mode), so its focus ring never shows the button before the
+    // others. Chrome can drop focus() while the page is still loading, so
+    // retry on the next frames until it takes, unless the visitor has
+    // already moved focus somewhere or left the opening.
+    const focusSignin = (n) => {
+      const b = $("#signinBtn"),
+        a = document.activeElement;
+      if (sp.classList.contains("gone") || b.hidden || (a && a !== document.body))
+        return;
+      b.focus({ preventScroll: true });
+      if (document.activeElement !== b && n < 120)
+        requestAnimationFrame(() => focusSignin(n + 1));
+    };
+    Promise.all(anims.map((a) => a.finished))
+      .then(() => focusSignin(0))
+      .catch(() => {});
   }
 
   /* ---------- Boot ---------- */

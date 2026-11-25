@@ -113,8 +113,8 @@ const G = "http://archive.test";
       .length,
   }));
   check(
-    "opening has exactly three controls (sign in + sign up + guest), form hidden",
-    op.controls === 3 && op.formHidden,
+    "opening has exactly five controls (English + Arabic, then sign in + sign up + guest), form hidden",
+    op.controls === 5 && op.formHidden,
     JSON.stringify(op),
   );
   check(
@@ -1139,6 +1139,182 @@ const G = "http://archive.test";
       arLib.stitles.includes("شرح صحيح الإمام البخاري") &&
       arLib.stitles.includes("السيرة النبوية"),
     `cards=${arLib.stitles.length} sample=${arLib.stitles.slice(0, 3).join(" | ")}`,
+  );
+  await pg.context().close();
+
+  // [new] Opening order (Nov 25 2026): the opening is painted first, the
+  // library never shows behind or before it, no button shows ahead of the
+  // others, and Sign In takes focus only after its entrance has finished.
+  // A per-frame sampler records what every painted frame showed.
+  const SAMPLER = () => {
+    window.__frames = [];
+    const t0 = performance.now();
+    const op = (el) => (el ? +getComputedStyle(el).opacity : -1);
+    const BTN = ["signinBtn", "signupBtn", "enterBtn"];
+    const tick = () => {
+      const sp = document.getElementById("splash"),
+        main = document.getElementById("main");
+      if (sp && main) {
+        const stage = sp.querySelector(".sp-stage");
+        window.__frames.push({
+          t: Math.round(performance.now() - t0),
+          splash:
+            !sp.hidden &&
+            getComputedStyle(sp).display !== "none" &&
+            !sp.classList.contains("gone"),
+          mainVis: getComputedStyle(main).visibility,
+          stageVis: stage ? getComputedStyle(stage).visibility : "none",
+          lbl: BTN.map((id) => op(document.querySelector(`#${id} .sp-lbl`))),
+          fill: BTN.map((id) => op(document.querySelector(`#${id} .sp-fill`))),
+          lang: op(document.getElementById("spLang")),
+          verse: op(document.getElementById("spVerse")),
+          focus: document.activeElement && document.activeElement.id,
+        });
+      }
+      if (performance.now() - t0 < 5000) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const frames = async (opts, url) => {
+    const p = await page(browser, opts);
+    await p.addInitScript(SAMPLER);
+    await p.goto(G + url);
+    await p.waitForTimeout(5400);
+    const f = await p.evaluate(() => window.__frames);
+    await p.context().close();
+    return f;
+  };
+  const spread = (a) => Math.max(...a) - Math.min(...a);
+  const fa = await frames({}, "/?splash=1");
+  const covered = fa.filter((f) => f.splash && f.mainVis === "hidden");
+  check(
+    "[new] splash first: every painted frame shows the opening, the library behind it stays hidden",
+    fa.length > 20 && covered.length === fa.length,
+    `frames=${fa.length} covered=${covered.length} first=${JSON.stringify(fa[0])}`,
+  );
+  const shown = fa.filter((f) => f.stageVis === "visible");
+  const lockstep = shown.every(
+    (f) => spread(f.lbl) < 0.02 && spread(f.fill) < 0.02,
+  );
+  const focused = fa.filter((f) => f.focus === "signinBtn");
+  const focusLate = focused.every(
+    (f) =>
+      f.stageVis === "visible" &&
+      f.lbl.every((x) => x === 1) &&
+      f.fill.every((x) => x === 1),
+  );
+  check(
+    "[new] no early button: the three buttons enter together, Sign In is focused only after its entrance finished",
+    lockstep && focused.length > 0 && focusLate && !!shown.length && shown[0].lbl[0] === 0,
+    `shown=${shown.length} lockstep=${lockstep} focusedFrames=${focused.length} firstFocusAt=${focused[0] && focused[0].t}ms lastEntrance=${(shown.find((f) => f.fill.every((x) => x === 1)) || {}).t}ms firstShown=${JSON.stringify(shown[0])}`,
+  );
+  for (const [mode, opts, url] of [
+    ["reduced motion", { reducedMotion: "reduce" }, "/?splash=1"],
+    ["calm", {}, "/?splash=1&calm=1"],
+  ]) {
+    const fc = await frames(opts, url);
+    const vis = fc.filter((f) => f.stageVis === "visible");
+    const whole = vis.every(
+      (f) =>
+        f.verse === 1 &&
+        f.lang === 1 &&
+        f.lbl.every((x) => x === 1) &&
+        f.fill.every((x) => x === 1),
+    );
+    check(
+      `[new] ${mode}: the opening is one instant final frame (no early button), library hidden, Sign In focused`,
+      fc.length > 20 &&
+        fc.every((f) => f.splash && f.mainVis === "hidden") &&
+        vis.length > 0 &&
+        whole &&
+        fc.some((f) => f.focus === "signinBtn"),
+      `frames=${fc.length} visible=${vis.length} whole=${whole} first=${JSON.stringify(vis[0])}`,
+    );
+  }
+  const fd = await frames({}, "/?splash=0#/home");
+  check(
+    "[new] ?splash=0 deep link: the opening is never painted",
+    fd.length > 20 && fd.every((f) => !f.splash && f.mainVis === "visible"),
+    `frames=${fd.length} first=${JSON.stringify(fd[0])}`,
+  );
+
+  // [new] Language first: English / Arabic on the opening switches the opening and the whole site.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=1");
+  await pg.waitForTimeout(3800);
+  const lp0 = await pg.evaluate(() => ({
+    order: [...document.querySelectorAll("#splash .sp-in button")]
+      .filter((b) => b.offsetParent !== null)
+      .map((b) => b.id || b.dataset.lang),
+    dir: document.querySelector("#splash").dir,
+    lang: document.querySelector("#splash").lang,
+  }));
+  check(
+    "[new] language choice comes first on the opening, before the three choices; Arabic by default",
+    lp0.order.join(",") === "en,ar,signinBtn,signupBtn,enterBtn" &&
+      lp0.dir === "rtl" &&
+      lp0.lang === "ar",
+    JSON.stringify(lp0),
+  );
+  await pg.click('#spLang button[data-lang="en"]');
+  await pg.waitForTimeout(500);
+  const lp1 = await pg.evaluate(() => ({
+    dir: document.querySelector("#splash").dir,
+    lang: document.querySelector("#splash").lang,
+    signin: document.querySelector("#signinBtn .sp-lbl").textContent,
+    guest: document.querySelector("#enterBtn .sp-lbl").textContent,
+    pressed: document
+      .querySelector('#spLang button[data-lang="en"]')
+      .getAttribute("aria-pressed"),
+    verseLang: getComputedStyle(document.querySelector("#spVerse")).fontFamily,
+    stored: localStorage.getItem("archive-v2-lang"),
+  }));
+  check(
+    "[new] picking English on the opening: opening turns LTR English, choice stored",
+    lp1.dir === "ltr" &&
+      lp1.lang === "en" &&
+      lp1.signin === "Sign In" &&
+      /^[\x20-\x7E]+$/.test(lp1.guest) &&
+      lp1.pressed === "true" &&
+      lp1.stored === '"en"',
+    JSON.stringify(lp1),
+  );
+  await pg.click("#enterBtn");
+  await pg.waitForTimeout(1500);
+  const lp2 = await pg.evaluate(() => ({
+    nav: [...document.querySelectorAll("#nav a")].map((a) => a.textContent),
+    seg: document.querySelector("#langSeg").dataset.on,
+    title: document.title,
+    homeArabic: (document.querySelector("#v-home h1, #v-home h2") || {})
+      .textContent,
+  }));
+  check(
+    "[new] after entering, the whole site is in English (nav, title, home)",
+    lp2.nav.length === 5 &&
+      lp2.nav.every((x) => /^[\x20-\x7E]+$/.test(x)) &&
+      lp2.seg === "en" &&
+      /Library/.test(lp2.title) &&
+      !!lp2.homeArabic &&
+      !/[؀-ۿ]/.test(lp2.homeArabic),
+    JSON.stringify(lp2),
+  );
+  await pg.goto(G + "/?splash=1");
+  await pg.waitForTimeout(3800);
+  await pg.click('#spLang button[data-lang="ar"]');
+  await pg.waitForTimeout(500);
+  const lp3 = await pg.evaluate(() => ({
+    dir: document.querySelector("#splash").dir,
+    lang: document.querySelector("#splash").lang,
+    signin: document.querySelector("#signinBtn .sp-lbl").textContent,
+    stored: localStorage.getItem("archive-v2-lang"),
+  }));
+  check(
+    "[new] picking Arabic switches back: opening RTL Arabic, choice stored",
+    lp3.dir === "rtl" &&
+      lp3.lang === "ar" &&
+      lp3.signin === "تسجيل الدخول" &&
+      lp3.stored === '"ar"',
+    JSON.stringify(lp3),
   );
   await pg.context().close();
   await browser.close();

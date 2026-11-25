@@ -5,6 +5,7 @@ import json
 import pathlib
 import sys
 import urllib.error
+import time
 import urllib.request
 import urllib.parse
 
@@ -205,11 +206,19 @@ bad = []
 for f in files:
     if f.startswith("http"):
         r = urllib.request.Request(f, method="HEAD")
-        try:
-            with urllib.request.urlopen(r) as resp:
-                s, h, b = resp.status, dict(resp.headers), resp.read()
-        except urllib.error.HTTPError as e:
-            s, h, b = e.code, dict(e.headers), e.read()
+        # The CDN drops some connections when ~100 HEADs arrive in a burst
+        # (Nov 25 2026); a dropped connection is retried, an HTTP error is not.
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(r, timeout=60) as resp:
+                    s, h, b = resp.status, dict(resp.headers), resp.read()
+                break
+            except urllib.error.HTTPError as e:
+                s, h, b = e.code, dict(e.headers), e.read()
+                break
+            except (urllib.error.URLError, ConnectionError) as e:
+                s = f"connection error: {e}"
+                time.sleep(2)
     else:
         s, h, b = req("/" + urllib.parse.quote(f), method="HEAD")
     if s != 200:

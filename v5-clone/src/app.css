@@ -567,6 +567,9 @@ a.card:hover{transform:translateY(-3px);border-color:var(--line);box-shadow:var(
 #splash{position:fixed;inset:0;z-index:100;overflow:hidden;background:#151236;transition:opacity .5s var(--e-x)}
 #splash.gone{opacity:0;pointer-events:none}
 #splash[hidden]{display:none}
+#splash.pre .sp-stage{visibility:hidden}
+/* the opening covers the site from the first paint; the library behind it stays out of sight until the opening leaves */
+body:has(#splash:not([hidden]):not(.gone)) #main{visibility:hidden}
 #splash .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%}
 #splash .scrim{position:absolute;inset:0;background:#0b0820;opacity:0}
 .sky{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -598,7 +601,12 @@ a.card:hover{transform:translateY(-3px);border-color:var(--line);box-shadow:var(
    is open the divider and name line step aside so it fits inside the arch. */
 #splash.lg-open .sp-in{justify-content:safe center}
 .sp-enter[hidden]{display:none}
-#splash.lg-open #spOrn,#splash.lg-open #spName{display:none}
+#splash.lg-open #spOrn,#splash.lg-open #spName,#splash.lg-open #spLang{display:none}
+.sp-lang{display:flex;gap:8px;justify-content:center;margin-top:clamp(8px,1.8vh,16px)}
+.sp-lang button{min-height:34px;min-width:84px;padding:0 14px;border-radius:17px;border:1px solid rgba(227,197,102,.55);background:transparent;color:#EBD9B6;font-size:14px;cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
+.sp-lang button[lang="ar"]{font-family:var(--font-ar)}
+.sp-lang button[lang="en"]{font-family:var(--font-lat)}
+.sp-lang button[aria-pressed="true"]{background:rgba(227,197,102,.22);color:#FFF6E3}
 #splash.lg-open .sp-cite{margin-bottom:clamp(8px,2vh,16px)}
 @media (max-width:600px){#splash.lg-open .sp-cite{display:none}#lgForm,#lgResetForm{gap:6px}}
 .sp-enter.sp-alt{margin-top:10px}

@@ -5,7 +5,7 @@
    Supabase directly, and no privileged key is used anywhere. */
 (function () {
   "use strict";
-  var ADMIN_EMAIL = "meroatschool@gmail.com";
+  var DEFAULT_ADMINS = ["meroatschool@gmail.com"];
   var STAGED_KEY = "archive-v5-admin-staged";
   var ACCT_KEY = "archive-v5-account";
   var LANG_KEY = "archive-v2-lang";
@@ -69,7 +69,35 @@
       adm_copied: "تم النسخ",
       adm_download: "نزّل admin-overrides.json",
       adm_clear: "امسح التغييرات المعدة",
-      adm_not_admin: "هذه الصفحة للمسؤول فقط."
+      adm_not_admin: "هذه الصفحة للمسؤول فقط.",
+      adm_lang: "اللغة",
+      adm_lang_ar: "العربية",
+      adm_lang_en: "الإنجليزية",
+      adm_lang_aren: "العربية والإنجليزية",
+      adm_file: "ملف الكتاب (اسم الملف أو رابطه الكامل)",
+      adm_file_note: "ملف الكتاب نفسه يجب أن يصل إلى المستودع عبر الجلب اليومي أو عبر حفظه في المستودع، فهذه الصفحة لا ترفع ملفا إلى المستودع من المتصفح. اكتب اسم الملف كما سيكون في مجلد الكتب (مثل my-book.pdf) أو رابطه الكامل.",
+      adm_add_book: "أضف كتابا",
+      adm_added_h: "كتب مضافة (معدة)",
+      adm_remove: "احذف",
+      adm_up: "انقل إلى الأعلى",
+      adm_down: "انقل إلى الأسفل",
+      adm_add_series: "أضف سلسلة",
+      adm_pl_id: "رقم قائمة التشغيل في YouTube أو رابطها",
+      adm_series_items: "دروس هذه السلسلة",
+      adm_series_empty: "لا دروس في هذه السلسلة بعد.",
+      adm_yt_link: "رابط الدرس في YouTube",
+      adm_video_title: "عنوان الدرس (للدرس الجديد)",
+      adm_add_video: "أضف الدرس",
+      adm_new: "جديد",
+      adm_admins: "حسابات الإدارة (بريد في كل سطر)",
+      adm_err_title: "اكتب عنوانا واحدا على الأقل.",
+      adm_err_file: "اكتب اسم ملف ينتهي بـ .pdf أو .docx، أو رابطه الكامل.",
+      adm_err_yt: "تعذّر قراءة رقم الدرس من هذا الرابط.",
+      adm_err_pl: "تعذّر قراءة رقم قائمة التشغيل.",
+      adm_err_pl_dup: "هذه السلسلة موجودة بالفعل.",
+      adm_err_dup: "هذا الدرس موجود في السلسلة بالفعل.",
+      adm_err_vtitle: "اكتب عنوان الدرس الجديد.",
+      adm_err_admins: "أبق بريدا صحيحا واحدا على الأقل."
     },
     en: {
       adm_title: "Admin",
@@ -128,7 +156,35 @@
       adm_copied: "Copied",
       adm_download: "Download admin-overrides.json",
       adm_clear: "Clear staged changes",
-      adm_not_admin: "This page is for the admin only."
+      adm_not_admin: "This page is for the admin only.",
+      adm_lang: "Language",
+      adm_lang_ar: "Arabic",
+      adm_lang_en: "English",
+      adm_lang_aren: "Arabic and English",
+      adm_file: "Book file (file name or full link)",
+      adm_file_note: "The book file itself still has to reach the repo through the daily fetch or a commit; this page cannot upload a file to the repo from the browser. Enter the file name as it will be in the books folder (for example my-book.pdf), or its full link.",
+      adm_add_book: "Add a book",
+      adm_added_h: "Added books (staged)",
+      adm_remove: "Remove",
+      adm_up: "Move up",
+      adm_down: "Move down",
+      adm_add_series: "Add a series",
+      adm_pl_id: "YouTube playlist ID or link",
+      adm_series_items: "Videos in this series",
+      adm_series_empty: "No videos in this series yet.",
+      adm_yt_link: "YouTube link",
+      adm_video_title: "Video title (for a new video)",
+      adm_add_video: "Add video",
+      adm_new: "New",
+      adm_admins: "Admin accounts (one email per line)",
+      adm_err_title: "Enter at least one title.",
+      adm_err_file: "Enter a file name ending in .pdf or .docx, or its full link.",
+      adm_err_yt: "Could not read a video ID from that link.",
+      adm_err_pl: "Could not read a playlist ID from that.",
+      adm_err_pl_dup: "That series already exists.",
+      adm_err_dup: "That video is already in this series.",
+      adm_err_vtitle: "Enter a title for the new video.",
+      adm_err_admins: "Keep at least one valid email."
     }
   };
 
@@ -155,7 +211,64 @@
   function account() { return readJSON(ACCT_KEY, null); }
   function isAdmin() {
     var a = account();
-    return !!(a && a.mode === "email" && a.access_token && String(a.email || "").toLowerCase() === ADMIN_EMAIL);
+    return !!(a && a.mode === "email" && a.access_token && adminEmails().indexOf(String(a.email || "").toLowerCase()) !== -1);
+  }
+  // The admin list comes from the committed overrides only, never from staged edits.
+  function adminEmails() {
+    var s = committed().settings || {};
+    return Array.isArray(s.adminEmails) && s.adminEmails.length ? s.adminEmails : DEFAULT_ADMINS;
+  }
+  function copy(o) { return JSON.parse(JSON.stringify(o || {})); }
+  function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  function val(sel) { return String(($(sel) || {}).value || "").trim(); }
+  // A book row is a work ("b06"); the overrides file keys the source book ("book-06").
+  function srcId(workId) { return "book-" + String(workId).slice(1); }
+  function single(b) { return !!(b && b.parts && b.parts.length === 1); }
+  function fileOk(f) { return /^[\w.-]+\.(pdf|docx)$/i.test(f) || /^https:\/\/\S+$/.test(f); }
+  function ytId(s) {
+    s = String(s || "").trim();
+    var m = s.match(/(?:[?&]v=|youtu\.be\/|\/(?:shorts|embed|live)\/)([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/);
+    if (m) return m[1];
+    return /^[A-Za-z0-9_-]{11}$/.test(s) ? s : "";
+  }
+  function plId(s) {
+    s = String(s || "").trim();
+    var m = s.match(/[?&]list=([A-Za-z0-9_-]{10,64})(?![A-Za-z0-9_-])/);
+    if (m) return m[1];
+    return /^[A-Za-z0-9_-]{10,64}$/.test(s) ? s : "";
+  }
+  // Stage a full override entry; an entry equal to the committed one (or an
+  // empty one with nothing committed) is no change and is dropped.
+  function stageEntry(kind, id, o) {
+    var g = staged();
+    g[kind] = g[kind] || {};
+    var c = (committed()[kind] || {})[id];
+    if (c ? same(o, c) : !Object.keys(o).length) delete g[kind][id];
+    else g[kind][id] = o;
+    pruneVideos(g);
+    saveStaged(cleanStaged(g));
+  }
+  // A staged new video that no series lists any more is dropped with it.
+  function pruneVideos(g) {
+    var series = {}, used = {};
+    [committed().series || {}, g.series || {}].forEach(function (s) {
+      Object.keys(s).forEach(function (k) { series[k] = s[k]; });
+    });
+    Object.keys(series).forEach(function (k) {
+      (series[k].items || []).forEach(function (v) { used[v] = 1; });
+    });
+    Object.keys(g.videos || {}).forEach(function (v) {
+      if (g.videos[v].new && !used[v]) delete g.videos[v];
+    });
+  }
+  function entry(kind, id) {
+    return copy((staged()[kind] || {})[id] || (committed()[kind] || {})[id]);
+  }
+  // Show a form error without re-rendering, so what was typed stays in place.
+  function fail(key) {
+    var n = $("#adm-notice");
+    if (n) { n.textContent = t(key); n.hidden = false; }
+    return false;
   }
   function committed() {
     try {
@@ -190,7 +303,7 @@
     var c = committed().books || {};
     var g = staged().books || {};
     var o = {};
-    [c[id] || {}, g[id] || {}].forEach(function (x) {
+    [c[srcId(id)] || {}, g[srcId(id)] || {}].forEach(function (x) {
       Object.keys(x).forEach(function (k) { o[k] = x[k]; });
     });
     return { base: base, ov: o };
@@ -219,6 +332,7 @@
 
   var tab = "books";
   var editing = null; // {kind: "book"|"series"|"video", id: string}
+  var adding = null; // "book" | "series"
   var seriesQuery = "";
   var videoQuery = "";
   var videoResults = null;
@@ -248,7 +362,7 @@
       var h = '<tr data-adm-book="' + esc(b.id) + '"><td><span' + (b.lang === "en" ? ' lang="en" dir="ltr"' : ' lang="ar" dir="rtl"') + ">" + esc(title) + "</span>" + note + "</td>" +
         '<td class="num">' + esc(pages) + "</td>" +
         '<td class="num">' + esc(b.parts ? b.parts.length : 1) + "</td>" +
-        "<td>" + statusPill(hidden, hasStaged(b.id, "books")) + "</td>" +
+        "<td>" + statusPill(hidden, hasStaged(srcId(b.id), "books")) + "</td>" +
         '<td><button type="button" class="btn small" data-adm-edit-kind="book" data-adm-edit-id="' + esc(b.id) + '">' + esc(t("adm_edit")) + "</button></td></tr>";
       if (editing && editing.kind === "book" && editing.id === b.id) {
         h += '<tr><td colspan="5">' + bookForm(b, o) + "</td></tr>";
@@ -262,8 +376,16 @@
         '<div class="adm-muted">' + esc(t("adm_no_author")) + "</div></td>" +
         '<td class="num">-</td><td class="num">-</td><td><span class="adm-pill warn">' + esc(t("adm_hidden")) + "</span></td><td></td></tr>";
     }).join("");
+    var g = staged().books || {};
+    var added = Object.keys(g).filter(function (k) { return g[k].new; }).map(function (k) {
+      return '<tr data-adm-added-book="' + esc(k) + '"><td>' + esc(g[k].title_ar || g[k].title_en) +
+        '<div class="adm-muted" dir="ltr">' + esc(g[k].file) + "</div></td>" +
+        '<td><button type="button" class="btn small" data-adm-remove-book="' + esc(k) + '">' + esc(t("adm_remove")) + "</button></td></tr>";
+    }).join("");
     return "<h2>" + esc(t("adm_books_h")) + "</h2>" +
       '<p class="adm-note">' + esc(t("adm_books_p")) + "</p>" +
+      (adding === "book" ? addBookForm() : '<div class="adm-row"><button type="button" class="btn small" data-adm-add="book">' + esc(t("adm_add_book")) + "</button></div>") +
+      (added ? "<h2 style=\"margin-top:20px\">" + esc(t("adm_added_h")) + '</h2><table class="adm-table"><tbody>' + added + "</tbody></table>" : "") +
       '<table class="adm-table"><thead><tr><th>' + esc(t("adm_col_title")) + "</th><th>" + esc(t("adm_col_pages")) + "</th><th>" + esc(t("adm_col_parts")) + "</th><th>" + esc(t("adm_col_status")) + "</th><th></th></tr></thead><tbody>" +
       rows + "</tbody></table>" +
       (held ? "<h2 style=\"margin-top:28px\">" + esc(t("adm_held_h")) + "</h2>" +
@@ -271,12 +393,44 @@
         '<table class="adm-table"><thead><tr><th>' + esc(t("adm_col_title")) + "</th><th>" + esc(t("adm_col_pages")) + "</th><th>" + esc(t("adm_col_parts")) + "</th><th>" + esc(t("adm_col_status")) + "</th><th></th></tr></thead><tbody>" +
         held + "</tbody></table>" : "");
   }
+  function langSelect(id, cur) {
+    return '<select id="' + id + '">' + [["ar", "adm_lang_ar"], ["en", "adm_lang_en"], ["ar-en", "adm_lang_aren"]].map(function (x) {
+      return '<option value="' + x[0] + '"' + (x[0] === cur ? " selected" : "") + ">" + esc(t(x[1])) + "</option>";
+    }).join("") + "</select>";
+  }
+  function addBookForm() {
+    return '<div class="adm-form" id="adm-add-book">' +
+      '<p class="full adm-muted">' + esc(t("adm_file_note")) + "</p>" +
+      '<label>' + esc(t("adm_title_ar")) + '<input type="text" id="adm-n-ar"></label>' +
+      '<label>' + esc(t("adm_title_en")) + '<input type="text" id="adm-n-en"></label>' +
+      '<label>' + esc(t("adm_lang")) + langSelect("adm-n-lang", "ar") + "</label>" +
+      '<label>' + esc(t("adm_pages")) + '<input type="number" id="adm-n-pages" min="1"></label>' +
+      '<label class="full">' + esc(t("adm_file")) + '<input type="text" id="adm-n-file" dir="ltr"></label>' +
+      '<div class="full adm-row"><button type="button" class="btn primary small" data-adm-add-save="book">' + esc(t("adm_save")) + "</button>" +
+      '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div></div>";
+  }
+  function addBook() {
+    var ar = val("#adm-n-ar"), en = val("#adm-n-en"), f = val("#adm-n-file");
+    var pg = parseInt(val("#adm-n-pages"), 10);
+    if (!ar && !en) return fail("adm_err_title");
+    if (!fileOk(f)) return fail("adm_err_file");
+    var o = { new: true, lang: val("#adm-n-lang") || "ar", file: f };
+    if (ar) o.title_ar = ar;
+    if (en) o.title_en = en;
+    if (pg >= 1) o.pages = pg;
+    stageEntry("books", "book-n" + Date.now().toString(36), o);
+    adding = null;
+  }
   function bookForm(b, o) {
     var pages = (o.pages != null) ? o.pages : b.pages;
+    // Page count and file belong to one file, so they are edited on single-file books only.
     return '<div class="adm-form">' +
       '<label>' + esc(t("adm_title_ar")) + '<input type="text" id="adm-f-ar" value="' + esc(o.title_ar || b.ar || "") + '"></label>' +
       '<label>' + esc(t("adm_title_en")) + '<input type="text" id="adm-f-en" value="' + esc(o.title_en || b.en || "") + '"></label>' +
-      '<label>' + esc(t("adm_pages")) + '<input type="number" id="adm-f-pages" min="1" value="' + esc(pages) + '"></label>' +
+      '<label>' + esc(t("adm_lang")) + langSelect("adm-f-lang", o.lang || b.lang) + "</label>" +
+      (single(b) ? '<label>' + esc(t("adm_pages")) + '<input type="number" id="adm-f-pages" min="1" value="' + esc(pages) + '"></label>' +
+        '<label class="full">' + esc(t("adm_file")) + '<input type="text" id="adm-f-file" dir="ltr" value="' + esc(o.file || b.parts[0].file) + '"></label>' +
+        '<p class="full adm-muted">' + esc(t("adm_file_note")) + "</p>" : "") +
       '<label class="full"><span><input type="checkbox" id="adm-f-hidden"' + (o.hidden ? " checked" : "") + "> " + esc(t("adm_hide_book")) + "</span></label>" +
       '<div class="full adm-row"><button type="button" class="btn primary small" data-adm-save="book" data-adm-save-id="' + esc(b.id) + '">' + esc(t("adm_save")) + "</button>" +
       '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div></div>";
@@ -284,28 +438,113 @@
   function saveBook(id) {
     var b = bookBase(id);
     if (!b) return;
-    var ar = ($("#adm-f-ar") || {}).value || "";
-    var en = ($("#adm-f-en") || {}).value || "";
-    var pg = parseInt((($("#adm-f-pages") || {}).value || ""), 10);
-    var hidden = !!($("#adm-f-hidden") || {}).checked;
-    var c = (committed().books || {})[id] || {};
-    var o = {};
-    if (ar.trim() && ar.trim() !== (b.ar || "")) o.title_ar = ar.trim();
-    if (en.trim() && en.trim() !== (b.en || "")) o.title_en = en.trim();
-    if (pg >= 1 && pg !== b.pages) o.pages = pg;
-    if (hidden !== !!c.hidden) o.hidden = hidden;
-    if (c.note) o.note = c.note;
-    var g = staged();
-    g.books = g.books || {};
-    if (Object.keys(o).length) g.books[id] = o;
-    else delete g.books[id];
-    saveStaged(cleanStaged(g));
+    // BOOKS already carries the committed overrides, so start from the
+    // committed entry and record only what differs from what is shown.
+    var o = copy((committed().books || {})[srcId(id)]);
+    var ar = val("#adm-f-ar"), en = val("#adm-f-en"), lg = val("#adm-f-lang");
+    if (ar && ar !== (b.ar || "")) o.title_ar = ar;
+    if (en && en !== (b.en || "")) o.title_en = en;
+    if (lg && lg !== b.lang) o.lang = lg;
+    if (single(b)) {
+      var pg = parseInt(val("#adm-f-pages"), 10), f = val("#adm-f-file");
+      if (pg >= 1 && pg !== b.pages) o.pages = pg;
+      if (f && f !== b.parts[0].file) {
+        if (!fileOk(f)) return fail("adm_err_file");
+        o.file = f;
+      }
+    }
+    if (($("#adm-f-hidden") || {}).checked) o.hidden = true;
+    else delete o.hidden;
+    stageEntry("books", srcId(id), o);
     editing = null;
   }
 
+  // Series staged as new are not in the catalog yet: list them first.
+  function allSeries() {
+    var g = staged().series || {};
+    var known = {};
+    (DATA.playlists || []).forEach(function (p) { known[p.id] = 1; });
+    return Object.keys(g).filter(function (k) { return g[k].new && !known[k]; }).map(function (k) {
+      return { id: k, title: "", titleEn: "", items: [], stagedNew: true };
+    }).concat(DATA.playlists || []);
+  }
+  function findSeries(id) {
+    var found = null;
+    allSeries().forEach(function (p) { if (p.id === id) found = p; });
+    return found;
+  }
+  function itemsOf(p) {
+    var o = entry("series", p.id);
+    return o.items ? o.items : (p.items || []).map(function (x) { return x.id; });
+  }
+  function videoById(id) {
+    var found = null;
+    (DATA.videos || []).forEach(function (v) { if (v.id === id) found = v; });
+    var g = (staged().videos || {})[id];
+    return found || (g && g.new ? { id: id, title: g.title } : null);
+  }
+  function setItems(p, ids) {
+    var o = entry("series", p.id);
+    var c = (committed().series || {})[p.id];
+    o.items = ids;
+    // an unchanged list on a catalog series is no change at all
+    if (!o.new && !(c && c.items) && same(ids, (p.items || []).map(function (x) { return x.id; }))) delete o.items;
+    stageEntry("series", p.id, o);
+  }
+  function itemOp(sid, op, i) {
+    var p = findSeries(sid);
+    if (!p) return;
+    var ids = itemsOf(p).slice();
+    if (op === "remove") ids.splice(i, 1);
+    else {
+      var j = op === "up" ? i - 1 : i + 1;
+      if (j < 0 || j >= ids.length) return;
+      var x = ids[i]; ids[i] = ids[j]; ids[j] = x;
+    }
+    setItems(p, ids);
+  }
+  function addVideo(sid) {
+    var p = findSeries(sid);
+    if (!p) return;
+    var vid = ytId(val("#adm-n-yt"));
+    if (!vid) return fail("adm_err_yt");
+    var ids = itemsOf(p);
+    if (ids.indexOf(vid) !== -1) return fail("adm_err_dup");
+    if (!videoById(vid)) {
+      var title = val("#adm-n-vtitle");
+      if (!title) return fail("adm_err_vtitle");
+      var g = staged();
+      g.videos = g.videos || {};
+      g.videos[vid] = { new: true, title: title };
+      saveStaged(g);
+    }
+    setItems(p, ids.concat(vid));
+  }
+  function addSeriesForm() {
+    return '<div class="adm-form" id="adm-add-series">' +
+      '<label class="full">' + esc(t("adm_pl_id")) + '<input type="text" id="adm-n-pl" dir="ltr"></label>' +
+      '<label>' + esc(t("adm_title_ar")) + '<input type="text" id="adm-n-title"></label>' +
+      '<label>' + esc(t("adm_title_en")) + '<input type="text" id="adm-n-titleen"></label>' +
+      '<div class="full adm-row"><button type="button" class="btn primary small" data-adm-add-save="series">' + esc(t("adm_save")) + "</button>" +
+      '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div></div>";
+  }
+  function addSeries() {
+    var id = plId(val("#adm-n-pl"));
+    if (!id) return fail("adm_err_pl");
+    if (findSeries(id)) return fail("adm_err_pl_dup");
+    var title = val("#adm-n-title"), titleEn = val("#adm-n-titleen");
+    if (!title && !titleEn) return fail("adm_err_title");
+    var o = { new: true, items: [] };
+    if (title) o.title = title;
+    if (titleEn) o.titleEn = titleEn;
+    stageEntry("series", id, o);
+    adding = null;
+    seriesQuery = "";
+    editing = { kind: "series", id: id };
+  }
   function videosTab() {
     var q = seriesQuery.trim().toLowerCase();
-    var list = (DATA.playlists || []).filter(function (p) {
+    var list = allSeries().filter(function (p) {
       if (!q) return true;
       var st = seriesTitle(p);
       return (st.title + " " + (st.titleEn || "")).toLowerCase().indexOf(q) !== -1;
@@ -315,9 +554,11 @@
       var st = seriesTitle(p);
       var h = '<tr data-adm-series="' + esc(p.id) + '"><td><span lang="ar" dir="rtl">' + esc(st.title) + "</span>" +
         (st.titleEn ? '<div class="adm-muted" lang="en" dir="ltr">' + esc(st.titleEn) + "</div>" : "") + "</td>" +
-        '<td class="num">' + esc(p.items ? p.items.length : 0) + " " + esc(t("adm_lessons")) + "</td>" +
-        "<td>" + (hasStaged(p.id, "series") ? '<span class="adm-pill">' + esc(t("adm_staged")) + "</span>" : "") + "</td>" +
-        '<td><button type="button" class="btn small" data-adm-edit-kind="series" data-adm-edit-id="' + esc(p.id) + '">' + esc(t("adm_edit")) + "</button></td></tr>";
+        '<td class="num">' + esc(itemsOf(p).length) + " " + esc(t("adm_lessons")) + "</td>" +
+        "<td>" + (p.stagedNew ? '<span class="adm-pill">' + esc(t("adm_new")) + "</span> " : "") +
+        (hasStaged(p.id, "series") ? '<span class="adm-pill">' + esc(t("adm_staged")) + "</span>" : "") + "</td>" +
+        '<td><div class="adm-row"><button type="button" class="btn small" data-adm-edit-kind="series" data-adm-edit-id="' + esc(p.id) + '">' + esc(t("adm_edit")) + "</button>" +
+        (p.stagedNew ? '<button type="button" class="btn small" data-adm-remove-series="' + esc(p.id) + '">' + esc(t("adm_remove")) + "</button>" : "") + "</div></td></tr>";
       if (editing && editing.kind === "series" && editing.id === p.id) {
         h += '<tr><td colspan="4">' + seriesForm(p, st) + "</td></tr>";
       }
@@ -337,6 +578,7 @@
     }
     return "<h2>" + esc(t("adm_series_h")) + "</h2>" +
       '<p class="adm-note">' + esc(t("adm_series_p")) + "</p>" +
+      (adding === "series" ? addSeriesForm() : '<div class="adm-row" style="margin-bottom:12px"><button type="button" class="btn small" data-adm-add="series">' + esc(t("adm_add_series")) + "</button></div>") +
       '<div class="adm-search"><input type="text" id="adm-series-q" value="' + esc(seriesQuery) + '" placeholder="' + esc(t("adm_series_search_ph")) + '">' +
       '<button type="button" class="btn small" data-adm-series-search>' + esc(t("adm_search")) + "</button></div>" +
       '<table class="adm-table"><tbody>' + (rows || '<tr><td>' + esc(t("adm_no_match")) + "</td></tr>") + "</tbody></table>" +
@@ -349,11 +591,26 @@
         : '<table class="adm-table"><tbody>' + vrows + "</tbody></table>");
   }
   function seriesForm(p, st) {
+    var ids = itemsOf(p);
+    var opBtn = function (op, i, off) {
+      return '<button type="button" class="btn small" data-adm-item-op="' + op + '" data-adm-item-idx="' + i + '" data-adm-series-id="' + esc(p.id) + '"' +
+        (off ? " disabled" : "") + ' aria-label="' + esc(t("adm_" + op)) + '">' + (op === "up" ? "&uarr;" : op === "down" ? "&darr;" : esc(t("adm_remove"))) + "</button>";
+    };
+    var items = ids.length ? '<table class="adm-table"><tbody>' + ids.map(function (vid, i) {
+      var v = videoById(vid);
+      return '<tr data-adm-item="' + esc(vid) + '"><td><span lang="ar" dir="rtl">' + esc(v ? videoTitle(v) : vid) + "</span>" +
+        '<div class="adm-muted" dir="ltr">' + esc(vid) + "</div></td>" +
+        '<td class="num"><div class="adm-row">' + opBtn("up", i, i === 0) + opBtn("down", i, i === ids.length - 1) + opBtn("remove", i) + "</div></td></tr>";
+    }).join("") + "</tbody></table>" : '<p class="adm-muted">' + esc(t("adm_series_empty")) + "</p>";
     return '<div class="adm-form">' +
       '<label>' + esc(t("adm_title_ar")) + '<input type="text" id="adm-f-title" value="' + esc(st.title) + '"></label>' +
       '<label>' + esc(t("adm_title_en")) + '<input type="text" id="adm-f-titleen" value="' + esc(st.titleEn || "") + '"></label>' +
       '<div class="full adm-row"><button type="button" class="btn primary small" data-adm-save="series" data-adm-save-id="' + esc(p.id) + '">' + esc(t("adm_save")) + "</button>" +
-      '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div></div>";
+      '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div>" +
+      '<div class="full"><b>' + esc(t("adm_series_items")) + "</b>" + items + "</div>" +
+      '<label>' + esc(t("adm_yt_link")) + '<input type="text" id="adm-n-yt" dir="ltr"></label>' +
+      '<label>' + esc(t("adm_video_title")) + '<input type="text" id="adm-n-vtitle"></label>' +
+      '<div class="full adm-row"><button type="button" class="btn small" data-adm-add-video="' + esc(p.id) + '">' + esc(t("adm_add_video")) + "</button></div></div>";
   }
   function videoForm(v) {
     return '<div class="adm-form">' +
@@ -362,31 +619,30 @@
       '<button type="button" class="btn small" data-adm-cancel>' + esc(t("adm_cancel")) + "</button></div></div>";
   }
   function saveSeries(id) {
-    var p = null;
-    (DATA.playlists || []).forEach(function (x) { if (x.id === id) p = x; });
+    var p = findSeries(id);
     if (!p) return;
-    var title = ((($("#adm-f-title") || {}).value) || "").trim();
-    var titleEn = ((($("#adm-f-titleen") || {}).value) || "").trim();
-    var o = {};
-    if (title && title !== p.title) o.title = title;
-    if (titleEn && titleEn !== (p.titleEn || "")) o.titleEn = titleEn;
-    var g = staged();
-    g.series = g.series || {};
-    if (Object.keys(o).length) g.series[id] = o;
-    else delete g.series[id];
-    saveStaged(cleanStaged(g));
+    var title = val("#adm-f-title"), titleEn = val("#adm-f-titleen");
+    // p carries the committed titles, so a value equal to it keeps the committed one
+    var c = (committed().series || {})[id] || {};
+    var o = entry("series", id);
+    o.title = title && title !== p.title ? title : c.title;
+    o.titleEn = titleEn && titleEn !== (p.titleEn || "") ? titleEn : c.titleEn;
+    if (!o.title) delete o.title;
+    if (!o.titleEn) delete o.titleEn;
+    if (o.new && !o.title && !o.titleEn) return fail("adm_err_title");
+    stageEntry("series", id, o);
     editing = null;
   }
   function saveVideo(id) {
     var v = null;
     (DATA.videos || []).forEach(function (x) { if (x.id === id) v = x; });
     if (!v) return;
-    var title = ((($("#adm-f-title") || {}).value) || "").trim();
-    var g = staged();
-    g.videos = g.videos || {};
-    if (title && title !== v.title) g.videos[id] = { title: title };
-    else delete g.videos[id];
-    saveStaged(cleanStaged(g));
+    var title = val("#adm-f-title");
+    var c = (committed().videos || {})[id] || {};
+    var o = entry("videos", id);
+    o.title = title && title !== v.title ? title : c.title;
+    if (!o.title) delete o.title;
+    stageEntry("videos", id, o);
     editing = null;
   }
   function runVideoSearch() {
@@ -470,6 +726,7 @@
       '<div class="adm-form">' +
       '<label class="full">' + esc(t("adm_ann")) + '<textarea id="adm-f-ann">' + esc(ann) + "</textarea></label>" +
       '<label class="full"><span><input type="checkbox" id="adm-f-live"' + (live ? " checked" : "") + "> " + esc(t("adm_live")) + "</span></label>" +
+      '<label class="full">' + esc(t("adm_admins")) + '<textarea id="adm-f-admins" dir="ltr">' + esc((s.adminEmails || adminEmails()).join("\n")) + "</textarea></label>" +
       '<div class="full adm-row"><button type="button" class="btn primary small" data-adm-save="settings">' + esc(t("adm_save")) + "</button></div></div>";
   }
   function saveSettings() {
@@ -477,6 +734,9 @@
     var live = !!($("#adm-f-live") || {}).checked;
     var c = committed().settings || {};
     var o = {};
+    var admins = val("#adm-f-admins").toLowerCase().split(/[\s,]+/).filter(Boolean);
+    if (!admins.length || admins.some(function (e) { return !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); })) return fail("adm_err_admins");
+    if (!same(admins, adminEmails())) o.adminEmails = admins;
     if (ann !== (c.announcement || "")) o.announcement = ann;
     if (live !== (c.liveEnabled !== false)) o.liveEnabled = live;
     var g = staged();
@@ -550,30 +810,49 @@
     var body = tab === "books" ? booksTab() : tab === "videos" ? videosTab() : tab === "users" ? usersTab() : settingsTab();
     host.innerHTML = '<div class="wrap adm-wrap">' +
       '<header class="page-h">' + kh() + "<h1>" + esc(t("adm_title")) + "</h1><p>" + esc(t("adm_lede")) + "</p></header>" +
-      tabsHtml() + body + stagedPanel() + "</div>";
+      tabsHtml() + '<p class="adm-note" id="adm-notice" role="alert" hidden></p>' + body + stagedPanel() + "</div>";
     if (usersState.state === "loading") {
       var btn = $("[data-adm-users-load]", host);
       if (btn) btn.disabled = true;
     }
   }
   function onClick(e) {
-    var el = e.target.closest("[data-adm-tab],[data-adm-edit-kind],[data-adm-cancel],[data-adm-save],[data-adm-copy],[data-adm-download],[data-adm-clear],[data-adm-users-load],[data-adm-series-search],[data-adm-video-search]");
+    var el = e.target.closest("[data-adm-tab],[data-adm-edit-kind],[data-adm-cancel],[data-adm-save],[data-adm-copy],[data-adm-download],[data-adm-clear],[data-adm-users-load],[data-adm-series-search],[data-adm-video-search],[data-adm-add],[data-adm-add-save],[data-adm-remove-book],[data-adm-remove-series],[data-adm-item-op],[data-adm-add-video]");
     if (!el) return;
-    if (el.hasAttribute("data-adm-tab")) { tab = el.getAttribute("data-adm-tab"); editing = null; render(); return; }
+    if (el.hasAttribute("data-adm-tab")) { tab = el.getAttribute("data-adm-tab"); editing = null; adding = null; render(); return; }
+    if (el.hasAttribute("data-adm-add")) { adding = el.getAttribute("data-adm-add"); editing = null; render(); return; }
+    if (el.hasAttribute("data-adm-add-save")) {
+      var added = el.getAttribute("data-adm-add-save") === "book" ? addBook() : addSeries();
+      if (added !== false) render();
+      return;
+    }
+    if (el.hasAttribute("data-adm-remove-book") || el.hasAttribute("data-adm-remove-series")) {
+      var rg = staged();
+      if (rg.books) delete rg.books[el.getAttribute("data-adm-remove-book")];
+      if (rg.series) delete rg.series[el.getAttribute("data-adm-remove-series")];
+      pruneVideos(rg);
+      saveStaged(cleanStaged(rg));
+      editing = null;
+      render();
+      return;
+    }
+    if (el.hasAttribute("data-adm-item-op")) {
+      itemOp(el.getAttribute("data-adm-series-id"), el.getAttribute("data-adm-item-op"), +el.getAttribute("data-adm-item-idx"));
+      render();
+      return;
+    }
+    if (el.hasAttribute("data-adm-add-video")) { if (addVideo(el.getAttribute("data-adm-add-video")) !== false) render(); return; }
     if (el.hasAttribute("data-adm-edit-kind")) {
       editing = { kind: el.getAttribute("data-adm-edit-kind"), id: el.getAttribute("data-adm-edit-id") };
       render();
       return;
     }
-    if (el.hasAttribute("data-adm-cancel")) { editing = null; render(); return; }
+    if (el.hasAttribute("data-adm-cancel")) { editing = null; adding = null; render(); return; }
     if (el.hasAttribute("data-adm-save")) {
       var kind = el.getAttribute("data-adm-save");
       var id = el.getAttribute("data-adm-save-id");
-      if (kind === "book") saveBook(id);
-      else if (kind === "series") saveSeries(id);
-      else if (kind === "video") saveVideo(id);
-      else if (kind === "settings") saveSettings();
-      render();
+      var ok = kind === "book" ? saveBook(id) : kind === "series" ? saveSeries(id) : kind === "video" ? saveVideo(id) : saveSettings();
+      if (ok !== false) render();
       return;
     }
     if (el.hasAttribute("data-adm-copy")) { copyStaged(el); return; }

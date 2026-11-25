@@ -56,8 +56,21 @@ shown as `src/admin-overrides.json`; they take effect only after that
 file is committed to the repo and the site is republished. Nothing
 privileged exists in the browser: anon key only, never a service key.
 Book-06's count is corrected to 32 pages in the overrides file. Tests:
-`node tools/admin_tests.js http://127.0.0.1:8765` (15 checks, run by
+`node tools/admin_tests.js http://127.0.0.1:8765` (run by
 `tools/run_all.sh` after the behaviour suite).
+
+Adds and edits (Nov 25, 2026): the admin can also add a book (titles,
+language, pages, file name or full books-host link), edit a book's
+language, and edit page count and file on single-file books; add a
+series (YouTube playlist ID or link, Arabic and English titles); add a
+video to a series by pasting its YouTube link (the ID is read from the
+link); remove and reorder a series' videos. An added book's PDF still
+has to reach the repo through the daily fetch or a commit: the page
+cannot upload files. Added videos play through the existing
+youtube-nocookie embed. Who counts as admin comes from
+`settings.adminEmails` in the committed overrides (default
+`["meroatschool@gmail.com"]`); the Users list read policy in
+`src/admin-profiles.sql` still names only that one email.
 
 ## Layout
 

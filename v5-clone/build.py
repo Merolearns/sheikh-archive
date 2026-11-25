@@ -37,6 +37,9 @@ RECITATION = (
     pathlib.Path.home()
     / "workspace/research_notes/islamic-archive-v4-improvements-20261029-0426/recitation.mp3"
 )
+if not RECITATION.exists():
+    # A clean clone has no home research folder; the repo holds a byte-identical copy.
+    RECITATION = V4 / "Preview" / "assets" / "recitation.mp3"
 PV = OUT / "Preview"
 LAUNCHERS = ("Start Archive - Windows.bat", "Start_Archive_-_macOS.command")
 # The single external host the prototype may reference: the YouTube
@@ -117,15 +120,38 @@ def admin_overrides():
             "hidden",
             "note",
             "status",
+            "file",
+            "lang",
+            "new",
         }, f"admin override for {b_id}: unknown key"
         if o.get("pages") is not None:
             assert isinstance(o["pages"], int) and o["pages"] > 0, (
                 f"admin override for {b_id}: pages must be a positive number"
             )
+        assert o.get("lang", "ar") in ("ar", "en", "ar-en"), (
+            f"admin override for {b_id}: lang must be ar, en or ar-en"
+        )
+        if "file" in o:
+            assert re.fullmatch(r"[\w.-]+\.(pdf|docx)", o["file"]) or o[
+                "file"
+            ].startswith("https://"), (
+                f"admin override for {b_id}: file must be a .pdf/.docx name or a full link"
+            )
+        if o.get("new"):
+            assert re.fullmatch(r"book-n[a-z0-9]+", b_id), f"added book id {b_id}"
+            assert o.get("file") and (o.get("title_ar") or o.get("title_en")), (
+                f"added book {b_id}: needs a title and a file"
+            )
     st = ov.get("settings") or {}
-    assert set(st) <= {"announcement", "liveEnabled"}, (
-        "admin settings allow only announcement and liveEnabled"
+    assert set(st) <= {"announcement", "liveEnabled", "adminEmails"}, (
+        "admin settings allow only announcement, liveEnabled and adminEmails"
     )
+    admins = st.get("adminEmails", ["meroatschool@gmail.com"])
+    assert (
+        isinstance(admins, list)
+        and admins
+        and all(isinstance(e, str) and "@" in e and e == e.lower() for e in admins)
+    ), "adminEmails must be a non-empty list of lowercase emails"
     assert isinstance(st.get("announcement", ""), str), (
         "admin announcement must be text"
     )
@@ -314,28 +340,65 @@ def books_literal():
         if name.endswith(".docx") and _docx_base:
             return f"{_docx_base}/{name}"
         return "books/" + name
+
+    def _file(v):
+        # An admin file override: a bare name goes to the books base like the
+        # catalogued files; a full link must already be on a books base.
+        if v.startswith("https://"):
+            assert any(v.startswith(b + "/") for b in (_pdf_base, _docx_base) if b), (
+                f"book file link is not on the books host: {v}"
+            )
+            return v
+        return _f(v)
+
     s = (V5P / "books" / "books-data.js").read_text(encoding="utf-8")
     src = json.loads(s[s.index("{") : s.rindex("}") + 1])["books"]
     # Admin overrides (src/admin-overrides.json): a hidden book stays out
-    # of the public list; a title or page count override replaces the
-    # catalogued value before works are grouped.
+    # of the public list; title, language, page count and file overrides
+    # replace the catalogued values; "new" entries are books added by the
+    # admin. Works group by their ORIGINAL title, so a renamed book with
+    # several files stays one work.
     books_ov = admin_overrides().get("books", {})
+    for b_id, o in books_ov.items():
+        if o.get("new"):
+            src.append(
+                {
+                    "id": b_id,
+                    "title_ar": o.get("title_ar"),
+                    "title_en": o.get("title_en"),
+                    "author_ar": None,
+                    "author_en": None,
+                    "language": o.get("lang", "ar"),
+                    "pages": o.get("pages"),
+                    "format": "docx" if o["file"].endswith(".docx") else "pdf",
+                    "files": [o["file"]],
+                    "part": None,
+                    "parts": None,
+                    "cover": None,
+                    "companion": None,
+                    "blurb": None,
+                }
+            )
     unknown = sorted(set(books_ov) - {b["id"] for b in src})
     assert not unknown, f"admin overrides name unknown books: {unknown}"
-    works, by_book = [], {}
+    works, by_book, hidden_keys = [], {}, set()
     for b in src:
         if b["id"] in BOOKS_HELD:
             continue
         o = books_ov.get(b["id"], {})
+        key = (b["title_ar"] or b["title_en"], b["language"])
         if o.get("hidden"):
+            hidden_keys.add(key)
+        if key in hidden_keys:
             continue
         if o.get("title_ar"):
             b["title_ar"] = o["title_ar"]
         if o.get("title_en"):
             b["title_en"] = o["title_en"]
+        if o.get("lang"):
+            b["language"] = o["lang"]
         if o.get("pages"):
             b["pages"] = int(o["pages"])
-        key = (b["title_ar"] or b["title_en"], b["language"])
         w = next((w for w in works if w["key"] == key), None)
         if w is None:
             w = {
@@ -350,7 +413,8 @@ def books_literal():
         if b["parts"]:
             w["parts"] += [{"n": x["part"], "file": _f(x["file"]), "pages": x["pages"]} for x in b["parts"]]
         else:
-            w["parts"].append({"n": b["part"], "file": _f(pathlib.Path(b["files"][0]).name), "pages": b["pages"]})
+            f = _file(o["file"]) if o.get("file") else _f(pathlib.Path(b["files"][0]).name)
+            w["parts"].append({"n": b["part"], "file": f, "pages": b["pages"]})
     for w in works:
         c = w.pop("companion")
         w["companion"] = by_book[c]["id"] if c in by_book else None
@@ -364,6 +428,38 @@ def books_literal():
     files = [x["file"] for w in works for x in w["parts"]]
     assert len(files) == len(set(files)), "a book file is listed twice"
     return json.dumps(works, ensure_ascii=False, separators=(",", ":")), len(works), len(files)
+
+
+def check_catalog_overrides(ov, base):
+    """Series and video overrides name catalog entries, or are marked new
+    with a valid YouTube ID; every series item is a known or added video."""
+    pls = {p["id"] for p in base["playlists"]}
+    vids = {v["id"] for v in base["videos"]}
+    for vid, o in ov.get("videos", {}).items():
+        assert set(o) <= {"title", "titleEn", "new"}, f"video override {vid}: unknown key"
+        if o.get("new"):
+            assert re.fullmatch(r"[A-Za-z0-9_-]{11}", vid) and vid not in vids, (
+                f"added video {vid}: needs a new 11-character YouTube ID"
+            )
+            assert o.get("title") or o.get("titleEn"), f"added video {vid}: needs a title"
+        else:
+            assert vid in vids, f"admin overrides name unknown video: {vid}"
+    vids |= set(ov.get("videos", {}))
+    for pid, o in ov.get("series", {}).items():
+        assert set(o) <= {"title", "titleEn", "items", "new"}, f"series override {pid}: unknown key"
+        if o.get("new"):
+            assert re.fullmatch(r"[A-Za-z0-9_-]{10,64}", pid) and pid not in pls, (
+                f"added series {pid}: needs a new YouTube playlist ID"
+            )
+            assert o.get("title") or o.get("titleEn"), f"added series {pid}: needs a title"
+        else:
+            assert pid in pls, f"admin overrides name unknown series: {pid}"
+        items = o.get("items", [])
+        assert isinstance(items, list) and len(items) == len(set(items)), (
+            f"series {pid}: items must be a list with no repeats"
+        )
+        missing = [i for i in items if i not in vids]
+        assert not missing, f"series {pid} lists unknown videos: {missing[:5]}"
 
 
 def main():
@@ -443,10 +539,7 @@ def main():
     _, n_works, n_files = books_literal()
     print(f"books: {n_works} works, {n_files} files, no title or file listed twice; held for owner: {sorted(BOOKS_HELD)}")
     ov = admin_overrides()
-    bad_series = sorted(set(ov.get("series", {})) - {p["id"] for p in base["playlists"]})
-    bad_videos = sorted(set(ov.get("videos", {})) - {v["id"] for v in base["videos"]})
-    assert not bad_series, f"admin overrides name unknown series: {bad_series}"
-    assert not bad_videos, f"admin overrides name unknown videos: {bad_videos}"
+    check_catalog_overrides(ov, base)
     print(
         f"admin overrides: {len(ov.get('books', {}))} book entries, "
         f"{len(ov.get('series', {}))} series, {len(ov.get('videos', {}))} videos; "
