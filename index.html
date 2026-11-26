@@ -1167,12 +1167,15 @@ html.calm .tx-bar{transition:none}
   </div>
 </div>
 <script>
-  // The opening shows once: after entering (or with a stored session, or ?splash=0) hide it before the first paint.
-  // ?splash=1 forces it, and a password-reset link always opens it.
+  // The one place that decides whether the opening shows; app.js splash() reads this result, so both always agree.
+  // A fresh visit always shows it; a same-session reload (entered flag in sessionStorage) or ?splash=0 hides it before the first paint.
+  // ?splash=1 forces it (the first splash value wins), and a password-reset link always opens it.
   (function () {
-    var e = null, a = null, q = location.search;
-    try { e = JSON.parse(localStorage.getItem("archive-v5-entered")); a = JSON.parse(localStorage.getItem("archive-v5-account")); } catch (_) {}
-    if ((/[?&]splash=0(&|$)/.test(q) || e || (a && a.mode === "email" && a.access_token)) && !/[?&]splash=1(&|$)/.test(q) && !/type=recovery/.test(location.hash)) document.getElementById("splash").hidden = true;
+    var e = null, qs = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.slice(1));
+    try { localStorage.removeItem("archive-v5-entered"); } catch (_) {} // drop the old forever flag
+    try { e = JSON.parse(sessionStorage.getItem("archive-v5-entered")); } catch (_) {}
+    var skip = qs.get("splash") === "0" || (!!e && qs.get("splash") !== "1");
+    if (skip && !(h.get("type") === "recovery" && h.get("access_token"))) document.getElementById("splash").hidden = true;
   })();
 </script>
 <audio id="recAudio" preload="none"></audio>
@@ -3151,6 +3154,12 @@ html.calm .tx-bar{transition:none}
   function store(k, v) {
     try {
       localStorage.setItem(k, JSON.stringify(v));
+    } catch (_) {}
+  }
+  // Session memory: lasts for this tab's visit only, so a fresh visit starts over.
+  function storeSession(k, v) {
+    try {
+      sessionStorage.setItem(k, JSON.stringify(v));
     } catch (_) {}
   }
   const st = {
@@ -5984,24 +5993,14 @@ html.calm .tx-bar{transition:none}
     // It lives only in this closure: never stored as a login session
     // (no K.acct write) and dropped the moment the reset completes.
     let recoveryToken = "";
-    let force = false,
-      skip = false;
-    try {
-      const qs = new URLSearchParams(location.search);
-      force = qs.get("splash") === "1";
-      // The opening shows once (owner decision, Nov 25 2026): after the
-      // visitor has entered, as a guest or signed in, every later open goes
-      // straight to the library. Signing out clears the flag, so the
-      // opening comes back. ?splash=1 forces it, ?splash=0 skips it.
-      skip =
-        qs.get("splash") === "0" || !!load(K.entered, null) || !!acctSession();
-    } catch (_) {}
     // A password-reset email lands here with #access_token=...&type=recovery.
     // checkRecoveryHash() reads the token, then clears it from the URL at
     // once so it never lingers in the address bar or history. A recovery
     // landing always shows the set-new-password form, even with ?splash=0.
     const isRecovery = checkRecoveryHash();
-    if (skip && !force && !isRecovery) {
+    // Show or skip was already decided before the first paint by the inline
+    // script in body.html (fresh visit shows it, same-session reload skips).
+    if (sp.hidden && !isRecovery) {
       sp.hidden = true;
       resumeSession();
       return;
@@ -6101,10 +6100,11 @@ html.calm .tx-bar{transition:none}
       }),
     );
     const enter = (withVerse) => {
-      // Remember the entry (guest or signed in): later opens skip the opening.
+      // Remember the entry for this session only: a same-session reload skips
+      // the opening, a fresh visit shows it again.
       const a = acctSession();
-      store(K.entered, { mode: a ? "email" : "guest", at: new Date().toISOString() });
-      if (a) showAcctChip(a.email);
+      storeSession(K.entered, { mode: a ? "email" : "guest", at: new Date().toISOString() });
+      if (a) resumeSession();
       // nobody waits on the choreography: jump to the final frame, then enter
       anims.forEach((a) => {
         try {
@@ -6602,10 +6602,12 @@ html.calm .tx-bar{transition:none}
       btn.className = "btn small";
       btn.textContent = t("lg_signout");
       btn.addEventListener("click", () => {
-        // Signing out is the one way back to the opening page.
+        // Signing out brings the opening back at once.
         try {
           localStorage.removeItem(K.acct);
-          localStorage.removeItem(K.entered);
+        } catch (_) {}
+        try {
+          sessionStorage.removeItem(K.entered);
         } catch (_) {}
         location.replace(location.pathname);
       });
