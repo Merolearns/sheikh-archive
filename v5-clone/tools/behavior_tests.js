@@ -31,7 +31,8 @@ async function page(browser, opts) {
     ...(opts || {}),
   });
   const pg = await ctx.newPage();
-  await pg.route("http://archive.test/**", async (route) => {
+  // on the context, so a second tab in the same browser is served too
+  await ctx.route("http://archive.test/**", async (route) => {
     const r = route.request(),
       u = new URL(r.url());
     const res = await fetch(RELAY + u.pathname + u.search, {
@@ -126,24 +127,24 @@ const G = "http://archive.test";
   await pg.waitForTimeout(900);
   const after = await pg.evaluate(() => ({
     hidden: document.querySelector("#splash").hidden,
-    entered: JSON.parse(localStorage.getItem("archive-v5-entered")),
+    entered: JSON.parse(sessionStorage.getItem("archive-v5-entered")),
   }));
   check(
-    "Enter mid-sequence enters the library and sets the entered flag in localStorage",
+    "Enter mid-sequence enters the library and sets the entered flag in sessionStorage",
     after.hidden && after.entered && after.entered.mode === "guest" && !!after.entered.at,
     JSON.stringify(after),
   );
-  // Round 3 owner order (Nov 25): the opening shows once; a reload goes straight to the library
+  // A same-session reload after entering goes straight to the library
   await pg.goto(G + "/#/home");
   await pg.waitForTimeout(900);
   const again = await pg.evaluate(() => ({
     splashHidden: document.querySelector("#splash").hidden,
     main: getComputedStyle(document.querySelector("#main")).visibility,
     home: document.querySelector("#v-home").classList.contains("on"),
-    entered: !!localStorage.getItem("archive-v5-entered"),
+    entered: !!sessionStorage.getItem("archive-v5-entered"),
   }));
   check(
-    "[r3] guest entered, reload: no opening, the library shows, entered flag kept",
+    "[r3] guest entered, same-session reload: no opening, the library shows, entered flag kept",
     again.splashHidden && again.main === "visible" && again.home && again.entered,
     JSON.stringify(again),
   );
@@ -1353,6 +1354,12 @@ const G = "http://archive.test";
     p.evaluate((o) => {
       for (const [k, v] of Object.entries(o)) localStorage.setItem(k, JSON.stringify(v));
     }, items);
+  // Same tab, same session: stands in for a reload after entering.
+  const seedSession = (p, items) =>
+    p.evaluate((o) => {
+      for (const [k, v] of Object.entries(o)) sessionStorage.setItem(k, JSON.stringify(v));
+    }, items);
+  const ENTERED = { "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" } };
   const ACC = (extra) => ({
     mode: "email",
     email: "reader@example.com",
@@ -1403,11 +1410,110 @@ const G = "http://archive.test";
     await pg.context().close();
   }
 
-  // Item 2 (2): a stored, unexpired session skips the opening and shows the account chip
+  // Fresh visits always show the opening; only a same-session reload skips it.
+  // (a) a device carrying the old forever flag in localStorage gets the opening back
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, ENTERED);
+  await pg.evaluate(() => sessionStorage.clear()); // fresh session: nothing in sessionStorage
+  await pg.goto(G + "/");
+  await pg.waitForTimeout(600);
+  const lg = await pg.evaluate(() => ({
+    splash: !document.querySelector("#splash").hidden,
+    legacy: localStorage.getItem("archive-v5-entered"),
+    session: sessionStorage.getItem("archive-v5-entered"),
+  }));
+  check(
+    "[fresh] legacy localStorage entered flag: the opening shows and the legacy flag is removed",
+    lg.splash && lg.legacy === null && lg.session === null,
+    JSON.stringify(lg),
+  );
+  await pg.context().close();
+
+  // (b) a fresh visit plays the entrance in sequence: verse, then name and buttons, then the sheen
+  pg = await page(browser);
+  await pg.goto(G + "/");
+  const spSample = () =>
+    pg.evaluate(() => {
+      const op = (s) => +getComputedStyle(document.querySelector(s)).opacity;
+      return {
+        t: Math.round(performance.now()),
+        running: document.getAnimations().filter((x) => x.playState === "running")
+          .length,
+        verse: +op("#spVerse").toFixed(2),
+        name: +op("#spName").toFixed(2),
+        btn: +op("#enterBtn .sp-lbl").toFixed(2),
+        sheen: document
+          .querySelector("#splash .sp-gold")
+          .classList.contains("sheen"),
+        hidden: document.querySelector("#splash").hidden,
+      };
+    });
+  await pg.waitForTimeout(900);
+  const s09 = await spSample();
+  await pg.waitForTimeout(600);
+  const s15 = await spSample();
+  await pg.waitForTimeout(1100);
+  const s26 = await spSample();
+  await pg.waitForTimeout(1600);
+  const s42 = await spSample();
+  check(
+    "[fresh] fresh visit plays the entrance in sequence (running at 0.9s, verse low at 1.5s and rising, name/buttons later, verse 1 + sheen at the end)",
+    !s09.hidden &&
+      s09.running > 0 &&
+      s15.verse < 0.2 &&
+      s15.name === 0 &&
+      s15.btn === 0 &&
+      s26.verse > s15.verse &&
+      s42.verse === 1 &&
+      s42.name === 1 &&
+      s42.btn === 1 &&
+      s42.sheen,
+    JSON.stringify({ s09, s15, s26, s42 }),
+  );
+  await pg.context().close();
+
+  // (c) ?splash=0 and ?splash=1 together: one decision (first value wins), so the opening is never painted
+  const fdup = await frames({}, "/?splash=0&splash=1#/home");
+  check(
+    "[fresh] ?splash=0&splash=1: the opening is never painted and the library shows (first value wins)",
+    fdup.length > 20 && fdup.every((f) => !f.splash && f.mainVis === "visible"),
+    `frames=${fdup.length} first=${JSON.stringify(fdup[0])}`,
+  );
+
+  // (d) signed in, fresh visit: the opening shows; entering keeps the session and shows the chip
   pg = await page(browser);
   let sbCalls = await fakeAuth(pg, 500, {});
   await pg.goto(G + "/?splash=0#/home");
   await seed(pg, { "archive-v5-account": ACC() });
+  await pg.evaluate(() => sessionStorage.clear());
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(900);
+  const sf = await pg.evaluate(() => !document.querySelector("#splash").hidden);
+  await pg.click("#enterBtn");
+  await pg.waitForTimeout(900);
+  const sf2 = await pg.evaluate(() => ({
+    splashHidden: document.querySelector("#splash").hidden,
+    chip: !!document.querySelector(".acct-chip"),
+    token: JSON.parse(localStorage.getItem("archive-v5-account")).access_token,
+  }));
+  check(
+    "[fresh] signed-in fresh visit: the opening shows; Enter as Guest shows the account chip, token intact, no auth call",
+    sf &&
+      sf2.splashHidden &&
+      sf2.chip &&
+      sf2.token === "live-token" &&
+      sbCalls.length === 0,
+    "splash=" + sf + " " + JSON.stringify(sf2) + " calls=" + sbCalls.length,
+  );
+  await pg.context().close();
+
+  // (e) Item 2 (2): signed in, same-session reload skips the opening and shows the account chip
+  pg = await page(browser);
+  sbCalls = await fakeAuth(pg, 500, {});
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, { "archive-v5-account": ACC() });
+  await seedSession(pg, ENTERED);
   await pg.goto(G + "/#/home");
   await pg.waitForTimeout(900);
   const si = await pg.evaluate(() => ({
@@ -1417,9 +1523,61 @@ const G = "http://archive.test";
     token: JSON.parse(localStorage.getItem("archive-v5-account")).access_token,
   }));
   check(
-    "[r3] signed-in reload: no opening, account chip (with My account link) shown, no auth call",
+    "[r3] signed-in same-session reload: no opening, account chip (with My account link) shown, no auth call",
     si.splashHidden && si.chip && si.acctLink && si.token === "live-token" && sbCalls.length === 0,
     JSON.stringify(si) + " calls=" + sbCalls.length,
+  );
+  await pg.context().close();
+
+  // (f) real sign-in through the form, then reload, then a new tab in the same browser
+  pg = await page(browser);
+  sbCalls = await fakeAuth(pg, 200, {
+    access_token: "form-token",
+    refresh_token: "form-refresh",
+    expires_in: 3600,
+    user: { id: "u-form" },
+  });
+  await pg.goto(G + "/");
+  await pg.click("#signinBtn");
+  await pg.fill("#lgEmail", "reader@example.com");
+  await pg.fill("#lgPass", "secret-pass");
+  await pg.click("#lgSubmit");
+  await pg.waitForFunction(() => document.querySelector("#splash").hidden, null, {
+    timeout: 5000,
+  });
+  await pg.reload();
+  await pg.waitForTimeout(900);
+  const fr = await pg.evaluate(() => ({
+    splashHidden: document.querySelector("#splash").hidden,
+    chip: !!document.querySelector(".acct-chip"),
+    token: JSON.parse(localStorage.getItem("archive-v5-account")).access_token,
+  }));
+  const tab = await pg.context().newPage();
+  const tabCalls = await fakeAuth(tab, 500, {});
+  await tab.goto(G + "/");
+  await tab.waitForTimeout(900);
+  const ft = await tab.evaluate(() => ({
+    splash: !document.querySelector("#splash").hidden,
+    running: document.getAnimations().filter((x) => x.playState === "running")
+      .length,
+    token: JSON.parse(localStorage.getItem("archive-v5-account")).access_token,
+  }));
+  check(
+    "[fresh] form sign-in, reload: no opening, still signed in; new tab: the opening plays, account kept",
+    sbCalls.some((c) => /grant_type=password$/.test(c.url)) &&
+      fr.splashHidden &&
+      fr.chip &&
+      fr.token === "form-token" &&
+      ft.splash &&
+      ft.running > 0 &&
+      ft.token === "form-token" &&
+      tabCalls.length === 0,
+    JSON.stringify({
+      fr,
+      ft,
+      calls: sbCalls.map((c) => c.url),
+      tabCalls: tabCalls.length,
+    }),
   );
   await pg.context().close();
 
@@ -1434,8 +1592,8 @@ const G = "http://archive.test";
   await pg.goto(G + "/?splash=0#/home");
   await seed(pg, {
     "archive-v5-account": ACC({ access_token: "old-token", refresh_token: "old-refresh", expires_at: 1000 }),
-    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
   });
+  await seedSession(pg, ENTERED);
   await pg.goto(G + "/#/home");
   await pg.waitForTimeout(1500);
   const rf = await pg.evaluate(() => ({
@@ -1465,13 +1623,13 @@ const G = "http://archive.test";
   await pg.goto(G + "/?splash=0#/home");
   await seed(pg, {
     "archive-v5-account": ACC({ expires_at: 1000 }),
-    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
   });
+  await seedSession(pg, ENTERED);
   await pg.goto(G + "/#/home");
   await pg.waitForTimeout(1500);
   const rx = await pg.evaluate(() => ({
     acct: localStorage.getItem("archive-v5-account"),
-    entered: !!localStorage.getItem("archive-v5-entered"),
+    entered: !!sessionStorage.getItem("archive-v5-entered"),
     splashHidden: document.querySelector("#splash").hidden,
     chip: !!document.querySelector(".acct-chip"),
     notice: document.querySelector("#lgNotice").hidden,
@@ -1494,15 +1652,16 @@ const G = "http://archive.test";
   await pg.goto(G + "/?splash=0#/home");
   await seed(pg, {
     "archive-v5-account": ACC(),
-    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
   });
+  await seedSession(pg, ENTERED);
   await pg.goto(G + "/#/home");
   await pg.waitForSelector(".acct-chip button");
   await Promise.all([pg.waitForNavigation(), pg.click(".acct-chip button")]);
   await pg.waitForTimeout(900);
   const so = await pg.evaluate(() => ({
     acct: localStorage.getItem("archive-v5-account"),
-    entered: localStorage.getItem("archive-v5-entered"),
+    entered: sessionStorage.getItem("archive-v5-entered"),
+    legacy: localStorage.getItem("archive-v5-entered"),
     splash: !document.querySelector("#splash").hidden,
   }));
   await pg.goto(G + "/");
@@ -1510,7 +1669,7 @@ const G = "http://archive.test";
   const so2 = await pg.evaluate(() => !document.querySelector("#splash").hidden);
   check(
     "[r3] sign-out clears the session and the entered flag; the opening shows again",
-    so.acct === null && so.entered === null && so.splash && so2,
+    so.acct === null && so.entered === null && so.legacy === null && so.splash && so2,
     JSON.stringify(so) + " nextVisitSplash=" + so2,
   );
   await pg.context().close();
@@ -1539,12 +1698,12 @@ const G = "http://archive.test";
   await pg.goto(G + "/?splash=0#/home");
   await seed(pg, {
     "archive-v5-account": ACC(),
-    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
     "archive-v2-lang": "en",
     "archive-v2-done": Object.fromEntries(DONE3.map((id) => [id, 1])),
     "archive-v3-days": { 1: 1, 2: 1 },
     "archive-v5-watch-sec": 5400,
   });
+  await seedSession(pg, ENTERED);
   await pg.goto(G + "/#/account");
   await pg.waitForTimeout(900);
   const ac = await pg.evaluate((ids) => {

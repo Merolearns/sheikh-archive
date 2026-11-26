@@ -202,12 +202,15 @@
   </div>
 </div>
 <script>
-  // The opening shows once: after entering (or with a stored session, or ?splash=0) hide it before the first paint.
-  // ?splash=1 forces it, and a password-reset link always opens it.
+  // The one place that decides whether the opening shows; app.js splash() reads this result, so both always agree.
+  // A fresh visit always shows it; a same-session reload (entered flag in sessionStorage) or ?splash=0 hides it before the first paint.
+  // ?splash=1 forces it (the first splash value wins), and a password-reset link always opens it.
   (function () {
-    var e = null, a = null, q = location.search;
-    try { e = JSON.parse(localStorage.getItem("archive-v5-entered")); a = JSON.parse(localStorage.getItem("archive-v5-account")); } catch (_) {}
-    if ((/[?&]splash=0(&|$)/.test(q) || e || (a && a.mode === "email" && a.access_token)) && !/[?&]splash=1(&|$)/.test(q) && !/type=recovery/.test(location.hash)) document.getElementById("splash").hidden = true;
+    var e = null, qs = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.slice(1));
+    try { localStorage.removeItem("archive-v5-entered"); } catch (_) {} // drop the old forever flag
+    try { e = JSON.parse(sessionStorage.getItem("archive-v5-entered")); } catch (_) {}
+    var skip = qs.get("splash") === "0" || (!!e && qs.get("splash") !== "1");
+    if (skip && !(h.get("type") === "recovery" && h.get("access_token"))) document.getElementById("splash").hidden = true;
   })();
 </script>
 <audio id="recAudio" preload="none"></audio>

@@ -990,6 +990,12 @@
       localStorage.setItem(k, JSON.stringify(v));
     } catch (_) {}
   }
+  // Session memory: lasts for this tab's visit only, so a fresh visit starts over.
+  function storeSession(k, v) {
+    try {
+      sessionStorage.setItem(k, JSON.stringify(v));
+    } catch (_) {}
+  }
   const st = {
     lang: load(K.lang, "ar") === "en" ? "en" : "ar",
     theme: THEMES.includes(load(K.theme, "")) ? load(K.theme, "") : "emerald",
@@ -3824,24 +3830,14 @@
     // It lives only in this closure: never stored as a login session
     // (no K.acct write) and dropped the moment the reset completes.
     let recoveryToken = "";
-    let force = false,
-      skip = false;
-    try {
-      const qs = new URLSearchParams(location.search);
-      force = qs.get("splash") === "1";
-      // The opening shows once (owner decision, Nov 25 2026): after the
-      // visitor has entered, as a guest or signed in, every later open goes
-      // straight to the library. Signing out clears the flag, so the
-      // opening comes back. ?splash=1 forces it, ?splash=0 skips it.
-      skip =
-        qs.get("splash") === "0" || !!load(K.entered, null) || !!acctSession();
-    } catch (_) {}
     // A password-reset email lands here with #access_token=...&type=recovery.
     // checkRecoveryHash() reads the token, then clears it from the URL at
     // once so it never lingers in the address bar or history. A recovery
     // landing always shows the set-new-password form, even with ?splash=0.
     const isRecovery = checkRecoveryHash();
-    if (skip && !force && !isRecovery) {
+    // Show or skip was already decided before the first paint by the inline
+    // script in body.html (fresh visit shows it, same-session reload skips).
+    if (sp.hidden && !isRecovery) {
       sp.hidden = true;
       resumeSession();
       return;
@@ -3941,10 +3937,11 @@
       }),
     );
     const enter = (withVerse) => {
-      // Remember the entry (guest or signed in): later opens skip the opening.
+      // Remember the entry for this session only: a same-session reload skips
+      // the opening, a fresh visit shows it again.
       const a = acctSession();
-      store(K.entered, { mode: a ? "email" : "guest", at: new Date().toISOString() });
-      if (a) showAcctChip(a.email);
+      storeSession(K.entered, { mode: a ? "email" : "guest", at: new Date().toISOString() });
+      if (a) resumeSession();
       // nobody waits on the choreography: jump to the final frame, then enter
       anims.forEach((a) => {
         try {
@@ -4442,10 +4439,12 @@
       btn.className = "btn small";
       btn.textContent = t("lg_signout");
       btn.addEventListener("click", () => {
-        // Signing out is the one way back to the opening page.
+        // Signing out brings the opening back at once.
         try {
           localStorage.removeItem(K.acct);
-          localStorage.removeItem(K.entered);
+        } catch (_) {}
+        try {
+          sessionStorage.removeItem(K.entered);
         } catch (_) {}
         location.replace(location.pathname);
       });
