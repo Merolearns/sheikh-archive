@@ -874,6 +874,88 @@
     });
   }
 
+  // Account page, quizzes and reminders (round 3, Nov 25 2026).
+  Object.assign(S.ar, {
+    ac_title: "حسابي",
+    ac_lede: "تقدمك في المكتبة، محسوب من هذا المتصفح.",
+    ac_guest: "سجّل الدخول لتتابع تقدمك.",
+    ac_hours: "ساعات المشاهدة",
+    ac_hours_note: "ساعات المشاهدة محسوبة منذ ٢٥ نوفمبر ٢٠٢٦.",
+    ac_videos: "دروس شاهدتها",
+    ac_series: "سلاسل بدأتها",
+    ac_plan: "أيام الخطة",
+    ac_overall: "نسبة الإنجاز",
+    ac_of: "{d} من {t}",
+    ac_pillars: "تقدمك في كل ركن",
+    ac_level: "مستواك: {l}",
+    ac_next_beginner: "للانتقال إلى المستوى المتوسط: أكمل ١٠ دروس واجتز اختبار المبتدئ.",
+    ac_next_intermediate:
+      "للانتقال إلى المستوى المتقدم: أكمل ٣٠ درسًا، واجتز اختبار المتوسط، وأتمّ أيام الخطة كلها.",
+    ac_next_advanced: "بلغت المستوى المتقدم. واصل التعلّم واجتز اختبار المتقدم.",
+    ac_summary: "شاهدت {v} من {t}، وأنهيت {d} من {n} يومًا في الخطة.",
+    qz_title: "الاختبارات",
+    qz_starter: "أسئلة أولية من محتوى المكتبة نفسها.",
+    qz_take: "اختبار {l}",
+    qz_submit: "أرسل الإجابات",
+    qz_pass: "نجحت: {s} من {t}.",
+    qz_fail: "لم تنجح: {s} من {t}. النجاح من ٧٠٪.",
+    qz_right: "الإجابة الصحيحة: {a}",
+    qz_retry: "أعد المحاولة",
+    qz_last: "{l}: آخر نتيجة {s} من {t}، {d}",
+    qz_q_pillar: "إلى أي ركن تنتمي سلسلة «{s}» في المكتبة؟",
+    qz_q_level: "ما المستوى المحدد لسلسلة «{s}» في المكتبة؟",
+    qz_q_day: "إلى أي ركن ينتمي اليوم {n} من الخطة؟",
+    qz_q_days: "كم عدد أيام الخطة في الصفحة الرئيسية؟",
+    qz_q_first: "من أي سلسلة الدرس الأول المقترح للمبتدئين؟",
+    rm_title: "تذكيرات",
+    rm_note: "تبقى في هذا المتصفح فقط، بلا بريد ولا خادم.",
+    rm_text: "نص التذكير",
+    rm_day: "اليوم",
+    rm_add: "أضف تذكيرًا",
+    rm_del: "احذف",
+    rm_empty: "لا توجد تذكيرات بعد.",
+  });
+  Object.assign(S.en, {
+    ac_title: "My account",
+    ac_lede: "Your progress in the library, counted in this browser.",
+    ac_guest: "Sign in to track your progress.",
+    ac_hours: "Hours watched",
+    ac_hours_note: "Hours watched are counted from Nov 25, 2026.",
+    ac_videos: "Videos watched",
+    ac_series: "Series started",
+    ac_plan: "Plan days",
+    ac_overall: "Overall progress",
+    ac_of: "{d} of {t}",
+    ac_pillars: "Progress by pillar",
+    ac_level: "Your level: {l}",
+    ac_next_beginner: "To reach Intermediate: finish 10 lessons and pass the Beginner quiz.",
+    ac_next_intermediate:
+      "To reach Advanced: finish 30 lessons, pass the Intermediate quiz and finish every day of the plan.",
+    ac_next_advanced: "You have reached Advanced. Keep learning, and take the Advanced quiz.",
+    ac_summary: "You have watched {v} of {t}, and finished {d} of {n} plan days.",
+    qz_title: "Quizzes",
+    qz_starter: "Starter questions, drawn from the library's own content.",
+    qz_take: "{l} quiz",
+    qz_submit: "Submit answers",
+    qz_pass: "Passed: {s} of {t}.",
+    qz_fail: "Not passed: {s} of {t}. The pass mark is 70%.",
+    qz_right: "Correct answer: {a}",
+    qz_retry: "Try again",
+    qz_last: "{l}: last result {s} of {t}, {d}",
+    qz_q_pillar: 'Which pillar does the series "{s}" belong to in the library?',
+    qz_q_level: 'Which level is the series "{s}" marked for in the library?',
+    qz_q_day: "Which pillar does day {n} of the plan belong to?",
+    qz_q_days: "How many days does the plan on the Home page have?",
+    qz_q_first: "Which series is the suggested first lesson for beginners from?",
+    rm_title: "Reminders",
+    rm_note: "Kept in this browser only: no email, no server.",
+    rm_text: "Reminder text",
+    rm_day: "Day",
+    rm_add: "Add reminder",
+    rm_del: "Delete",
+    rm_empty: "No reminders yet.",
+  });
+
   /* ---------- Storage: one wrapper, every key versioned. v1/v2 keys kept so the owner's data carries over. ---------- */
   const K = {
     fav: "archive-favorites-v4",
@@ -890,6 +972,10 @@
     sort: "archive-v3-sort",
     days: "archive-v3-days",
     acct: "archive-v5-account",
+    entered: "archive-v5-entered",
+    watch: "archive-v5-watch-sec",
+    quiz: "archive-v5-quiz",
+    rem: "archive-v5-reminders",
   };
   function load(k, d) {
     try {
@@ -920,6 +1006,11 @@
   /* ---------- Admin: the admin page is visible only to the owner's account.
      The check is a UI gate only: nothing privileged exists in the browser
      (anon key only), and admin edits land only as a committed data file. ---------- */
+  // The stored email session, or null for a guest.
+  function acctSession() {
+    const a = load(K.acct, null);
+    return a && a.mode === "email" && a.access_token ? a : null;
+  }
   function isAdminSession() {
     const a = load(K.acct, null);
     const list = (
@@ -1607,6 +1698,7 @@
     books: renderBooks,
     book: renderBook,
     admin: renderAdmin,
+    account: renderAccount,
   };
   const REDIRECT = { mission: "#/about/mission", sheikh: "#/about/sheikh" };
   function go(hash) {
@@ -1752,8 +1844,14 @@
       `<h1${L()}>${esc(t("hero_title"))}</h1><p class="promise"${L()}>${esc(t("hero_promise"))}</p>` +
       `<form class="search" role="search" id="heroSearch">${icon("i-search")}<input type="search" name="q" dir="auto" placeholder="${esc(t("search_ph"))}" aria-label="${esc(t("search_ph"))}">` +
       `<button class="btn primary small" type="submit"${L()}>${esc(t("search_go"))}</button></form>` +
-      `<div class="hero-btns"${L()}><a class="btn primary" href="#/library">${esc(t("browse"))}</a><a class="btn" href="#/start">${esc(t("go_start"))}</a>${liveBtn}</div>` +
+      `<div class="hero-btns"${L()}><a class="btn primary" href="#/library">${esc(t("browse"))}</a><a class="btn" href="#/start">${esc(t("go_start"))}</a><a class="btn" href="#/account">${esc(t("ac_title"))}</a>${liveBtn}</div>` +
       '</div></div><div class="wrap">' +
+      (load(K.rem, []).length
+        ? '<section class="block" id="homeRem">' +
+          secHead(t("rm_title"), { more: t("ac_title"), href: "#/account" }) +
+          remList(false) +
+          "</section>"
+        : "") +
       (cont.length
         ? '<section class="block">' +
           secHead(t("r_continue"), {
@@ -1853,6 +1951,261 @@
           });
       }),
     );
+  }
+
+  /* ---------- Account: progress from this browser's own stores ---------- */
+  // Starter questions, one quiz per level. Each question names site data
+  // and its answer is read from that data at run time, so a question can
+  // never disagree with the library. No question states a religious claim.
+  const QUIZ = {
+    beginner: [
+      // "Tajweed" series pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9cmAY-O5kHl5JBsujbnpfIU", o: ["worship", "quran", "seerah", "character"] },
+      // "The Beautiful Names of Allah" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9dcyYB5Lj6Hqs3EmxTeVQco", o: ["quran", "character", "beliefs", "deeper"] },
+      // number of plan days: src/content.json days (40, asserted in build.py)
+      { k: "days", o: [20, 30, 40, 60] },
+      // pillar of plan day 1: src/content.json days[0].phase
+      { k: "day", n: 1, o: ["quran", "beliefs", "worship", "deeper"] },
+      // "Zakat: Questions and Answers" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9dUDuKuf8-f5XgcW_kWYg0F", o: ["seerah", "beliefs", "character", "worship"] },
+    ],
+    intermediate: [
+      // "Fiqh of Worship" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9fEH_7KlObTnFl6bosi6hhK", o: ["worship", "quran", "deeper", "seerah"] },
+      // "The Prophetic Seerah" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9emB4zgG2yhM0Z3LHPvAn1h", o: ["character", "seerah", "beliefs", "worship"] },
+      // "Tafsir of the Noble Qur'an" level: src/content.json pillars
+      { k: "level", id: "PLXKSrZvHoN9fz8szdMcBHFh9YGlhQKx7j", o: ["beginner", "intermediate", "advanced"] },
+      // pillar of plan day 16: src/content.json days[15].phase
+      { k: "day", n: 16, o: ["beliefs", "seerah", "worship", "character"] },
+      // series of the first beginner lesson: src/content.json first.beginner.pl
+      {
+        k: "first",
+        o: [
+          "PLXKSrZvHoN9fEH_7KlObTnFl6bosi6hhK",
+          "PLXKSrZvHoN9emB4zgG2yhM0Z3LHPvAn1h",
+          "PLXKSrZvHoN9cmAY-O5kHl5JBsujbnpfIU",
+          "PLXKSrZvHoN9eemz-i3_rzlVrOs5EiyPwc",
+        ],
+      },
+    ],
+    advanced: [
+      // "Explanation of Sahih al-Bukhari" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0", o: ["quran", "deeper", "seerah", "worship"] },
+      // "Explanation of Sahih al-Bukhari" level: src/content.json pillars
+      { k: "level", id: "PLXKSrZvHoN9cf7lGMyZjw0cndaCk004f0", o: ["beginner", "intermediate", "advanced"] },
+      // "Usul al-Fiqh" level: src/content.json pillars
+      { k: "level", id: "PLXKSrZvHoN9cRVxTmvl6E_P0i3jwPdatw", o: ["beginner", "intermediate", "advanced"] },
+      // pillar of plan day 38: src/content.json days[37].phase
+      { k: "day", n: 38, o: ["character", "deeper", "worship", "quran"] },
+      // "Purification of the Soul" pillar: src/content.json pillars
+      { k: "pillar", id: "PLXKSrZvHoN9cw5DTXW18ezysEVTW9AFHX", o: ["beliefs", "worship", "character", "seerah"] },
+    ],
+  };
+  const LEVELS = ["beginner", "intermediate", "advanced"];
+  const quizAnswer = (q) =>
+    q.k === "pillar"
+      ? pillarOf(q.id)
+      : q.k === "level"
+        ? levelOf(q.id)
+        : q.k === "day"
+          ? DAYS[q.n - 1].k
+          : q.k === "days"
+            ? DAYS.length
+            : CURATION.first.beginner.pl;
+  const quizText = (q) =>
+    q.id
+      ? t("qz_q_" + q.k, { s: dTitle(plById.get(q.id)) })
+      : t("qz_q_" + q.k, { n: nf(q.n) });
+  const optLabel = (q, o) =>
+    q.k === "pillar" || q.k === "day"
+      ? t("p_" + o)
+      : q.k === "level"
+        ? t("lv_" + o)
+        : q.k === "days"
+          ? nf(o)
+          : dTitle(plById.get(o));
+  const pct = (x) => nf(Math.round(x * 100)) + (st.lang === "en" ? "%" : "٪");
+  const weekday = (i) =>
+    new Intl.DateTimeFormat(st.lang === "ar" ? "ar-EG" : "en-GB", {
+      weekday: "long",
+    }).format(new Date(2026, 10, 22 + +i)); // Nov 22, 2026 is a Sunday: 0 = Sunday, as Date.getDay()
+  const remList = (del) => {
+    const r = load(K.rem, []);
+    if (!r.length)
+      return del ? `<p class="muted"${L()}>${esc(t("rm_empty"))}</p>` : "";
+    return (
+      `<ul class="rm-list"${L()}>` +
+      r
+        .map(
+          (x, i) =>
+            `<li><b>${esc(weekday(x.day))}</b><span dir="auto">${esc(x.text)}</span>` +
+            (del
+              ? `<button class="btn small" type="button" data-rem-del="${i}">${esc(t("rm_del"))}</button>`
+              : "") +
+            "</li>",
+        )
+        .join("") +
+      "</ul>"
+    );
+  };
+  const doneIds = () => Object.keys(st.done).filter((id) => byId.has(id));
+  const planDone = () => DAYS.every((d) => st.days[d.n]);
+  function levelNow(n, qz) {
+    if (n >= 30 && qz.intermediate && qz.intermediate.pass && planDone())
+      return "advanced";
+    if (n >= 10 && qz.beginner && qz.beginner.pass) return "intermediate";
+    return "beginner";
+  }
+  function quizForm(l) {
+    return (
+      `<form class="qz" id="qzForm" data-level="${l}"${L()}>` +
+      QUIZ[l]
+        .map(
+          (q, i) =>
+            `<fieldset><legend>${nf(i + 1)}. ${esc(quizText(q))}</legend>` +
+            q.o
+              .map(
+                (o) =>
+                  `<label><input type="radio" name="q${i}" value="${esc(o)}"><span>${esc(optLabel(q, o))}</span></label>`,
+              )
+              .join("") +
+            "</fieldset>",
+        )
+        .join("") +
+      `<button class="btn primary small" type="submit">${esc(t("qz_submit"))}</button></form>`
+    );
+  }
+  function gradeQuiz(form) {
+    const l = form.dataset.level,
+      qs = QUIZ[l];
+    const wrong = qs.filter((q, i) => {
+      const c = $(`input[name="q${i}"]:checked`, form);
+      return !c || c.value !== String(quizAnswer(q));
+    });
+    const score = qs.length - wrong.length,
+      pass = score / qs.length >= 0.7;
+    const all = load(K.quiz, {});
+    all[l] = {
+      score,
+      total: qs.length,
+      pass: pass || !!(all[l] && all[l].pass), // a later retry never takes a pass away
+      at: new Date().toISOString().slice(0, 10),
+    };
+    store(K.quiz, all);
+    renderAccount();
+    $("#qzBox").innerHTML =
+      `<div class="qz-res" role="status"${L()}><p><b>${esc(t(pass ? "qz_pass" : "qz_fail", { s: nf(score), t: nf(qs.length) }))}</b></p>` +
+      (pass
+        ? ""
+        : "<ul>" +
+          wrong
+            .map(
+              (q) =>
+                `<li>${esc(quizText(q))}<br><span class="muted">${esc(t("qz_right", { a: optLabel(q, quizAnswer(q)) }))}</span></li>`,
+            )
+            .join("") +
+          "</ul>") +
+      `<button class="btn small" type="button" data-quiz="${l}">${esc(t("qz_retry"))}</button></div>`;
+  }
+  function renderAccount() {
+    const box = $("#v-account");
+    const head = (lede) =>
+      '<div class="wrap" style="padding:40px 24px 50px">' +
+      `<header class="page-h">${kh()}<h1${L()}>${esc(t("ac_title"))}</h1>${lede ? `<p${L()}>${esc(lede)}</p>` : ""}</header>`;
+    if (!acctSession()) {
+      box.innerHTML =
+        head("") +
+        emptyBox(esc(t("ac_guest")), btnA("?splash=1", t("lg_signin_btn"), true)) +
+        "</div>";
+      return;
+    }
+    const ids = doneIds(),
+      n = ids.length,
+      qz = load(K.quiz, {}),
+      lvl = levelNow(n, qz),
+      daysDone = DAYS.filter((d) => st.days[d.n]).length;
+    const started = new Set();
+    ids
+      .concat(Object.keys(st.prog).filter((id) => st.prog[id] > 0))
+      .forEach((id) => {
+        const v = byId.get(id);
+        if (v) v.playlistIds.forEach((p) => started.add(p));
+      });
+    const pillarRows = PILLARS.map((k) => {
+      const vids = new Set();
+      PLAYLISTS.filter((p) => pillarOf(p.id) === k).forEach((p) =>
+        p.items.forEach((it) => byId.has(it.id) && vids.add(it.id)),
+      );
+      const x = vids.size ? [...vids].filter((id) => st.done[id]).length / vids.size : 0;
+      return `<li data-pillar="${k}"><span>${esc(t("p_" + k))}</span><span class="muted">${pct(x)}</span><div class="bar"><i style="--p:${x.toFixed(3)}"></i></div></li>`;
+    }).join("");
+    box.innerHTML =
+      head(t("ac_lede")) +
+      `<div class="ac-stats" id="acStats">` +
+      statsRow(
+        [
+          [hours(load(K.watch, 0)), t("ac_hours")],
+          [nf(n), t("ac_videos")],
+          [nf(started.size), t("ac_series")],
+          [t("ac_of", { d: nf(daysDone), t: nf(DAYS.length) }), t("ac_plan")],
+          [pct(n / VIDEOS.length), t("ac_overall")],
+        ].map(([a, b]) => [esc(a), b]),
+      ) +
+      `</div><p class="muted"${L()}>${esc(t("ac_hours_note"))}</p>` +
+      '<section class="block" id="acLevel">' +
+      secHead(t("ac_level", { l: t("lv_" + lvl) })) +
+      `<p${L()} id="acSummary">${esc(t("ac_summary", { v: nf(n), t: lessonsN(VIDEOS.length), d: nf(daysDone), n: nf(DAYS.length) }))}</p>` +
+      `<p${L()} id="acNext">${esc(t("ac_next_" + lvl))}</p></section>` +
+      '<section class="block">' +
+      secHead(t("ac_pillars")) +
+      `<ul class="ac-pillars"${L()}>${pillarRows}</ul></section>` +
+      '<section class="block" id="acQuiz">' +
+      secHead(t("qz_title")) +
+      `<p class="muted"${L()}>${esc(t("qz_starter"))}</p><div class="acts"${L()}>` +
+      LEVELS.map(
+        (l) =>
+          `<button class="btn small" type="button" data-quiz="${l}">${esc(t("qz_take", { l: t("lv_" + l) }))}</button>`,
+      ).join("") +
+      "</div>" +
+      LEVELS.filter((l) => qz[l])
+        .map(
+          (l) =>
+            `<p class="muted" data-qz-last="${l}"${L()}>${esc(t("qz_last", { l: t("lv_" + l), s: nf(qz[l].score), t: nf(qz[l].total), d: date(qz[l].at) }))}${qz[l].pass ? " ✓" : ""}</p>`,
+        )
+        .join("") +
+      '<div id="qzBox"></div></section>' +
+      '<section class="block" id="acRem">' +
+      secHead(t("rm_title")) +
+      `<p class="muted"${L()}>${esc(t("rm_note"))}</p>` +
+      remList(true) +
+      `<form class="rm-add" id="remForm"${L()}><label>${esc(t("rm_text"))}<input name="text" required maxlength="140" dir="auto"></label>` +
+      `<label>${esc(t("rm_day"))}<select name="day">${[0, 1, 2, 3, 4, 5, 6].map((i) => `<option value="${i}">${esc(weekday(i))}</option>`).join("")}</select></label>` +
+      `<button class="btn small" type="submit">${esc(t("rm_add"))}</button></form></section></div>`;
+    // property handlers, so a re-render never stacks listeners
+    box.onclick = (e) => {
+      const q = e.target.closest("[data-quiz]");
+      if (q) {
+        $("#qzBox").innerHTML = quizForm(q.dataset.quiz);
+        return;
+      }
+      const del = e.target.closest("[data-rem-del]");
+      if (del) {
+        const r = load(K.rem, []);
+        r.splice(+del.dataset.remDel, 1);
+        store(K.rem, r);
+        renderAccount();
+      }
+    };
+    box.onsubmit = (e) => {
+      e.preventDefault();
+      if (e.target.id === "qzForm") return gradeQuiz(e.target);
+      const text = e.target.text.value.trim();
+      if (!text) return;
+      store(K.rem, load(K.rem, []).concat({ text, day: +e.target.day.value }));
+      renderAccount();
+    };
   }
 
   /* ---------- Library ---------- */
@@ -2370,6 +2723,10 @@
       video.addEventListener("timeupdate", () => {
         paintCap();
         syncTx();
+        // Watch-time counter: media seconds actually played; a seek (a big jump) never counts.
+        const dt = video.currentTime - (cur.lastT || 0);
+        cur.lastT = video.currentTime;
+        if (!video.paused && dt > 0 && dt < 2) store(K.watch, load(K.watch, 0) + dt);
         const now = Date.now();
         if (now - cur.lastSave > 4000) {
           cur.lastSave = now;
@@ -3472,14 +3829,12 @@
     try {
       const qs = new URLSearchParams(location.search);
       force = qs.get("splash") === "1";
-      // The opening page shows on every visit. It used to be skipped once
-      // "archive-v3-entered" was set in sessionStorage, so the first open
-      // of a browser session stopped at the sign-in/guest page while
-      // later opens went straight to the library, the site behaved
-      // differently from visit to visit. Nothing is remembered now:
-      // every open starts at the same page, the same way.
-      // (?splash=0 remains an explicit opt-out for link targets.)
-      skip = qs.get("splash") === "0";
+      // The opening shows once (owner decision, Nov 25 2026): after the
+      // visitor has entered, as a guest or signed in, every later open goes
+      // straight to the library. Signing out clears the flag, so the
+      // opening comes back. ?splash=1 forces it, ?splash=0 skips it.
+      skip =
+        qs.get("splash") === "0" || !!load(K.entered, null) || !!acctSession();
     } catch (_) {}
     // A password-reset email lands here with #access_token=...&type=recovery.
     // checkRecoveryHash() reads the token, then clears it from the URL at
@@ -3488,9 +3843,7 @@
     const isRecovery = checkRecoveryHash();
     if (skip && !force && !isRecovery) {
       sp.hidden = true;
-      const acct = load(K.acct, null);
-      if (acct && acct.mode === "email" && acct.access_token)
-        showAcctChip(acct.email);
+      resumeSession();
       return;
     }
     const sky = $("#sky");
@@ -3588,6 +3941,10 @@
       }),
     );
     const enter = (withVerse) => {
+      // Remember the entry (guest or signed in): later opens skip the opening.
+      const a = acctSession();
+      store(K.entered, { mode: a ? "email" : "guest", at: new Date().toISOString() });
+      if (a) showAcctChip(a.email);
       // nobody waits on the choreography: jump to the final frame, then enter
       anims.forEach((a) => {
         try {
@@ -4028,6 +4385,48 @@
       $("#lgPass").value = "";
       $("#lgPass").focus({ preventScroll: true });
     }
+    // Sign-in persists across reloads: an expired access token is renewed
+    // silently with the stored refresh token. A failed renewal continues as
+    // a guest (the entered flag stays), and never shows a login error.
+    async function resumeSession() {
+      const a = acctSession();
+      if (!a) return;
+      if (a.expires_at && a.expires_at * 1000 <= Date.now()) {
+        let d = null;
+        try {
+          const cfg = a.refresh_token && (await supaCfg(() => {}));
+          if (cfg) {
+            const res = await fetch(
+              String(cfg.url).replace(/\/$/, "") +
+                "/auth/v1/token?grant_type=refresh_token",
+              {
+                method: "POST",
+                headers: {
+                  apikey: cfg.anonKey,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ refresh_token: a.refresh_token }),
+              },
+            );
+            if (res.ok) d = await res.json();
+          }
+        } catch (_) {}
+        if (!d || !d.access_token) {
+          store(K.acct, null);
+          paintAdminLink();
+          if (route.name === "admin" || route.name === "account") render();
+          return;
+        }
+        store(K.acct, {
+          mode: "email",
+          email: a.email,
+          access_token: d.access_token,
+          refresh_token: d.refresh_token || a.refresh_token,
+          expires_at: Math.floor(Date.now() / 1000) + (d.expires_in || 0),
+        });
+      }
+      showAcctChip(a.email);
+    }
     function syncAccountProgress() {
       // stub: no-op while no archive Supabase project is configured; no network call.
     }
@@ -4043,10 +4442,18 @@
       btn.className = "btn small";
       btn.textContent = t("lg_signout");
       btn.addEventListener("click", () => {
-        store(K.acct, null);
-        location.reload();
+        // Signing out is the one way back to the opening page.
+        try {
+          localStorage.removeItem(K.acct);
+          localStorage.removeItem(K.entered);
+        } catch (_) {}
+        location.replace(location.pathname);
       });
-      chip.append(who, btn);
+      const acc = document.createElement("a");
+      acc.className = "btn small";
+      acc.href = "#/account";
+      acc.textContent = t("ac_title");
+      chip.append(who, acc, btn);
       tools.appendChild(chip);
     }
     // Focus Sign In only once its entrance has finished (at the first frame

@@ -579,7 +579,7 @@ body:has(#splash:not([hidden]):not(.gone)) #main{visibility:hidden}
 .sp-frame .d,.sp-bf .d{stroke-dasharray:100 100}
 .sp-in{position:absolute;inset:19% 11% 5%;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .sp-verse{font-family:var(--font-verse);font-weight:400;font-size:clamp(26px,min(7.2vw,6.2vh),56px);line-height:1.9;margin:0;color:#FFF6E3;text-shadow:0 2px 24px rgba(10,6,30,.6);white-space:nowrap}
-.sp-cite{font-family:var(--font-ar);font-size:clamp(13px,1.8vh,15px);color:#EBD9B6;margin-top:-4px}
+.sp-cite{font-family:var(--font-ar);font-size:clamp(13px,1.8vh,15px);line-height:1.75;color:#EBD9B6;margin-top:-4px}
 .sp-cite span{display:inline-block;font-family:var(--font-lat);opacity:.85}
 .sp-cite .sep{margin:0 10px}
 .sp-orn{width:62%;height:22px;margin:clamp(8px,1.6vh,14px) 0 clamp(6px,1.2vh,10px);display:flex;align-items:center;gap:10px}
@@ -601,9 +601,11 @@ body:has(#splash:not([hidden]):not(.gone)) #main{visibility:hidden}
    is open the divider and name line step aside so it fits inside the arch. */
 #splash.lg-open .sp-in{justify-content:safe center}
 .sp-enter[hidden]{display:none}
+/* the opening holds still across a language switch: fixed row heights, labels never wrap */
+.sp-in>.sp-enter{height:52px;white-space:nowrap}
 #splash.lg-open #spOrn,#splash.lg-open #spName,#splash.lg-open #spLang{display:none}
 .sp-lang{display:flex;gap:8px;justify-content:center;margin-top:clamp(8px,1.8vh,16px)}
-.sp-lang button{min-height:34px;min-width:84px;padding:0 14px;border-radius:17px;border:1px solid rgba(227,197,102,.55);background:transparent;color:#EBD9B6;font-size:14px;cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
+.sp-lang button{min-height:34px;height:34px;white-space:nowrap;min-width:84px;padding:0 14px;border-radius:17px;border:1px solid rgba(227,197,102,.55);background:transparent;color:#EBD9B6;font-size:14px;cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
 .sp-lang button[lang="ar"]{font-family:var(--font-ar)}
 .sp-lang button[lang="en"]{font-family:var(--font-lat)}
 .sp-lang button[aria-pressed="true"]{background:rgba(227,197,102,.22);color:#FFF6E3}
@@ -619,6 +621,21 @@ body:has(#splash:not([hidden]):not(.gone)) #main{visibility:hidden}
 #lgForm .sp-enter,#lgResetForm .sp-enter{margin-top:0;width:100%}
 #lgNotice,#lgResetNotice{color:#F3DFA8;font-size:14px;line-height:1.6;margin:2px 0 0}
 .acct-chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)}
+/* Account page (round 3) */
+.ac-stats .stats{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:8px}
+.ac-stats .stat b{font-size:32px}
+.ac-pillars{list-style:none;padding:0;margin:0;display:grid;gap:14px;max-width:620px}
+.ac-pillars li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.ac-pillars .bar{flex-basis:100%}
+.qz fieldset{border:1px solid var(--line-soft);border-radius:12px;margin:0 0 12px;padding:10px 16px}
+.qz legend{padding:0 6px;font-weight:600}
+.qz label{display:flex;gap:10px;align-items:center;min-height:36px;cursor:pointer}
+.qz-res ul{padding-inline-start:20px}
+.rm-list{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:8px}
+.rm-list li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.rm-add{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.rm-add label{display:flex;flex-direction:column;gap:4px;font-size:14px}
+.rm-add input,.rm-add select{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px;font:inherit}
 /* after the draw: the gold line-work breathes (24s), so the page feels alive without moving */
 .sp-gold.sheen{animation:sheen 24s ease-in-out infinite alternate}
 @keyframes sheen{from{opacity:1}to{opacity:.84}}

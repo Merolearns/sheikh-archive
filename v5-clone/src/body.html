@@ -77,6 +77,7 @@
   <section class="view" id="v-books"></section>
   <section class="view" id="v-book"></section>
   <section class="view" id="v-admin"></section>
+  <section class="view" id="v-account"></section>
 </main>
 
 <footer class="foot-bar">
@@ -201,7 +202,12 @@
   </div>
 </div>
 <script>
-  // A deep link with ?splash=0 skips the opening: hide it before the first paint (a password-reset link still opens it).
-  if (/[?&]splash=0(&|$)/.test(location.search) && !/type=recovery/.test(location.hash)) document.getElementById("splash").hidden = true;
+  // The opening shows once: after entering (or with a stored session, or ?splash=0) hide it before the first paint.
+  // ?splash=1 forces it, and a password-reset link always opens it.
+  (function () {
+    var e = null, a = null, q = location.search;
+    try { e = JSON.parse(localStorage.getItem("archive-v5-entered")); a = JSON.parse(localStorage.getItem("archive-v5-account")); } catch (_) {}
+    if ((/[?&]splash=0(&|$)/.test(q) || e || (a && a.mode === "email" && a.access_token)) && !/[?&]splash=1(&|$)/.test(q) && !/type=recovery/.test(location.hash)) document.getElementById("splash").hidden = true;
+  })();
 </script>
 <audio id="recAudio" preload="none"></audio>

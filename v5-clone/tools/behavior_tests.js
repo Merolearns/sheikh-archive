@@ -126,24 +126,31 @@ const G = "http://archive.test";
   await pg.waitForTimeout(900);
   const after = await pg.evaluate(() => ({
     hidden: document.querySelector("#splash").hidden,
-    entered: sessionStorage.getItem("archive-v3-entered"),
+    entered: JSON.parse(localStorage.getItem("archive-v5-entered")),
   }));
   check(
-    "Enter mid-sequence enters the library",
-    after.hidden && after.entered === null,
+    "Enter mid-sequence enters the library and sets the entered flag in localStorage",
+    after.hidden && after.entered && after.entered.mode === "guest" && !!after.entered.at,
     JSON.stringify(after),
   );
-  // V5 owner order (Nov 21): the opening shows on EVERY visit, nothing is remembered
-  await pg.goto(G + "/");
-  await pg.waitForTimeout(600);
-  const again = await pg.evaluate(
-    () => !document.querySelector("#splash").hidden,
-  );
+  // Round 3 owner order (Nov 25): the opening shows once; a reload goes straight to the library
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(900);
+  const again = await pg.evaluate(() => ({
+    splashHidden: document.querySelector("#splash").hidden,
+    main: getComputedStyle(document.querySelector("#main")).visibility,
+    home: document.querySelector("#v-home").classList.contains("on"),
+    entered: !!localStorage.getItem("archive-v5-entered"),
+  }));
   check(
-    "opening shows again on the next visit in the same session",
-    again,
-    "splash visible=" + again,
+    "[r3] guest entered, reload: no opening, the library shows, entered flag kept",
+    again.splashHidden && again.main === "visible" && again.home && again.entered,
+    JSON.stringify(again),
   );
+  await pg.goto(G + "/?splash=1");
+  await pg.waitForTimeout(600);
+  const forced = await pg.evaluate(() => !document.querySelector("#splash").hidden);
+  check("[r3] ?splash=1 still forces the opening after entering", forced, "splash visible=" + forced);
   await pg.context().close();
 
   // 3. reduced motion: one static, fully composed frame
@@ -1171,7 +1178,10 @@ const G = "http://archive.test";
           focus: document.activeElement && document.activeElement.id,
         });
       }
-      if (performance.now() - t0 < 5000) requestAnimationFrame(tick);
+      // The entrance starts when splash() runs, which under load can be
+      // seconds after this init script: sample 9s so the ~3.4s entrance
+      // and the focus that follows it are inside the window.
+      if (performance.now() - t0 < 9000) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   };
@@ -1179,7 +1189,7 @@ const G = "http://archive.test";
     const p = await page(browser, opts);
     await p.addInitScript(SAMPLER);
     await p.goto(G + url);
-    await p.waitForTimeout(5400);
+    await p.waitForTimeout(9400);
     const f = await p.evaluate(() => window.__frames);
     await p.context().close();
     return f;
@@ -1317,6 +1327,381 @@ const G = "http://archive.test";
     JSON.stringify(lp3),
   );
   await pg.context().close();
+  // ---------- Round 3 (Nov 25 2026) ----------
+  const SB = (u) => /\.supabase\.co$/.test(u.hostname);
+  const CORS = {
+    "access-control-allow-origin": "*",
+    "access-control-allow-headers": "*",
+    "access-control-allow-methods": "POST, OPTIONS",
+  };
+  // Every Supabase call is intercepted: the tests never reach the real project.
+  const fakeAuth = async (p, status, body) => {
+    const calls = [];
+    await p.route(SB, async (route) => {
+      const r = route.request();
+      if (r.method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
+      calls.push({ url: r.url(), body: r.postData(), apikey: !!r.headers().apikey });
+      await route.fulfill({
+        status,
+        headers: { ...CORS, "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    });
+    return calls;
+  };
+  const seed = (p, items) =>
+    p.evaluate((o) => {
+      for (const [k, v] of Object.entries(o)) localStorage.setItem(k, JSON.stringify(v));
+    }, items);
+  const ACC = (extra) => ({
+    mode: "email",
+    email: "reader@example.com",
+    access_token: "live-token",
+    refresh_token: "live-refresh",
+    expires_at: 9999999999,
+    ...(extra || {}),
+  });
+
+  // Item 1: the opening holds still across a language switch (measured, 1px tolerance)
+  const SP_ROWS = ["#spVerse", "#spCite", "#spName", "#spLang", "#signinBtn", "#signupBtn", "#enterBtn"];
+  const spRects = (p) =>
+    p.evaluate(
+      (S) =>
+        S.map((s) => {
+          const r = document.querySelector(s).getBoundingClientRect();
+          return [s, r.top, r.height];
+        }),
+      SP_ROWS,
+    );
+  const spDiff = (a, b) =>
+    a
+      .map((x, i) => [x[0], +(b[i][1] - x[1]).toFixed(2), +(b[i][2] - x[2]).toFixed(2)])
+      .filter((d) => Math.abs(d[1]) > 1 || Math.abs(d[2]) > 1);
+  for (const vp of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    pg = await page(browser, { viewport: vp });
+    await pg.goto(G + "/?splash=1");
+    await pg.evaluate(() => document.fonts.ready);
+    await pg.waitForTimeout(3800);
+    const ar0 = await spRects(pg);
+    await pg.click('#spLang button[data-lang="en"]');
+    await pg.waitForTimeout(600);
+    const en = await spRects(pg);
+    const lang = await pg.evaluate(() => document.querySelector("#splash").lang);
+    await pg.click('#spLang button[data-lang="ar"]');
+    await pg.waitForTimeout(600);
+    const ar1 = await spRects(pg);
+    const d1 = spDiff(ar0, en),
+      d2 = spDiff(ar0, ar1);
+    check(
+      `[r3] opening holds still on AR->EN->AR at ${vp.width}x${vp.height} (every row top/height within 1px)`,
+      lang === "en" && !d1.length && !d2.length,
+      `lang=${lang} AR->EN off=${JSON.stringify(d1)} EN->AR off=${JSON.stringify(d2)} ar=${JSON.stringify(ar0.map((r) => [r[0], Math.round(r[1]), Math.round(r[2])]))}`,
+    );
+    await pg.context().close();
+  }
+
+  // Item 2 (2): a stored, unexpired session skips the opening and shows the account chip
+  pg = await page(browser);
+  let sbCalls = await fakeAuth(pg, 500, {});
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, { "archive-v5-account": ACC() });
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(900);
+  const si = await pg.evaluate(() => ({
+    splashHidden: document.querySelector("#splash").hidden,
+    chip: !!document.querySelector(".acct-chip"),
+    acctLink: !!document.querySelector('.acct-chip a[href="#/account"]'),
+    token: JSON.parse(localStorage.getItem("archive-v5-account")).access_token,
+  }));
+  check(
+    "[r3] signed-in reload: no opening, account chip (with My account link) shown, no auth call",
+    si.splashHidden && si.chip && si.acctLink && si.token === "live-token" && sbCalls.length === 0,
+    JSON.stringify(si) + " calls=" + sbCalls.length,
+  );
+  await pg.context().close();
+
+  // Item 2 (3): an expired session with a refresh token is renewed silently on boot
+  pg = await page(browser);
+  sbCalls = await fakeAuth(pg, 200, {
+    access_token: "fresh-token",
+    refresh_token: "fresh-refresh",
+    expires_in: 3600,
+    token_type: "bearer",
+  });
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, {
+    "archive-v5-account": ACC({ access_token: "old-token", refresh_token: "old-refresh", expires_at: 1000 }),
+    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
+  });
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(1500);
+  const rf = await pg.evaluate(() => ({
+    acct: JSON.parse(localStorage.getItem("archive-v5-account")),
+    splashHidden: document.querySelector("#splash").hidden,
+    chip: !!document.querySelector(".acct-chip"),
+    now: Math.floor(Date.now() / 1000),
+  }));
+  check(
+    "[r3] expired session + refresh token: renewed on boot via grant_type=refresh_token, user stays signed in",
+    sbCalls.length === 1 &&
+      /\/auth\/v1\/token\?grant_type=refresh_token$/.test(sbCalls[0].url) &&
+      sbCalls[0].apikey &&
+      JSON.parse(sbCalls[0].body).refresh_token === "old-refresh" &&
+      rf.acct.access_token === "fresh-token" &&
+      rf.acct.refresh_token === "fresh-refresh" &&
+      rf.acct.expires_at > rf.now &&
+      rf.splashHidden &&
+      rf.chip,
+    JSON.stringify({ calls: sbCalls, acct: rf.acct, splashHidden: rf.splashHidden, chip: rf.chip }),
+  );
+  await pg.context().close();
+
+  // Item 2 (3b): a failed renewal continues as a guest in the library, with no login error
+  pg = await page(browser);
+  sbCalls = await fakeAuth(pg, 400, { error: "invalid_grant" });
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, {
+    "archive-v5-account": ACC({ expires_at: 1000 }),
+    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
+  });
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(1500);
+  const rx = await pg.evaluate(() => ({
+    acct: localStorage.getItem("archive-v5-account"),
+    entered: !!localStorage.getItem("archive-v5-entered"),
+    splashHidden: document.querySelector("#splash").hidden,
+    chip: !!document.querySelector(".acct-chip"),
+    notice: document.querySelector("#lgNotice").hidden,
+  }));
+  check(
+    "[r3] failed silent refresh: session cleared, entered flag kept, library as guest, no error shown",
+    sbCalls.length === 1 &&
+      (rx.acct === null || rx.acct === "null") &&
+      rx.entered &&
+      rx.splashHidden &&
+      !rx.chip &&
+      rx.notice,
+    JSON.stringify(rx) + " calls=" + sbCalls.length,
+  );
+  await pg.context().close();
+
+  // Item 2 (4): sign-out clears the session and the entered flag; the opening comes back
+  pg = await page(browser);
+  await fakeAuth(pg, 500, {});
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, {
+    "archive-v5-account": ACC(),
+    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
+  });
+  await pg.goto(G + "/#/home");
+  await pg.waitForSelector(".acct-chip button");
+  await Promise.all([pg.waitForNavigation(), pg.click(".acct-chip button")]);
+  await pg.waitForTimeout(900);
+  const so = await pg.evaluate(() => ({
+    acct: localStorage.getItem("archive-v5-account"),
+    entered: localStorage.getItem("archive-v5-entered"),
+    splash: !document.querySelector("#splash").hidden,
+  }));
+  await pg.goto(G + "/");
+  await pg.waitForTimeout(600);
+  const so2 = await pg.evaluate(() => !document.querySelector("#splash").hidden);
+  check(
+    "[r3] sign-out clears the session and the entered flag; the opening shows again",
+    so.acct === null && so.entered === null && so.splash && so2,
+    JSON.stringify(so) + " nextVisitSplash=" + so2,
+  );
+  await pg.context().close();
+
+  // Item 3: guest on #/account sees the sign-in note with a way back to the opening
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0&lang=en#/account");
+  await pg.waitForTimeout(600);
+  const gu = await pg.evaluate(() => ({
+    on: document.querySelector("#v-account").classList.contains("on"),
+    note: (document.querySelector("#v-account .empty p") || {}).textContent,
+    href: (document.querySelector("#v-account .empty a") || {}).getAttribute?.("href"),
+    stats: !!document.querySelector("#acStats"),
+  }));
+  check(
+    "[r3] guest on #/account: sign-in note and a button to the opening (?splash=1), no stats",
+    gu.on && gu.note === "Sign in to track your progress." && gu.href === "?splash=1" && !gu.stats,
+    JSON.stringify(gu),
+  );
+  await pg.context().close();
+
+  // Item 3: signed-in account page shows stats computed from the seeded local stores
+  const DONE3 = ["hZKu4yiQrjs", "NuPjCsDg28o", "sZ-8-ZKDJBU"]; // the three first lessons in src/content.json
+  pg = await page(browser);
+  await fakeAuth(pg, 500, {});
+  await pg.goto(G + "/?splash=0#/home");
+  await seed(pg, {
+    "archive-v5-account": ACC(),
+    "archive-v5-entered": { mode: "email", at: "2026-11-25T00:00:00.000Z" },
+    "archive-v2-lang": "en",
+    "archive-v2-done": Object.fromEntries(DONE3.map((id) => [id, 1])),
+    "archive-v3-days": { 1: 1, 2: 1 },
+    "archive-v5-watch-sec": 5400,
+  });
+  await pg.goto(G + "/#/account");
+  await pg.waitForTimeout(900);
+  const ac = await pg.evaluate((ids) => {
+    const vids = DATA.videos;
+    const started = new Set(vids.filter((v) => ids.includes(v.id)).flatMap((v) => v.playlistIds));
+    return {
+      cells: [...document.querySelectorAll("#acStats .stat")].map((s) => [
+        s.querySelector("b").textContent,
+        s.querySelector("span").textContent,
+      ]),
+      expectSeries: String(started.size),
+      expectPct: Math.round((ids.length / vids.length) * 100) + "%",
+      level: document.querySelector("#acLevel h2").textContent,
+      summary: document.querySelector("#acSummary").textContent,
+      pillars: document.querySelectorAll(".ac-pillars li").length,
+      note: document.body.textContent.includes("Hours watched are counted from Nov 25, 2026."),
+    };
+  }, DONE3);
+  const cellsOk =
+    JSON.stringify(ac.cells) ===
+    JSON.stringify([
+      ["1h 30m", "Hours watched"],
+      ["3", "Videos watched"],
+      [ac.expectSeries, "Series started"],
+      ["2 of 40", "Plan days"],
+      [ac.expectPct, "Overall progress"],
+    ]);
+  check(
+    "[r3] account page: hours, videos, series, plan days, overall from local stores; level, summary, 6 pillars",
+    cellsOk &&
+      ac.level === "Your level: Beginner" &&
+      /^You have watched 3 of [\d,]+ lessons, and finished 2 of 40 plan days\.$/.test(ac.summary) &&
+      ac.pillars === 6 &&
+      ac.note,
+    JSON.stringify(ac),
+  );
+  // The Home view links to the account page; check it on the Home route,
+  // where #v-home is actually rendered (render() only renders the current
+  // route, so the link is not in the DOM while on #/account).
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(900);
+  check(
+    "[r3] Home links to the account page",
+    await pg.evaluate(
+      () => !!document.querySelector('#v-home a[href="#/account"]'),
+    ),
+    "home account link",
+  );
+  // Back to the account page: the quiz checks below click inside #acQuiz.
+  await pg.goto(G + "/#/account");
+  await pg.waitForTimeout(900);
+
+  // Item 3: quiz fails below 70% (wrong answers shown), retry passes at 70% or more
+  const BEGIN = ["quran", "beliefs", "40", "quran", "worship"]; // src/content.json answers
+  const answer = async (picks) => {
+    for (let i = 0; i < picks.length; i++)
+      await pg.check(`#qzForm input[name="q${i}"][value="${picks[i]}"]`);
+    await pg.click('#qzForm button[type="submit"]');
+    await pg.waitForTimeout(300);
+  };
+  await pg.click('#acQuiz [data-quiz="beginner"]');
+  await answer(["quran", "beliefs", "40", "beliefs", "seerah"]); // 3 of 5 = 60%
+  const qf = await pg.evaluate(() => ({
+    res: document.querySelector(".qz-res b").textContent,
+    wrong: [...document.querySelectorAll(".qz-res li")].map((li) => li.textContent),
+    store: JSON.parse(localStorage.getItem("archive-v5-quiz")).beginner,
+  }));
+  check(
+    "[r3] quiz at 60% fails, shows the 2 wrong answers with the correct ones, stored with date",
+    qf.res === "Not passed: 3 of 5. The pass mark is 70%." &&
+      qf.wrong.length === 2 &&
+      /Correct answer: Qur'an/.test(qf.wrong[0]) &&
+      /Correct answer: Worship/.test(qf.wrong[1]) &&
+      qf.store.pass === false &&
+      qf.store.score === 3 &&
+      /^\d{4}-\d{2}-\d{2}$/.test(qf.store.at),
+    JSON.stringify(qf),
+  );
+  await pg.click('.qz-res [data-quiz="beginner"]');
+  await answer(["quran", "beliefs", "40", "quran", "seerah"]); // 4 of 5 = 80%
+  const qp = await pg.evaluate(() => ({
+    res: document.querySelector(".qz-res b").textContent,
+    wrong: document.querySelectorAll(".qz-res li").length,
+    store: JSON.parse(localStorage.getItem("archive-v5-quiz")).beginner,
+    last: (document.querySelector('[data-qz-last="beginner"]') || {}).textContent,
+  }));
+  check(
+    "[r3] retry at 80% passes (pass mark 70%), stored as passed",
+    qp.res === "Passed: 4 of 5." && qp.wrong === 0 && qp.store.pass === true && qp.store.score === 4 && /Beginner: last result 4 of 5/.test(qp.last),
+    JSON.stringify(qp),
+  );
+  await pg.click('.qz-res [data-quiz="beginner"]');
+  await answer(BEGIN);
+  const q5 = await pg.evaluate(() => document.querySelector(".qz-res b").textContent);
+  check("[r3] every beginner answer traces to the site data (5 of 5)", q5 === "Passed: 5 of 5.", q5);
+
+  // Item 3: local reminders, added and deleted on the account page, shown on Home
+  await pg.fill('#remForm input[name="text"]', "Tafsir lesson");
+  await pg.selectOption('#remForm select[name="day"]', "5");
+  await pg.click('#remForm button[type="submit"]');
+  await pg.waitForTimeout(200);
+  const rm1 = await pg.evaluate(() => ({
+    list: [...document.querySelectorAll("#acRem .rm-list li")].map((li) => li.textContent),
+    store: JSON.parse(localStorage.getItem("archive-v5-reminders")),
+  }));
+  await pg.goto(G + "/#/home");
+  await pg.waitForTimeout(600);
+  const rm2 = await pg.evaluate(() => (document.querySelector("#homeRem .rm-list") || {}).textContent);
+  await pg.goto(G + "/#/account");
+  await pg.waitForTimeout(400);
+  await pg.click("#acRem [data-rem-del='0']");
+  await pg.waitForTimeout(200);
+  const rm3 = await pg.evaluate(() => ({
+    store: JSON.parse(localStorage.getItem("archive-v5-reminders")),
+    empty: (document.querySelector("#acRem p.muted:last-of-type") || {}).textContent,
+  }));
+  check(
+    "[rm3] reminders: add (text + day) shows on the account page and Home, delete removes it",
+    rm1.store.length === 1 &&
+      rm1.store[0].text === "Tafsir lesson" &&
+      rm1.store[0].day === 5 &&
+      /Friday/.test(rm1.list[0]) &&
+      /Friday/.test(rm2 || "") &&
+      /Tafsir lesson/.test(rm2 || "") &&
+      rm3.store.length === 0,
+    JSON.stringify({ rm1, rm2, rm3 }),
+  );
+  await pg.context().close();
+
+  // Item 3: the watch-seconds counter counts played seconds only, never a seek
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/lesson/" + ids.with_subs);
+  await pg.waitForSelector("#vid");
+  await pg.evaluate(() => {
+    const v = document.querySelector("#vid");
+    v.muted = true;
+    return v.play();
+  });
+  await pg.waitForTimeout(3000);
+  await pg.evaluate(() => document.querySelector("#vid").pause());
+  await pg.waitForTimeout(300);
+  const w1 = await pg.evaluate(() => +localStorage.getItem("archive-v5-watch-sec"));
+  await pg.evaluate(() => {
+    const v = document.querySelector("#vid");
+    v.currentTime = Math.min(v.duration - 1, v.currentTime + 20);
+    return v.play();
+  });
+  await pg.waitForTimeout(800);
+  await pg.evaluate(() => document.querySelector("#vid").pause());
+  const w2 = await pg.evaluate(() => +localStorage.getItem("archive-v5-watch-sec"));
+  check(
+    "[r3] watch counter: ~3s of play counted, a 20s seek is not",
+    w1 > 1.5 && w1 < 4.5 && w2 - w1 < 2,
+    `after 3s play=${w1.toFixed(2)} after seek+0.8s=${w2.toFixed(2)}`,
+  );
+  await pg.context().close();
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);
