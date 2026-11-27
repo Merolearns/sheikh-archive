@@ -2563,6 +2563,55 @@ const G = "http://archive.test";
   );
   await pg.context().close();
 
+  // fix6: the "Text of the lesson" note when getOption NEVER reports a
+  // track. Same no-track mock as [fix3]/[fix5] (track list always empty,
+  // getOption track always null) on VLKRl6DmzaU, which the catalog says
+  // HAS captions. In real playback the embed turns captions on by
+  // default and Arabic captions are visibly on the frame, but the old
+  // code left the state unknown forever, so the note stayed on the
+  // generic "turn them on" wording. After 8s of playback the note must
+  // read the subtitles-on wording.
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET3_NONE,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + CAP_LESSON);
+  await pg.waitForTimeout(3000);
+  const tx6Before = await pg.evaluate(() =>
+    document.querySelector("#txBody")?.textContent?.trim(),
+  );
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(11000);
+  const tx6After = await pg.evaluate(() =>
+    document.querySelector("#txBody")?.textContent?.trim(),
+  );
+  check(
+    "[fix6] transcript note reads subtitles-on when captions render but getOption never reports a track",
+    !!tx6Before &&
+      tx6Before.startsWith("النص الكامل") &&
+      !tx6Before.includes("الترجمة مفعّلة") &&
+      !!tx6After &&
+      tx6After.includes("الترجمة مفعّلة"),
+    JSON.stringify({
+      before: tx6Before && tx6Before.slice(0, 60),
+      after: tx6After && tx6After.slice(0, 80),
+    }),
+  );
+  await pg.context().close();
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);
