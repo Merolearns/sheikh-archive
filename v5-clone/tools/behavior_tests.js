@@ -2247,6 +2247,9 @@ const G = "http://archive.test";
       steps: document.querySelectorAll("#v-start .steps .step").length,
       days: document.querySelectorAll("#v-start #days .dcard").length,
       prog: document.querySelector("#daysProg")?.textContent?.trim(),
+      heads: [...document.querySelectorAll("#v-start .sec-h h2")].map(
+        (h) => h.textContent?.trim(),
+      ),
     }));
   const stBeginner = await startState();
   await pg.click('#v-start [data-level="advanced"]');
@@ -2273,6 +2276,18 @@ const G = "http://archive.test";
       stIntermediate.days === 23 &&
       stIntermediate.prog === "0 of 23 days done",
     JSON.stringify({ stBeginner, stAdvanced, stIntermediate }),
+  );
+  check(
+    // fix4: the path heading is count-aware and singular for one step.
+    "[fix4] Start tabs: path heading reads 'The path in 1 step' for Advanced",
+    stBeginner.heads.includes("The path in 4 steps") &&
+      stAdvanced.heads.includes("The path in 1 step") &&
+      stIntermediate.heads.includes("The path in six steps"),
+    JSON.stringify({
+      beginner: stBeginner.heads,
+      advanced: stAdvanced.heads,
+      intermediate: stIntermediate.heads,
+    }),
   );
   await pg.context().close();
 
@@ -2324,6 +2339,67 @@ const G = "http://archive.test";
     // The site defaults to Arabic, so the Arabic track is picked first.
     capLate && capLate.active && capLate.active.languageCode === "ar",
     JSON.stringify(capLate),
+  );
+  await pg.context().close();
+
+  // fix4: the track list alone is NOT reliable. On VLKRl6DmzaU the list
+  // stayed empty through 35s of real playback even though YouTube lists
+  // an Arabic auto-generated track, fix3 then showed the "no captions"
+  // notice wrongly. This mock never fills the list, but setOption by
+  // language code DOES activate (the real player's documented behaviour);
+  // the app must end with an active track and NO notice.
+  const YT_WIDGET4_DIRECT =
+    "window.YT.PlayerState={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};" +
+    "window.YT.Player=function(el,opts){let t=0;let active=null;" +
+    "const timer=setInterval(()=>{t+=1;},1000);" +
+    "this.getCurrentTime=()=>t;this.getPlayerState=()=>1;" +
+    "this.seekTo=(s)=>{t=s;};this.playVideo=()=>{};this.pauseVideo=()=>{};" +
+    "this.destroy=()=>clearInterval(timer);" +
+    "this.loadModule=()=>{};" +
+    'this.setOption=(m,k,v)=>{if(m==="captions"&&k==="track"&&(v.languageCode==="ar"||v.languageCode==="en"))active={languageCode:v.languageCode};};' +
+    'this.getOption=(m,k)=>{if(m==="captions"&&k==="tracklist")return [];if(m==="captions"&&k==="track")return active;return null;};' +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onStateChange&&opts.events.onStateChange({data:1}),300);" +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onReady&&opts.events.onReady({target:this}),350);" +
+    "window.__mockPlayer=this;window.__capState=()=>({active});};" +
+    "if(window.onYTReady)window.onYTReady();" +
+    "if(window.onYouTubeIframeAPIReady)window.onYouTubeIframeAPIReady();";
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET4_DIRECT,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + LONG_LESSON);
+  await pg.waitForTimeout(1500);
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(8000);
+  const capDirect = await pg.evaluate(() => ({
+    state: window.__capState?.(),
+    notice: (() => {
+      const n = document.querySelector("#notice");
+      return n ? { hidden: n.hidden, text: n.textContent.trim().slice(0, 60) } : null;
+    })(),
+  }));
+  check(
+    "[fix4] captions: direct setOption activates a track even when the track list never fills",
+    // The site defaults to Arabic, so the Arabic track is picked first.
+    capDirect.state &&
+      capDirect.state.active &&
+      capDirect.state.active.languageCode === "ar" &&
+      capDirect.notice &&
+      capDirect.notice.hidden,
+    JSON.stringify(capDirect),
   );
   await pg.context().close();
 
