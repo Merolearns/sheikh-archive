@@ -1109,6 +1109,15 @@
     if (vars) for (const n in vars) s = s.split("{" + n + "}").join(vars[n]);
     return s;
   }
+  // Translation in a named language, for panel content that follows the
+  // transcript language rather than the site language: the "no text on the
+  // web version" note must read Arabic once the Arabic tab is picked, even
+  // while the site itself is in English.
+  function tL(lang, k, vars) {
+    let s = (S[lang] && S[lang][k]) || S.ar[k] || k;
+    if (vars) for (const n in vars) s = s.split("{" + n + "}").join(vars[n]);
+    return s;
+  }
   const L = () =>
     st.lang === "en" ? ' lang="en" dir="ltr"' : ' lang="ar" dir="rtl"';
   const AR = ' lang="ar" dir="rtl"';
@@ -1273,9 +1282,10 @@
     if (na && nb) {
       if (na[0] !== nb[0]) return na[0] - nb[0];
       if (na[1] !== nb[1]) return na[1] - nb[1];
-      const da = a.uploadDate || "",
-        db = b.uploadDate || "";
-      if (da !== db) return da < db ? -1 : 1;
+      // Same number on several lessons (the channel numbers some lessons
+      // twice, e.g. three "1"s in Tawhid): keep catalog order under that
+      // number; the sort is stable, so returning 0 preserves the
+      // playlist's own order. Never invent new numbers.
       return 0;
     }
     if (na) return -1;
@@ -1846,11 +1856,11 @@
       `<label class="tick"><input type="checkbox" data-day="${d.n}"${done ? " checked" : ""} aria-label="${esc(t("day_n", { n: nf(d.n) }) + ", " + t("done_tick"))}"><span class="box">${'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" pathLength="100"/></svg>'}</span></label></div></article>`
     );
   }
-  function firstBlock(level, withTabs) {
+  function firstBlock(level, withTabs, boxId = "firstBox") {
     const f = CURATION.first[level],
       v = byId.get(f.id);
     return (
-      `<section class="first framed" id="firstBox"><span class="corner a">${kh()}</span><span class="corner b">${kh()}</span>` +
+      `<section class="first framed" id="${boxId}"><span class="corner a">${kh()}</span><span class="corner b">${kh()}</span>` +
       `<div class="min"><b>${nf(Math.round(v.duration / 60))}</b><span${L()}>${esc(word("minute", Math.round(v.duration / 60)))}</span></div><div>` +
       (withTabs
         ? `<div class="lvl-tabs" role="tablist"${L()}>` +
@@ -1924,7 +1934,11 @@
           "</div></section>"
         : '<section class="block">' +
           secHead(t("r_begin"), { eyebrow: t("r_begin_e") }) +
-          firstBlock("beginner", false) +
+          // Home's first-lesson box is a second instance of the same block
+          // (the Start page has its own), so it takes its own id: two
+          // elements sharing id="firstBox" made the Start tabs replace the
+          // hidden Home box instead of the visible one.
+          firstBlock("beginner", false, "firstBoxHome") +
           "</section>") +
       medal("home-1") +
       '<section class="block">' +
@@ -2000,16 +2014,24 @@
   function wireFirst() {
     $$("[data-level]").forEach((b) =>
       b.addEventListener("click", () => {
-        const box = $("#firstBox");
+        // The clicked tab's own box, not the first #firstBox in the
+        // document: Home renders the same block, and a document-wide
+        // lookup replaced the hidden Home box while Start looked dead.
+        const box = b.closest("#firstBox, #firstBoxHome");
+        if (!box) return;
         box.outerHTML = firstBlock(b.dataset.level, true);
         wireFirst();
         const nb = $(`[data-level="${b.dataset.level}"]`);
         if (nb) nb.focus();
-        if (!calm())
-          $("#firstBox").animate([{ opacity: 0.4 }, { opacity: 1 }], {
-            duration: 250,
-            easing: "cubic-bezier(0,0,.2,1)",
-          });
+        // Animate the NEW box (the old one is detached after outerHTML).
+        if (!calm()) {
+          const fresh = nb ? nb.closest("#firstBox") : null;
+          if (fresh)
+            fresh.animate([{ opacity: 0.4 }, { opacity: 1 }], {
+              duration: 250,
+              easing: "cubic-bezier(0,0,.2,1)",
+            });
+        }
       }),
     );
   }
@@ -2299,12 +2321,12 @@
       return VIDEOS.filter((v) => (v.categories || []).includes(scope));
     if (scope === "loose") return looseVideos;
     if (scope === "progress")
-      // In progress means started or finished: a watched lesson still
-      // counts until the visitor clears it, so the count never reads 0
-      // right after "Mark as watched".
+      // In progress means started but not finished: a watched lesson is
+      // done, not in progress, so "Mark as watched" takes it out of this
+      // list (a watched lesson with no position never belonged here).
       return st.recent
         .map((id) => byId.get(id))
-        .filter((v) => v && (canResume(v) || st.done[v.id]));
+        .filter((v) => v && canResume(v));
     if (scope === "saved")
       return Object.keys(st.fav)
         .map((id) => byId.get(id))
@@ -2828,7 +2850,9 @@
         $("#pframe").classList.add("err");
         probeError(v, p);
       });
-      const from = q.get("resume") ? progOf(v.id) : 0;
+      // Reopening a lesson resumes where the visitor left off; the saved
+      // position is the resume, not a button to press first.
+      const from = canResume(v) ? progOf(v.id) : 0;
       if (from > 5)
         video.addEventListener(
           "loadedmetadata",
@@ -2869,10 +2893,11 @@
         : `<span class="pill">${esc(t("no_series"))}</span>`) +
       `<span class="pill">${esc(scholarOf(v))}</span><span class="pill ltr">${esc(dur(v.duration))}</span><span class="pill">${esc(t("published", { d: date(v.uploadDate) }))}</span></div>` +
       `<div class="ls-acts"${L()}>${starBtn(v.id, "lg")}${doneBtn(v.id)}` +
-      (canResume(v) && !q.get("resume")
-        ? `<button class="btn small" type="button" id="lsResume">${icon("i-resume")}${esc(t("ls_resume_at", { t: dur(progOf(v.id)) }))}</button>`
-        : "") +
-      `<button class="btn" type="button" data-mode="yt" aria-pressed="${cur.mode === "yt"}">${esc(t("pb_yt"))}</button>` +
+      // No manual Resume button: reopening already resumes from the saved
+      // position (see `from` above), so a button would only restate it.
+      (HOSTED
+        ? ""
+        : `<button class="btn" type="button" data-mode="yt" aria-pressed="${cur.mode === "yt"}">${esc(t("pb_yt"))}</button>`) +
       (HOSTED
         ? ""
         : `<button class="btn" type="button" data-mode="hosted" aria-pressed="${cur.mode === "hosted"}">${esc(t("pb_hosted"))}</button>`) +
@@ -3055,9 +3080,10 @@
     // No text file ships with the hosted preview: say so plainly instead
     // of leaving an empty panel or hiding it. The installed app shows its
     // text; on the web version the subtitles in the YouTube player are the
-    // read-along.
+    // read-along. The note follows the transcript language just picked,
+    // not the site language.
     if (cur && cur.v.id === vid)
-      body.innerHTML = `<p${L()}>${esc(t("tx_fail"))}</p>`;
+      body.innerHTML = `<p lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">${esc(tL(lang, "tx_fail"))}</p>`;
   }
   function syncTx(force) {
     if (!cur || cur.mode === "yt" || !cur.tx || !cur.tx.lines.length) return;
@@ -3162,15 +3188,39 @@
   function loadYtApi() {
     if (window.YT && window.YT.Player) return Promise.resolve();
     if (ytApiPromise) return ytApiPromise;
+    // The loader script (iframe_api) only defines YT={loading,loaded} and
+    // injects www-widgetapi.js; its onload fires BEFORE YT.Player exists,
+    // so resolving on onload made startYtPoll return early and no player
+    // (and no progress poll) was ever created on the first lesson of a
+    // session: progress only ever saved from the second lesson on, once
+    // the cached promise resolved with YT.Player present. Resolve only
+    // once YT.Player is really there.
     ytApiPromise = new Promise((resolve) => {
-      const done = () => resolve();
-      window.onYouTubeIframeAPIReady = done;
+      let done = false;
+      const finish = () => {
+        if (!done) {
+          done = true;
+          resolve();
+        }
+      };
+      const waitForPlayer = () => {
+        if (window.YT && window.YT.Player) return finish();
+        if (window.YT && typeof window.YT.ready === "function") {
+          window.YT.ready(() => {
+            if (window.YT && window.YT.Player) finish();
+            else setTimeout(waitForPlayer, 200);
+          });
+          return;
+        }
+        setTimeout(waitForPlayer, 100);
+      };
+      window.onYouTubeIframeAPIReady = waitForPlayer;
       const s = document.createElement("script");
       s.src = "https://www.youtube.com/iframe_api";
-      s.onload = done;
-      s.onerror = done;
+      s.onload = waitForPlayer;
+      s.onerror = finish;
       document.head.appendChild(s);
-      setTimeout(done, 8000);
+      setTimeout(finish, 10000);
     });
     return ytApiPromise;
   }
@@ -3190,9 +3240,39 @@
       if (!window.YT || !window.YT.Player) return;
       stopYtPoll();
       let player = null;
+      // Captions on by default: cc_load_policy=1 only turns on a track in
+      // the embed's cc_lang_pref language, and the lesson may only carry
+      // another language on YouTube, so pick from the player's real track
+      // list: site language first, else the first track it has.
+      const pickCaptions = () => {
+        if (!cur || cur.v.id !== lessonId || !player) return;
+        try {
+          if (player.loadModule) player.loadModule("captions");
+          let tracks = [];
+          try {
+            tracks = player.getOption("captions", "tracklist") || [];
+          } catch (_) {}
+          const track =
+            tracks.find((tr) => tr.languageCode === st.lang) || tracks[0];
+          if (track)
+            player.setOption("captions", "track", {
+              languageCode: track.languageCode,
+            });
+        } catch (_) {}
+      };
       try {
         player = new YT.Player(cur.ytFrame, {
           events: {
+            onReady: () => {
+              if (!cur || cur.v.id !== lessonId) return;
+              pickCaptions();
+              // The captions module loads async; the track list can still
+              // be empty at onReady, so try once more a moment later.
+              setTimeout(() => {
+                if (cur && cur.v.id === lessonId && cur.mode === "yt")
+                  pickCaptions();
+              }, 1500);
+            },
             onStateChange: (e) => {
               if (!cur || cur.v.id !== lessonId) return;
               if (e.data === YT.PlayerState.PAUSED) saveProgress();
@@ -3821,6 +3901,11 @@
   /* ---------- Chrome: language, theme, calm motion ---------- */
   function paintChrome() {
     const ar = st.lang === "ar";
+    // Language hook for CSS: the document itself stays dir=rtl (the header
+    // chrome is anchored and must not move on a language switch), so grids
+    // that must flow with the site language read this instead (see the
+    // :root[data-lang="en"] .grid rule in app.css.
+    document.documentElement.dataset.lang = st.lang;
     $$("[data-t]").forEach((el) => {
       el.textContent = t(el.dataset.t);
       el.setAttribute("lang", st.lang);
