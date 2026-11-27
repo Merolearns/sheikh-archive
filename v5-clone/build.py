@@ -52,6 +52,10 @@ YT_THUMB_OK = "https://i.ytimg.com/vi/"
 # to the channel's /live page. This exact URL only: no other youtube.com
 # URL is allowlisted.
 YT_LIVE_OK = "https://www.youtube.com/@dr.moustafakamel508/live"
+# YouTube IFrame API loader (Nov 26 2026): app.js assigns this exact URL
+# to a dynamically created <script> element so the hosted player can
+# report its position. This exact URL only.
+YT_API_OK = "https://www.youtube.com/iframe_api"
 
 # Unfinished language that must never reach a shipped screen (brief, build action A).
 PLACEHOLDERS = (
@@ -446,7 +450,7 @@ def check_catalog_overrides(ov, base):
             assert vid in vids, f"admin overrides name unknown video: {vid}"
     vids |= set(ov.get("videos", {}))
     for pid, o in ov.get("series", {}).items():
-        assert set(o) <= {"title", "titleEn", "items", "new"}, f"series override {pid}: unknown key"
+        assert set(o) <= {"title", "titleEn", "items", "itemsAdd", "new", "note"}, f"series override {pid}: unknown key"
         if o.get("new"):
             assert re.fullmatch(r"[A-Za-z0-9_-]{10,64}", pid) and pid not in pls, (
                 f"added series {pid}: needs a new YouTube playlist ID"
@@ -460,6 +464,22 @@ def check_catalog_overrides(ov, base):
         )
         missing = [i for i in items if i not in vids]
         assert not missing, f"series {pid} lists unknown videos: {missing[:5]}"
+        # itemsAdd appends lessons to a series without restating its whole
+        # item list: every id must be a known video the series does not
+        # already have.
+        added = o.get("itemsAdd", [])
+        assert isinstance(added, list) and len(added) == len(set(added)), (
+            f"series {pid}: itemsAdd must be a list with no repeats"
+        )
+        missing = [i for i in added if i not in vids]
+        assert not missing, f"series {pid} lists unknown videos in itemsAdd: {missing[:5]}"
+        current = (
+            {it["id"] for it in next(p for p in base["playlists"] if p["id"] == pid)["items"]}
+            if not o.get("new")
+            else set()
+        )
+        dup = [i for i in added if i in current or i in items]
+        assert not dup, f"series {pid}: itemsAdd restates items already in the series: {dup[:5]}"
 
 
 def main():
@@ -566,6 +586,7 @@ def main():
             if not u.startswith(YT_EMBED_OK)
             and not u.startswith(YT_THUMB_OK)
             and not u.startswith(YT_LIVE_OK)
+            and not u.startswith(YT_API_OK)
             and not any(u.startswith(b) for b in _books_bases)
         ]
         assert not ext, f"external URL in {name}: {ext[:3]}"
