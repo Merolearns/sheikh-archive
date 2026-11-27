@@ -116,10 +116,16 @@ class NetworkGuardTests(unittest.TestCase):
 
     def test_playback_concat_form_is_allowed_only_when_marked(self):
         statement = (
+            'const ytQuery =\n'
+            '  "?rel=0&autoplay=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref=" +\n'
+            '  (st.lang === "ar" ? "ar" : "en") +\n'
+            '  "&origin=" +\n'
+            '  encodeURIComponent(location.origin) +\n'
+            '  (startAt > 5 ? "&start=" + Math.floor(startAt) : "");\n'
             'frameEl.src =\n'
             '  "https://www.youtube-nocookie.com/embed/" +\n'
             '  id +\n'
-            '  "?rel=0&autoplay=1"; // network-guard: youtube-playback'
+            '  ytQuery; // network-guard: youtube-playback'
         )
         self.assertEqual(scan_text(statement, ".js"), [])
         self.assertTrue(scan_text(statement.replace(" // network-guard: youtube-playback", ""), ".js"))
@@ -128,6 +134,19 @@ class NetworkGuardTests(unittest.TestCase):
         )
         self.assertTrue(
             scan_text(statement.replace('id +', '"https://evil.example/x" +'), ".js")
+        )
+
+    def test_youtube_iframe_api_url_is_allowed_only_as_script_assignment(self):
+        url = "https://www.youtube.com/iframe_api"
+        # The IFrame API loader, assigned to a dynamically created script
+        # element in JS, is allowed; as a fetch or an HTML asset it fails.
+        self.assertEqual(scan_text(f's.src = "{url}";', ".js"), [])
+        self.assertEqual(
+            scan_text(f'fetch("{url}")', ".js")[0][1], "MALFORMED_YOUTUBE_URL"
+        )
+        self.assertEqual(
+            scan_text(f'<script src="{url}"></script>', ".html")[0][1],
+            "MALFORMED_YOUTUBE_URL",
         )
 
     def test_youtube_exception_is_limited_to_anchors_and_marked_playback(self):
