@@ -592,8 +592,10 @@ const G = "http://archive.test";
   check(
     "[new] added video plays via the existing nocookie YouTube embed, inside its series",
     r2.h1 === "درس اختبار ثان" &&
-      r2.src ===
-        "https://www.youtube-nocookie.com/embed/ZyXwVuTsRq9?rel=0&autoplay=1" &&
+      r2.src.startsWith(
+        "https://www.youtube-nocookie.com/embed/ZyXwVuTsRq9?rel=0&autoplay=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref=",
+      ) &&
+      r2.src.includes("&origin=") &&
       r2.shown === "block" &&
       r2.series === "سلسلة اختبار مضافة",
     JSON.stringify(r2),
