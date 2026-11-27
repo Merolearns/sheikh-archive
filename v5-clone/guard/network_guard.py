@@ -34,12 +34,18 @@ PLAYBACK = re.compile(
 )
 # The real playback assignment builds the embed URL from a runtime video ID
 # (see app.js setPlayMode): the ID comes from ytIdOf(), which accepts only
-# an 11-char [A-Za-z0-9_-] token from the media filename, and the statement
-# carries the // network-guard: youtube-playback marker. The marker alone
-# allows nothing: the host, the concatenation shape, and the exact query
-# suffix must all match. Any other embed URL form still fails.
+# an 11-char [A-Za-z0-9_-] token from the media filename, and the query
+# string is the fixed ytQuery built just above it (enablejsapi for the
+# IFrame API, captions on in the site language, origin, optional start).
+# The statement carries the // network-guard: youtube-playback marker. The
+# marker alone allows nothing: the host, the concatenation shape, the
+# ytQuery variable, and the exact query construction must all match. Any
+# other embed URL form still fails.
 PLAYBACK_CONCAT = re.compile(
-    r"""frameEl\.src\s*=\s*"https://www\.youtube-nocookie\.com/embed/"\s*\+\s*[A-Za-z_$][\w$]*\s*\+\s*"\?rel=0&autoplay=1";\s*// network-guard: youtube-playback"""
+    r"""frameEl\.src\s*=\s*"https://www\.youtube-nocookie\.com/embed/"\s*\+\s*[A-Za-z_$][\w$]*\s*\+\s*ytQuery;\s*// network-guard: youtube-playback"""
+)
+PLAYBACK_QUERY = re.compile(
+    r"""const ytQuery\s*=\s*"\?rel=0&autoplay=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref="\s*\+\s*\(st\.lang === "ar" \? "ar" : "en"\)\s*\+\s*"&origin="\s*\+\s*encodeURIComponent\(location\.origin\)\s*\+\s*\(startAt > 5 \? "&start=" \+ Math\.floor\(startAt\) : ""\);"""
 )
 # Hosted-flavor thumbnails (owner order, Nov 21 2026): a still is derived from
 # the video ID, exactly this expression. Only runs when the page carries the
@@ -62,6 +68,12 @@ DONATION_URL = "https://us.mohid.co/ca/losangeles/wcis/masjid/online/donation/in
 # skipped, exactly like DONATION_URL: the same URL as an asset, a request,
 # or a resource hint still fails.
 YOUTUBE_LIVE_URL = "https://www.youtube.com/@dr.moustafakamel508/live"
+# YouTube IFrame API loader (Nov 26 2026): app.js assigns this URL to a
+# dynamically created <script> element so the hosted player can report its
+# position. Only the plain-text EXTERNAL_URL finding is skipped, exactly
+# like DONATION_URL: the same URL as an asset, a request, or a resource
+# hint still fails.
+YOUTUBE_IFRAME_API = "https://www.youtube.com/iframe_api"
 ASSET_TAGS = {"img", "script", "link", "iframe", "video", "audio", "source", "embed"}
 RESOURCE_HINTS = {"preconnect", "prefetch", "dns-prefetch", "preload", "modulepreload"}
 SUFFIXES = {".html", ".htm", ".js", ".mjs", ".cjs", ".css"}
@@ -92,6 +104,8 @@ class Scanner(HTMLParser):
             return
         if rule == "EXTERNAL_URL" and url == YOUTUBE_LIVE_URL:
             return
+        if rule == "EXTERNAL_URL" and url == YOUTUBE_IFRAME_API:
+            return
         # Configured book-file origin (e.g. the GitHub raw base): book URLs
         # pointing there are intentional, not leaks. Only the plain-text
         # EXTERNAL_URL finding is skipped; the same URL as an asset, a
@@ -113,7 +127,7 @@ class Scanner(HTMLParser):
         allowed_spans = (
             [
                 (m.start(), m.end())
-                for r in (PLAYBACK_CONCAT, YTIMG_CONCAT)
+                for r in (PLAYBACK_CONCAT, PLAYBACK_QUERY, YTIMG_CONCAT)
                 for m in r.finditer(value)
             ]
             if javascript
