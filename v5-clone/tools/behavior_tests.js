@@ -2459,6 +2459,110 @@ const G = "http://archive.test";
   );
   await pg.context().close();
 
+  // fix5: the stale "no captions" notice. VLKRl6DmzaU HAS Arabic + English
+  // subtitle entries in the catalog, and YouTube lists an Arabic
+  // auto-generated track for it, but in real playback the track list
+  // stays empty and getOption never reports an active track, so the old
+  // detector concluded "none" and showed the notice while captions were
+  // visibly on. Same no-track mock as the [fix3] none test, but on a
+  // lesson the catalog says HAS captions: no notice must ever show, and
+  // the state must stay unknown, not "none".
+  const CAP_LESSON = "VLKRl6DmzaU"; // ar+en subtitle entries in the catalog
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET3_NONE,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + CAP_LESSON);
+  await pg.waitForTimeout(1500);
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(11000);
+  const capStale = await pg.evaluate(() => {
+    const n = document.querySelector("#notice");
+    return n
+      ? { hidden: n.hidden, text: n.textContent.trim().slice(0, 80) }
+      : null;
+  });
+  check(
+    "[fix5] captions: lesson the catalog says has captions never shows the no-captions notice",
+    capStale && capStale.hidden,
+    JSON.stringify(capStale),
+  );
+  await pg.context().close();
+
+  // fix5: the "Text of the lesson" note follows the caption state even
+  // when the state settles after the panel opens. Same direct-activation
+  // mock as [fix4], but PLAYING arrives late (3s) so the panel first
+  // shows the generic note; once the track activates the note must say
+  // subtitles are on in the player above.
+  const YT_WIDGET5_TX =
+    "window.YT.PlayerState={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};" +
+    "window.YT.Player=function(el,opts){let t=0;let active=null;" +
+    "const timer=setInterval(()=>{t+=1;},1000);" +
+    "this.getCurrentTime=()=>t;this.getPlayerState=()=>1;" +
+    "this.seekTo=(s)=>{t=s;};this.playVideo=()=>{};this.pauseVideo=()=>{};" +
+    "this.destroy=()=>clearInterval(timer);" +
+    "this.loadModule=()=>{};" +
+    'this.setOption=(m,k,v)=>{if(m==="captions"&&k==="track"&&(v.languageCode==="ar"||v.languageCode==="en"))active={languageCode:v.languageCode};};' +
+    'this.getOption=(m,k)=>{if(m==="captions"&&k==="tracklist")return [];if(m==="captions"&&k==="track")return active;return null;};' +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onStateChange&&opts.events.onStateChange({data:1}),3000);" +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onReady&&opts.events.onReady({target:this}),350);" +
+    "window.__mockPlayer=this;window.__capState=()=>({active});};" +
+    "if(window.onYTReady)window.onYTReady();" +
+    "if(window.onYouTubeIframeAPIReady)window.onYouTubeIframeAPIReady();";
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET5_TX,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + CAP_LESSON);
+  await pg.waitForTimeout(3000);
+  const txBefore = await pg.evaluate(() =>
+    document.querySelector("#txBody")?.textContent?.trim(),
+  );
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(8000);
+  const txAfter = await pg.evaluate(() =>
+    document.querySelector("#txBody")?.textContent?.trim(),
+  );
+  check(
+    "[fix5] transcript note updates to subtitles-on once the track activates",
+    !!txBefore &&
+      txBefore.startsWith("النص الكامل") &&
+      !txBefore.includes("الترجمة مفعّلة") &&
+      !!txAfter &&
+      txAfter.includes("الترجمة مفعّلة"),
+    JSON.stringify({
+      before: txBefore && txBefore.slice(0, 60),
+      after: txAfter && txAfter.slice(0, 80),
+    }),
+  );
+  await pg.context().close();
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);
