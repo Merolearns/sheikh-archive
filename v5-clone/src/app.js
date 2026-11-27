@@ -366,6 +366,10 @@
       lv_advanced: "متقدم",
       st_kicker: "من أين أبدأ؟",
       st_title: "طريق واضح لمن يبدأ",
+      // Per-level headings (fix3, Nov 26): composed from the existing title
+      // and the existing level words above, so no new wording was invented.
+      st_title_i: "طريق واضح للمتوسطين",
+      st_title_a: "طريق واضح للمتقدمين",
       st_lede:
         "لا تحتاج أن تختار من آلاف الدروس. ابدأ بجلسة واحدة، ثم اتبع الخطوات بالترتيب.",
       st_first_tag: "جلستك الأولى",
@@ -384,6 +388,7 @@
       sort_first: "أول سلسلة:",
       sort_time: "مدة سلاسل هذه الخطوة: {h}",
       st_path_t: "الطريق في ست خطوات",
+      st_path_n: "الطريق في {n} خطوات",
       st_path_p: "السلاسل التي تقترحها المكتبة لكل خطوة.",
       pre_label: "قبلها:",
       pre_1:
@@ -696,6 +701,8 @@
       lv_advanced: "Advanced",
       st_kicker: "Where to Start",
       st_title: "A clear path for beginners",
+      st_title_i: "A clear path for intermediate learners",
+      st_title_a: "A clear path for advanced learners",
       st_lede:
         "You do not need to choose from thousands of lessons. Start with one session, then follow the steps in order.",
       st_first_tag: "Your first session",
@@ -718,6 +725,7 @@
       sort_first: "First series:",
       sort_time: "Time for this step's series: {h}",
       st_path_t: "The path in six steps",
+      st_path_n: "The path in {n} steps",
       st_path_p: "The library's suggested series for each step.",
       pre_label: "Before this:",
       pre_1:
@@ -2019,9 +2027,22 @@
         // lookup replaced the hidden Home box while Start looked dead.
         const box = b.closest("#firstBox, #firstBoxHome");
         if (!box) return;
-        box.outerHTML = firstBlock(b.dataset.level, true);
+        const level = b.dataset.level;
+        // On Where to Start the tab switches the whole page (fix3): the
+        // heading, the starter questions, the path steps and the forty
+        // days all follow the level, not just the starter lesson.
+        if (box.closest("#v-start")) {
+          const y = window.scrollY;
+          startLevel = level;
+          renderStart(null, null, true);
+          window.scrollTo(0, y);
+          const nb = $(`#v-start [data-level="${level}"]`);
+          if (nb) nb.focus();
+          return;
+        }
+        box.outerHTML = firstBlock(level, true);
         wireFirst();
-        const nb = $(`[data-level="${b.dataset.level}"]`);
+        const nb = $(`[data-level="${level}"]`);
         if (nb) nb.focus();
         // Animate the NEW box (the old one is detached after outerHTML).
         if (!calm()) {
@@ -3227,6 +3248,7 @@
   function stopYtPoll() {
     if (!cur || !cur.yt) return;
     if (cur.yt.timer) clearInterval(cur.yt.timer);
+    if (cur.yt.capTimer) clearInterval(cur.yt.capTimer);
     try {
       if (cur.yt.player) cur.yt.player.destroy();
     } catch (_) {}
@@ -3244,14 +3266,47 @@
       // the embed's cc_lang_pref language, and the lesson may only carry
       // another language on YouTube, so pick from the player's real track
       // list: site language first, else the first track it has.
+      // The list is NOT there at onReady (fix3): the captions module
+      // loads async (onApiChange) and the list only fills once the
+      // video's timed text arrives, usually after playback starts. The
+      // old onReady plus one 1.5s retry never saw a track in real playback.
+      // So keep trying once a second while playing until the player
+      // reports an active track. Only when playback has started and the
+      // list stays empty does the lesson have no captions at all, and
+      // then the page says so plainly instead of silently showing none.
+      let capDone = false;
+      let capTries = 0;
+      let capTimer = null;
+      let capSawPlay = false;
+      let capEmptyReads = 0;
+      const capActive = () => {
+        try {
+          const tr = player.getOption("captions", "track");
+          return !!(tr && tr.languageCode);
+        } catch (_) {
+          return false;
+        }
+      };
+      const stopCapTimer = () => {
+        if (capTimer) {
+          clearInterval(capTimer);
+          capTimer = null;
+        }
+        if (cur && cur.yt) cur.yt.capTimer = null;
+      };
       const pickCaptions = () => {
-        if (!cur || cur.v.id !== lessonId || !player) return;
+        if (!cur || cur.v.id !== lessonId || !player || capDone) return;
         try {
           if (player.loadModule) player.loadModule("captions");
           let tracks = [];
           try {
             tracks = player.getOption("captions", "tracklist") || [];
           } catch (_) {}
+          if (!tracks.length) {
+            capEmptyReads++;
+            return;
+          }
+          capEmptyReads = 0;
           const track =
             tracks.find((tr) => tr.languageCode === st.lang) || tracks[0];
           if (track)
@@ -3260,21 +3315,57 @@
             });
         } catch (_) {}
       };
+      const capTick = () => {
+        if (!cur || cur.v.id !== lessonId || cur.mode !== "yt" || capDone) {
+          stopCapTimer();
+          return;
+        }
+        capTries++;
+        pickCaptions();
+        if (capActive()) {
+          capDone = true;
+          stopCapTimer();
+          return;
+        }
+        if (capTries >= 20) {
+          stopCapTimer();
+          return;
+        }
+        if (capSawPlay && capEmptyReads >= 8) {
+          // Playback has run for eight seconds and the list is still
+          // empty: this lesson has no captions in any language. Eight,
+          // not three: timed text can take a few seconds to arrive after
+          // playback starts, and concluding too early would say "none"
+          // for a lesson that does have captions.
+          capDone = true;
+          stopCapTimer();
+          showNotice(`<p${L()}>${esc(t("cap_fail"))}</p>`);
+        }
+      };
+      const startCapTimer = () => {
+        if (capTimer || capDone) return;
+        capTimer = setInterval(capTick, 1000);
+        if (cur && cur.yt) cur.yt.capTimer = capTimer;
+      };
       try {
         player = new YT.Player(cur.ytFrame, {
           events: {
             onReady: () => {
               if (!cur || cur.v.id !== lessonId) return;
               pickCaptions();
-              // The captions module loads async; the track list can still
-              // be empty at onReady, so try once more a moment later.
-              setTimeout(() => {
-                if (cur && cur.v.id === lessonId && cur.mode === "yt")
-                  pickCaptions();
-              }, 1500);
+              startCapTimer();
+            },
+            onApiChange: () => {
+              if (!cur || cur.v.id !== lessonId) return;
+              pickCaptions();
             },
             onStateChange: (e) => {
               if (!cur || cur.v.id !== lessonId) return;
+              if (e.data === YT.PlayerState.PLAYING) {
+                capSawPlay = true;
+                pickCaptions();
+                startCapTimer();
+              }
               if (e.data === YT.PlayerState.PAUSED) saveProgress();
               if (e.data === YT.PlayerState.ENDED) {
                 saveProgress();
@@ -3286,7 +3377,7 @@
       } catch (_) {
         return;
       }
-      cur.yt = { player, timer: null };
+      cur.yt = { player, timer: null, capTimer };
       cur.yt.timer = setInterval(() => {
         if (!cur || cur.v.id !== lessonId || cur.mode !== "yt") return;
         try {
@@ -3390,20 +3481,45 @@
   }
 
   /* ---------- Where to Start ---------- */
-  function renderStart(_, q) {
-    const stepTime = (s) => s.pl.reduce((a, id) => a + (plDur.get(id) || 0), 0);
-    const stepCount = (s) => s.pl.reduce((a, id) => a + plCount(id), 0);
-    const doneDays = DAYS.filter((d) => st.days[d.n]).length;
+  // Where to Start is level-aware (fix3, Nov 26): the tabs used to swap
+  // only the starter lesson while the heading and the sections below stayed
+  // on beginner. The selected level now filters the whole page: heading,
+  // starter questions, path steps and the forty days all follow the tab.
+  // A step shows only its series at that level; a day shows only when one
+  // of its lessons is at that level. Step numbers stay the original ones,
+  // so the question cards still scroll to the right step.
+  let startLevel = "beginner";
+  const startDayHasLevel = (d, level) =>
+    d.lessons.some((v) => {
+      const p = seriesOf(v);
+      return p && levelOf(p.id) === level;
+    });
+  function renderStart(_, q, keepLevel) {
+    if (!keepLevel) startLevel = "beginner";
+    const level = startLevel;
+    const stepPl = (s) => s.pl.filter((id) => levelOf(id) === level);
+    const stepTime = (s) =>
+      stepPl(s).reduce((a, id) => a + (plDur.get(id) || 0), 0);
+    const stepCount = (s) =>
+      stepPl(s).reduce((a, id) => a + plCount(id), 0);
+    const stepHasLevel = (s) =>
+      s.pl.some((id) => levelOf(id) === level) ||
+      (s.arabic && levelOf(s.arabic) === level);
+    const shownSteps = PATH.map((s, i) => ({ s, i })).filter(({ s }) =>
+      stepHasLevel(s),
+    );
+    const fDays = DAYS.filter((d) => startDayHasLevel(d, level));
+    const doneDays = fDays.filter((d) => st.days[d.n]).length;
     const nd = nextDay();
     const qs = [
       ["a", 0],
       ["b", 3],
       ["c", 5],
-    ];
+    ].filter(([, si]) => stepHasLevel(PATH[si]));
     $("#v-start").innerHTML =
       '<div class="page">' +
-      `<header class="page-h">${kh()}<span class="eyebrow"${L()}>${esc(t("st_kicker"))}</span><h1${L()}>${esc(t("st_title"))}</h1><p${L()}>${esc(t("st_lede"))}</p></header>` +
-      firstBlock("beginner", true) +
+      `<header class="page-h">${kh()}<span class="eyebrow"${L()}>${esc(t("st_kicker"))}</span><h1${L()}>${esc(t(level === "intermediate" ? "st_title_i" : level === "advanced" ? "st_title_a" : "st_title"))}</h1><p${L()}>${esc(t("st_lede"))}</p></header>` +
+      firstBlock(level, true) +
       secHead(t("st_q_t"), { promise: t("st_q_p") }) +
       '<div class="cards3">' +
       qs
@@ -3419,25 +3535,30 @@
         .join("") +
       "</div>" +
       medal("st-1") +
-      secHead(t("st_path_t"), { promise: t("st_path_p") }) +
+      secHead(
+        shownSteps.length === PATH.length
+          ? t("st_path_t")
+          : t("st_path_n", { n: nf(shownSteps.length) }),
+        { promise: t("st_path_p") },
+      ) +
       '<ol class="steps">' +
-      PATH.map((s, i) => {
+      shownSteps.map(({ s, i }) => {
         const done = !!st.path[s.k];
         return (
           `<li class="step${done ? " done" : ""}" id="step-${i + 1}"><span class="num" aria-hidden="true">${kh()}<b>${nf(i + 1)}</b></span><div>` +
           `<h3${L()}>${esc(t("p_" + s.k))}</h3>` +
-          `<div class="pills"${L()}>${[...new Set(s.pl.map(levelOf))].map((l) => `<span class="pill lvl">${esc(t("lv_" + l))}</span>`).join("")}</div>` +
+          `<div class="pills"${L()}>${[...new Set(stepPl(s).map(levelOf))].map((l) => `<span class="pill lvl">${esc(t("lv_" + l))}</span>`).join("")}</div>` +
           `<p${L()}>${esc(t("d_" + s.k))}</p>` +
           `<p${L()} style="margin-top:6px"><b>${esc(t("pre_label"))}</b> ${esc(t("pre_" + (i + 1)))}</p>` +
           `<ul class="sr-list"${L()}>` +
-          s.pl
+          stepPl(s)
             .map((id) => plById.get(id))
             .map(
               (p) =>
                 `<li><a href="#/playlist/${encodeURIComponent(p.id)}"${dLang(p)}>${esc(dTitle(p))}</a><span class="m lv">${esc(t("lv_" + levelOf(p.id)))}</span><span class="m">${esc(lessonsN(plCount(p.id)))} · <span class="ltr">${esc(hours(plDur.get(p.id)))}</span></span></li>`,
             )
             .join("") +
-          (s.arabic
+          (s.arabic && levelOf(s.arabic) === level
             ? `<li class="sub"><span class="k">${esc(t("arabic_k"))}</span><span>${esc(t("arabic_v"))} <a href="#/playlist/${encodeURIComponent(s.arabic)}"${dLang(plById.get(s.arabic))}>${esc(dTitle(plById.get(s.arabic)))}</a></span></li>`
             : "") +
           `<li class="tot">${esc(t("step_total", { n: lessonsN(stepCount(s)), h: hours(stepTime(s)) }))}</li></ul></div>` +
@@ -3448,15 +3569,16 @@
       medal("st-2") +
       `<section id="days" class="block">` +
       secHead(t("r_days"), { eyebrow: t("r_days_e"), promise: t("r_days_p") }) +
-      `<p class="muted" id="daysProg"${L()}>${esc(t("days_prog", { d: nf(doneDays), t: nf(DAYS.length) }))}</p><div class="bar" style="max-width:420px;margin:6px 0 4px"><i id="daysBar" style="--p:${(doneDays / DAYS.length).toFixed(3)}"></i></div>` +
-      PILLARS.map(
-        (k) =>
+      `<p class="muted" id="daysProg"${L()}>${esc(t("days_prog", { d: nf(doneDays), t: nf(fDays.length) }))}</p><div class="bar" style="max-width:420px;margin:6px 0 4px"><i id="daysBar" style="--p:${fDays.length ? (doneDays / fDays.length).toFixed(3) : 0}"></i></div>` +
+      PILLARS.map((k) => {
+        const days = fDays.filter((d) => d.k === k);
+        if (!days.length) return "";
+        return (
           `<div class="phase"><h3${L()}>${esc(t("p_" + k))}</h3><span class="rule"></span></div><div class="days">` +
-          DAYS.filter((d) => d.k === k)
-            .map((d) => dayCard(d, nd.n))
-            .join("") +
-          "</div>",
-      ).join("") +
+          days.map((d) => dayCard(d, nd.n)).join("") +
+          "</div>"
+        );
+      }).join("") +
       `<div class="days-slot">${daysEnd()}</div>` +
       "</section>" +
       '<div class="notes">' +
@@ -3485,7 +3607,7 @@
     );
     wireFirst();
     drawLines($("#v-start"));
-    if (q.get("at") === "days")
+    if (q && q.get("at") === "days")
       requestAnimationFrame(() =>
         $("#days").scrollIntoView({ block: "start" }),
       );
@@ -3495,17 +3617,23 @@
     if (c.checked) st.days[n] = 1;
     else delete st.days[n];
     store(K.days, st.days);
-    const done = DAYS.filter((d) => st.days[d.n]).length;
     const nd = nextDay().n;
     $$(".dcard").forEach((el) =>
       el.classList.toggle("next", el.dataset.k === "d" + nd),
     );
     if ($("#daysProg")) {
+      // The progress line counts the days the Start page is showing for
+      // its level, not all forty (fix3).
+      const fD = DAYS.filter((d) => startDayHasLevel(d, startLevel));
+      const doneF = fD.filter((d) => st.days[d.n]).length;
       $("#daysProg").textContent = t("days_prog", {
-        d: nf(done),
-        t: nf(DAYS.length),
+        d: nf(doneF),
+        t: nf(fD.length),
       });
-      $("#daysBar").style.setProperty("--p", (done / DAYS.length).toFixed(3));
+      $("#daysBar").style.setProperty(
+        "--p",
+        fD.length ? (doneF / fD.length).toFixed(3) : 0,
+      );
     }
     $$(".days-slot").forEach((el) => (el.innerHTML = daysEnd()));
   }
