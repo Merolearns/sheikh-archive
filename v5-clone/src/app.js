@@ -8,6 +8,10 @@
   // title changes, added series and videos, and series membership apply
   // here, in memory only, so the catalog literal stays byte-identical to
   // v4 and the build guard holds. build.py has already validated them.
+  // adminOrdered: series whose item order the admin set explicitly (a
+  // full `items` override). Those keep the admin's order; every other
+  // series is sorted by lesson number (seriesCmp) below.
+  const adminOrdered = new Set();
   try {
     if (typeof ADMIN_OVERRIDES !== "undefined" && ADMIN_OVERRIDES) {
       const so = ADMIN_OVERRIDES.series || {},
@@ -46,8 +50,19 @@
         if (o.items) {
           p.items = o.items.map((id) => ({ id }));
           p.count = p.items.length;
-          edited.set(p.id, new Set(o.items));
+          adminOrdered.add(p.id);
         }
+        // itemsAdd appends lessons to a series without restating its whole
+        // item list (the Bukhari explanation lessons that were loose in the
+        // catalog). Membership sync below uses the final item list.
+        if (o.itemsAdd) {
+          const have = new Set(p.items.map((it) => it.id));
+          for (const id of o.itemsAdd)
+            if (!have.has(id)) p.items.push({ id });
+          p.count = p.items.length;
+        }
+        if (o.items || o.itemsAdd)
+          edited.set(p.id, new Set(p.items.map((it) => it.id)));
       }
       for (const v of VIDEOS) {
         const o = vo[v.id];
@@ -315,7 +330,8 @@
       tx_title: "نص الدرس",
       tx_hint: "اضغط على أي سطر لتنتقل إلى تلك اللحظة من الدرس.",
       tx_loading: "جارٍ تحميل النص...",
-      tx_fail: "تعذّر فتح نص هذا الدرس.",
+      tx_fail:
+        "النص الكامل لهذا الدرس غير متوفر في نسخة الويب. يمكنك تشغيل الترجمة من داخل مشغّل يوتيوب أثناء المشاهدة.",
       cap_fail:
         "الترجمة غير متاحة لهذا الدرس. ما زال بإمكانك قراءة النص كاملًا.",
       open_file: "افتحه في برنامج آخر",
@@ -638,7 +654,8 @@
       tx_title: "Text of the lesson",
       tx_hint: "Tap any line to go to that moment in the lesson.",
       tx_loading: "Loading the text...",
-      tx_fail: "The text for this lesson could not be opened.",
+      tx_fail:
+        "The full text of this lesson is not on the web version. You can turn on subtitles in the YouTube player while you watch.",
       cap_fail:
         "Captions are not available for this lesson. You can still read the full text.",
       open_file: "Open in another player",
@@ -1227,11 +1244,52 @@
     ]),
   );
   // A playlist's lessons are the items present in this catalogue; counts and times come from these.
+  // Lesson numbers are the series order: the channel numbers its lessons
+  // ("14 - 2 - …", "١٤-٢ - …", "Lesson 13 - …", "Chapter 131 …"), while the
+  // catalog order is upload order, not lesson order. Numbered lessons sort
+  // ascending (14-2 after 14-1); unnumbered ones keep their catalog order
+  // at the end. Arabic-Indic digits are normalized first.
+  const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+  function seriesNum(v) {
+    const s = (v.titleEn || v.title || "")
+      .trim()
+      .replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d)));
+    let m = s.match(/^\s*(\d+)(?:\s*[-\u2013\u2014/.]\s*(\d+))?/);
+    if (m) return [Number(m[1]), m[2] ? Number(m[2]) : 0];
+    m = s.match(/^(?:Lesson|الدرس)\s+(\d+)(?:\s*[-\u2013\u2014/.]\s*(\d+))?/i);
+    if (m) return [Number(m[1]), m[2] ? Number(m[2]) : 0];
+    // An unnumbered introduction ("مقدمة", "Introduction …") opens the
+    // series, ahead of lesson 1.
+    if (/^(مقدمة|Introduction)\b/i.test(s)) return [0, 0];
+    m = s.match(/(\d+)\s*[-\u2013\u2014]\s*(?:Chapter|Lesson|Part)/);
+    if (m) return [Number(m[1]), 0];
+    m = s.match(/(?:Chapter|Book)\s+(\d+)/);
+    if (m) return [Number(m[1]), 0];
+    return null;
+  }
+  function seriesCmp(a, b) {
+    const na = seriesNum(a),
+      nb = seriesNum(b);
+    if (na && nb) {
+      if (na[0] !== nb[0]) return na[0] - nb[0];
+      if (na[1] !== nb[1]) return na[1] - nb[1];
+      const da = a.uploadDate || "",
+        db = b.uploadDate || "";
+      if (da !== db) return da < db ? -1 : 1;
+      return 0;
+    }
+    if (na) return -1;
+    if (nb) return 1;
+    return 0;
+  }
   const plItems = new Map(
-    PLAYLISTS.map((p) => [
-      p.id,
-      p.items.map((it) => byId.get(it.id)).filter(Boolean),
-    ]),
+    PLAYLISTS.map((p) => {
+      const items = p.items.map((it) => byId.get(it.id)).filter(Boolean);
+      // An admin-set order wins over the lesson-number sort; every other
+      // series renders in true series order.
+      if (!adminOrdered.has(p.id)) items.sort(seriesCmp);
+      return [p.id, items];
+    }),
   );
   const plDur = new Map(
     PLAYLISTS.map((p) => [
@@ -1240,21 +1298,12 @@
     ]),
   );
   const plCount = (id) => plItems.get(id).length;
-  // playlists keep the channel's own order (mostly newest first), so "earliest" is the oldest upload
+  // "Earliest lesson" is the first lesson of the series in series order
+  // (the lowest lesson number), not the oldest upload: the oldest upload
+  // of a series can be a nasheed or an extra, not a lesson.
   function earliest(p) {
-    let best = null,
-      bi = -1;
-    plItems.get(p.id).forEach((v, i) => {
-      if (
-        !best ||
-        (v.uploadDate || "9") < (best.uploadDate || "9") ||
-        (v.uploadDate === best.uploadDate && i > bi)
-      ) {
-        best = v;
-        bi = i;
-      }
-    });
-    return best;
+    const items = plItems.get(p.id) || [];
+    return items[0] || null;
   }
   const notSheikh = (id) => id === IMAD_PL || id === GUEST_PL;
   const sheikhSeries = PLAYLISTS.filter((p) => !notSheikh(p.id));
@@ -1714,6 +1763,12 @@
   function render(opts) {
     const prev = route;
     route = parse();
+    if (route.name === "main") {
+      // "#main" is the skip-link target, not a view: land on Home and put
+      // focus on the main content instead of teleporting the visitor.
+      $("#main").focus();
+      route = { name: "home", arg: "", q: new URLSearchParams() };
+    }
     if (REDIRECT[route.name])
       return (
         history.replaceState(null, "", REDIRECT[route.name]),
@@ -2244,9 +2299,12 @@
       return VIDEOS.filter((v) => (v.categories || []).includes(scope));
     if (scope === "loose") return looseVideos;
     if (scope === "progress")
+      // In progress means started or finished: a watched lesson still
+      // counts until the visitor clears it, so the count never reads 0
+      // right after "Mark as watched".
       return st.recent
         .map((id) => byId.get(id))
-        .filter((v) => v && canResume(v));
+        .filter((v) => v && (canResume(v) || st.done[v.id]));
     if (scope === "saved")
       return Object.keys(st.fav)
         .map((id) => byId.get(id))
@@ -2264,6 +2322,10 @@
     saved: "lib_saved",
   };
   function renderLibrary(_, q, opts) {
+    // #/library?scope=books is the Books link's old address: the Books
+    // view lives at #/books, so go there instead of falling back to the
+    // series list.
+    if (q.get("scope") === "books") return go("#/books");
     const scope = LIB_SCOPES.includes(q.get("scope"))
       ? q.get("scope")
       : "series";
@@ -2666,9 +2728,23 @@
 
   /* ---------- Lesson / player ---------- */
   let cur = null; // { v, video, cues, capLang, lastSave, tx }
+  // Current playback position, whichever player is active. The hosted
+  // YouTube player is the only one that moves when HOSTED is true, so
+  // progress was never saved there until this read from the IFrame API.
+  function curTime() {
+    if (!cur) return 0;
+    if (cur.mode === "yt" && cur.yt && cur.yt.player) {
+      try {
+        return cur.yt.player.getCurrentTime() || 0;
+      } catch (_) {
+        return 0;
+      }
+    }
+    return (cur.video && cur.video.currentTime) || 0;
+  }
   function saveProgress() {
-    if (!cur || !cur.video) return;
-    const tm = Math.floor(cur.video.currentTime || 0);
+    if (!cur) return;
+    const tm = Math.floor(curTime() || 0);
     if (tm > 5) {
       st.prog[cur.v.id] = tm;
       store(K.prog, st.prog);
@@ -2677,6 +2753,7 @@
   function leaveLesson() {
     if (!cur) return;
     saveProgress();
+    stopYtPoll();
     try {
       cur.video.pause();
       cur.video.removeAttribute("src");
@@ -2718,6 +2795,7 @@
         tx: null,
         txLang: q.get("tx") || "",
         mode: "local",
+        yt: null,
       };
       markRecent(v.id);
       const buf = $("#buf");
@@ -2765,7 +2843,7 @@
       const cc = q.get("cc");
       if (!ytFirst && (cc === "ar" || cc === "en")) setCaptions(cc);
       Rec.stop();
-      if (ytFirst) setPlayMode("yt");
+      if (ytFirst) setPlayMode("yt", from);
       else {
         cur.mode = "local";
         const pr = video.play();
@@ -2843,8 +2921,16 @@
     const rb = $("#lsResume");
     if (rb)
       rb.addEventListener("click", () => {
-        cur.video.currentTime = progOf(v.id);
-        cur.video.play().catch(() => {});
+        const at = progOf(v.id);
+        if (cur.mode === "yt" && cur.yt && cur.yt.player) {
+          try {
+            cur.yt.player.seekTo(at, true);
+            cur.yt.player.playVideo();
+          } catch (_) {}
+        } else {
+          cur.video.currentTime = at;
+          cur.video.play().catch(() => {});
+        }
         rb.remove();
       });
     showTranscript(v, keep && cur.tx ? cur.tx.lang : cur.txLang);
@@ -2960,15 +3046,18 @@
     }
     try {
       const txt = await getText(s.readSrc);
-      if (cur && cur.v.id === vid && cur.tx.lang === lang) {
+      if (cur && cur.v.id === vid && cur.tx.lang === lang && txt && txt.trim()) {
         body.classList.add("plain");
         body.textContent = txt;
+        return;
       }
-    } catch (_) {
-      // No text file ships with the hosted preview: hide the panel instead
-      // of leaving an error on the page. The installed app shows its text.
-      if (cur && cur.v.id === vid) box.hidden = true;
-    }
+    } catch (_) {}
+    // No text file ships with the hosted preview: say so plainly instead
+    // of leaving an empty panel or hiding it. The installed app shows its
+    // text; on the web version the subtitles in the YouTube player are the
+    // read-along.
+    if (cur && cur.v.id === vid)
+      body.innerHTML = `<p${L()}>${esc(t("tx_fail"))}</p>`;
   }
   function syncTx(force) {
     if (!cur || cur.mode === "yt" || !cur.tx || !cur.tx.lines.length) return;
@@ -3065,16 +3154,82 @@
   // Dual playback (items 3+13). Local first when the file exists; YouTube
   // plays inside the same tab. Activating YouTube pauses the local file,
   // saves its position, and stops the recitation.
-  function setPlayMode(mode) {
+  // YouTube IFrame API: loaded once, on demand, so the hosted player can
+  // report its position. The script URL is allowlisted in the network
+  // guard (YOUTUBE_IFRAME_API): it is only ever assigned to a dynamically
+  // created <script> element, never fetched or embedded.
+  let ytApiPromise = null;
+  function loadYtApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve();
+    if (ytApiPromise) return ytApiPromise;
+    ytApiPromise = new Promise((resolve) => {
+      const done = () => resolve();
+      window.onYouTubeIframeAPIReady = done;
+      const s = document.createElement("script");
+      s.src = "https://www.youtube.com/iframe_api";
+      s.onload = done;
+      s.onerror = done;
+      document.head.appendChild(s);
+      setTimeout(done, 8000);
+    });
+    return ytApiPromise;
+  }
+  function stopYtPoll() {
+    if (!cur || !cur.yt) return;
+    if (cur.yt.timer) clearInterval(cur.yt.timer);
+    try {
+      if (cur.yt.player) cur.yt.player.destroy();
+    } catch (_) {}
+    cur.yt = null;
+  }
+  function startYtPoll() {
     if (!cur) return;
-    cur.mode = mode;
+    const lessonId = cur.v.id;
+    loadYtApi().then(() => {
+      if (!cur || cur.v.id !== lessonId || cur.mode !== "yt") return;
+      if (!window.YT || !window.YT.Player) return;
+      stopYtPoll();
+      let player = null;
+      try {
+        player = new YT.Player(cur.ytFrame, {
+          events: {
+            onStateChange: (e) => {
+              if (!cur || cur.v.id !== lessonId) return;
+              if (e.data === YT.PlayerState.PAUSED) saveProgress();
+              if (e.data === YT.PlayerState.ENDED) {
+                saveProgress();
+                setDone(cur.v.id, true);
+              }
+            },
+          },
+        });
+      } catch (_) {
+        return;
+      }
+      cur.yt = { player, timer: null };
+      cur.yt.timer = setInterval(() => {
+        if (!cur || cur.v.id !== lessonId || cur.mode !== "yt") return;
+        try {
+          if (player.getPlayerState() === YT.PlayerState.PLAYING)
+            saveProgress();
+        } catch (_) {}
+      }, 4000);
+    });
+  }
+  function setPlayMode(mode, startAt) {
+    if (!cur) return;
+    // Already in this mode: re-setting the embed URL only reloads the
+    // player and loses the position, so the toggle is a no-op.
+    if (cur.mode === mode) return;
     const video = cur.video;
     const frameEl = cur.ytFrame || $("#ytFrame");
     const capWrap = $("#capWrap");
     if (!video || !frameEl) return;
+    saveProgress();
+    stopYtPoll();
+    cur.mode = mode;
     if (mode === "yt") {
       video.pause();
-      saveProgress();
       Rec.stop();
       const id = ytIdOf(cur.v.media);
       if (!id) {
@@ -3082,16 +3237,24 @@
         return;
       }
       $("#pframe").classList.remove("err");
+      // Captions on by default in the site language, so read-along works
+      // in the player even though the full text is not on the web version.
+      const ytQuery =
+        "?rel=0&autoplay=1&enablejsapi=1&cc_load_policy=1&cc_lang_pref=" +
+        (st.lang === "ar" ? "ar" : "en") +
+        "&origin=" +
+        encodeURIComponent(location.origin) +
+        (startAt > 5 ? "&start=" + Math.floor(startAt) : "");
       frameEl.src =
         "https://www.youtube-nocookie.com/embed/" +
         id +
-        "?rel=0&autoplay=1"; // network-guard: youtube-playback
+        ytQuery; // network-guard: youtube-playback
       frameEl.style.display = "block";
       video.style.display = "none";
       if (capWrap) capWrap.style.display = "none";
+      startYtPoll();
     } else if (mode === "hosted") {
       video.pause();
-      saveProgress();
       Rec.stop();
       showNotice(`<p>${esc(t("pb_hosted_no"))}</p>`);
       if (capWrap) capWrap.style.display = "none";
@@ -3100,6 +3263,17 @@
       frameEl.style.display = "none";
       video.style.display = "";
       if (capWrap) capWrap.style.display = "";
+      // A mode switch keeps the position: seek the local file to where
+      // the YouTube player left off.
+      if (startAt > 5) {
+        const seek = () => {
+          try {
+            video.currentTime = startAt;
+          } catch (_) {}
+        };
+        if (video.readyState > 0) seek();
+        else video.addEventListener("loadedmetadata", seek, { once: true });
+      }
       const pr = video.play();
       if (pr && pr.catch) pr.catch(() => {});
     }
@@ -3435,8 +3609,6 @@
   }
 
   /* ---------- About hub: About the library, Mission, The Sheikh ---------- */
-  const sheikhLessons = () =>
-    VIDEOS.filter((v) => !v.playlistIds.some(notSheikh));
   let status = null;
   function statsRow(cells) {
     return (
@@ -3493,14 +3665,16 @@
         [1, 2, 3, 4].map((i) => `<li>${esc(t("mi_how_" + i))}</li>`).join("") +
         "</ul></div>";
     } else {
-      const own = sheikhLessons();
       html =
         `<header class="page-h"><div class="sheikh-photo"><img src="Preview/assets/img/sheikh-portrait.jpg" alt="${esc(t("sh_en"))}"></div>` +
         `<h1${AR}>فضيلة الشيخ الدكتور مصطفى كامل</h1><p lang="en" dir="ltr" style="font-family:var(--font-lat-head);font-size:20px">${esc(t("sh_en"))}</p>` +
         `<p class="role"${L()}>${esc(t("sh_role"))}</p></header>` +
+        // One count source for every surface: the Sheikh tab shows the
+        // whole library's totals, like About and the Library do. (The
+        // Sheikh-only counts used to read 3,954 lessons / 69 series.)
         statsRow([
-          [nf(own.length), word("lesson", own.length)],
-          [nf(sheikhSeries.length), word("series", sheikhSeries.length)],
+          [nf(STATS.videos), word("lesson", STATS.videos)],
+          [nf(STATS.series), word("series", STATS.series)],
         ]) +
         `<div class="prose"${L()}><h2>${esc(t("sh_bio_t"))}</h2><p>${esc(t("sh_bio"))}</p>` +
         (BOOKS.length
@@ -3739,7 +3913,7 @@
     const cap = e.target.closest("[data-cap]");
     if (cap) return setCaptions(cap.dataset.cap);
     const md = e.target.closest("[data-mode]");
-    if (md && cur) return setPlayMode(md.dataset.mode);
+    if (md && cur) return setPlayMode(md.dataset.mode, progOf(cur.v.id));
     const tx = e.target.closest("[data-tx]");
     if (tx && cur) return showTranscript(cur.v, tx.dataset.tx);
     const cue = e.target.closest("[data-cue]");
@@ -3854,6 +4028,12 @@
     window.addEventListener("resize", lay);
     sp.hidden = false;
     document.body.style.overflow = "hidden";
+    // While the opening covers the page, the header and footer are hidden
+    // by CSS too; inert keeps them out of keyboard reach as well.
+    ["header.top", "footer.foot-bar"].forEach((s) => {
+      const el = document.querySelector(s);
+      if (el) el.inert = true;
+    });
     const anims = [];
     const A = (sel, kf, delay, duration, easing) => {
       $$(sel, sp).forEach((el) =>
@@ -3950,6 +4130,10 @@
       });
       sp.classList.add("gone");
       document.body.style.overflow = "";
+      ["header.top", "footer.foot-bar"].forEach((s) => {
+        const el = document.querySelector(s);
+        if (el) el.inert = false;
+      });
       document.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", lay);
       setTimeout(
