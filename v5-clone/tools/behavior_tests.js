@@ -1862,7 +1862,9 @@ const G = "http://archive.test";
   await pg.context().close();
 
   // 13-bug fix (Nov 26 2026): playback position is saved, Resume shows on
-  // Home, and In progress counts started and watched lessons.
+  // Home, and In progress counts started-but-unfinished lessons. Second
+  // pass: a watched lesson LEAVES In progress (it is done, not in
+  // progress) - the old "watched still counts" rule was the bug.
   pg = await page(browser);
   await pg.goto(G + "/?splash=0#/lesson/" + ids.with_subs);
   await pg.waitForSelector("#vid");
@@ -1886,13 +1888,22 @@ const G = "http://archive.test";
     },
     ids.with_subs,
   );
+  await pg.goto(G + "/?splash=0#/library?scope=progress");
+  await pg.waitForTimeout(1500);
+  const inProgStarted = await pg.evaluate(
+    (id) =>
+      !!document.querySelector(
+        '#v-library a[href^="#/lesson/' + id + '"]',
+      ),
+    ids.with_subs,
+  );
   await pg.goto(G + "/?splash=0#/lesson/" + ids.with_subs);
   await pg.waitForTimeout(1200);
   await pg.evaluate(() => document.querySelector("[data-done]")?.click());
   await pg.waitForTimeout(500);
   await pg.goto(G + "/?splash=0#/library?scope=progress");
   await pg.waitForTimeout(1500);
-  const inProg = await pg.evaluate(
+  const inProgWatched = await pg.evaluate(
     (id) =>
       !!document.querySelector(
         '#v-library a[href^="#/lesson/' + id + '"]',
@@ -1900,9 +1911,14 @@ const G = "http://archive.test";
     ids.with_subs,
   );
   check(
-    "[fix] resume: position saved after ~7s play, Resume on Home, watched lesson still in In progress",
-    prog[ids.with_subs] > 5 && resume && inProg,
-    JSON.stringify({ saved: prog[ids.with_subs], resume, inProg }),
+    "[fix] resume: position saved after ~7s play, Resume on Home, started lesson in In progress, watched lesson out of it",
+    prog[ids.with_subs] > 5 && resume && inProgStarted && !inProgWatched,
+    JSON.stringify({
+      saved: prog[ids.with_subs],
+      resume,
+      inProgStarted,
+      inProgWatched,
+    }),
   );
   await pg.context().close();
 
@@ -1961,6 +1977,252 @@ const G = "http://archive.test";
     "[fix] Sheikh tab counts match the Library: 3977 lessons, 71 series",
     sheikhStats[0] === "3977" && sheikhStats[1] === "71",
     JSON.stringify(sheikhStats),
+  );
+  await pg.context().close();
+
+  // fix2 (Nov 26 2026, second pass on the live re-check's 2 FAILs + 3 PARTIALs)
+  // 1. YT first-load race: the iframe_api loader resolves before YT.Player
+  // exists, so the first lesson of a session never got a player or a
+  // progress poll. Faithful mock of the real loader timing: the loader
+  // defines YT without Player and injects the widget script, which defines
+  // Player a moment later.
+  const YT_LOADER =
+    'var YT;if(!window["YT"])YT={loading:0,loaded:0};' +
+    'var YTConfig;if(!window["YTConfig"])YTConfig={"host":"https://www.youtube.com"};' +
+    'if(!YT.loading){YT.loading=1;(function(){var l=[];YT.ready=function(f){if(YT.loaded)f();else l.push(f)};' +
+    'window.onYTReady=function(){YT.loaded=1;var i=0;for(;i<l.length;i++)try{l[i]()}catch(e){}};' +
+    'YT.setConfig=function(c){var k;for(k in c)if(c.hasOwnProperty(k))YTConfig[k]=c[k]};' +
+    'var a=document.createElement("script");a.type="text/javascript";a.id="www-widgetapi-script";' +
+    'a.src="https://www.youtube.com/s/player/xxx/www-widgetapi.vflset/www-widgetapi.js";a.async=true;' +
+    'var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})()};';
+  const YT_WIDGET =
+    'window.YT.PlayerState={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};' +
+    'window.YT.Player=function(el,opts){let t=0;const timer=setInterval(()=>{t+=1;},1000);' +
+    'this.getCurrentTime=()=>t;this.getPlayerState=()=>1;' +
+    'this.seekTo=(s)=>{t=s;};this.playVideo=()=>{};this.pauseVideo=()=>{};' +
+    'this.destroy=()=>clearInterval(timer);' +
+    'this.setOption=(m,k,v)=>{window.__capOpt={m,k,v};};' +
+    'this.getOption=(m,k)=>{if(m==="captions"&&k==="tracklist")return[{languageCode:"ar",kind:"asr"},{languageCode:"en",kind:"asr"}];return null;};' +
+    'this.loadModule=()=>{};' +
+    'setTimeout(()=>opts&&opts.events&&opts.events.onStateChange&&opts.events.onStateChange({data:1}),300);' +
+    'setTimeout(()=>opts&&opts.events&&opts.events.onReady&&opts.events.onReady({target:this}),350);' +
+    'window.__mockPlayer=this;};' +
+    'if(window.onYTReady)window.onYTReady();' +
+    'if(window.onYouTubeIframeAPIReady)window.onYouTubeIframeAPIReady();';
+  // The YT test uses a long playable lesson, not ids.with_subs: that clip
+  // is only 12 seconds, so a saved 12s position is the end of the clip,
+  // not a resume point, and canResume correctly refuses it.
+  const LONG_LESSON = "V1nx_qy87FM"; // 1223s, playable in the test env
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + LONG_LESSON);
+  await pg.waitForTimeout(1500);
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(15000);
+  const yt1 = await pg.evaluate(() => ({
+    player: !!window.__mockPlayer,
+    cap: window.__capOpt || null,
+    prog: JSON.parse(localStorage.getItem("archive-progress-v4") || "{}"),
+  }));
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  const resume1 = await pg.evaluate(
+    (id) => {
+      const rc = document.querySelector("#rc");
+      return !!rc && rc.innerHTML.includes(id);
+    },
+    LONG_LESSON,
+  );
+  // Reopen with no ?resume=1: the lesson must auto-resume from the saved
+  // position on the local path. This is a separate seeded check below:
+  // the YT poll above saves 12s, and the test videos are 12s stubs, so a
+  // saved 12s position sits at the stub's end and the seek guard
+  // (from < video.duration - 2) correctly refuses it. The seeded check
+  // uses 8s, which passes the guard and proves the resume path.
+  check(
+    "[fix2] YT first load: player created, poll saves progress, captions picked, Resume on Home",
+    yt1.player &&
+      yt1.prog[LONG_LESSON] > 5 &&
+      yt1.cap &&
+      yt1.cap.m === "captions" &&
+      resume1,
+    JSON.stringify(yt1),
+  );
+  await pg.context().close();
+
+  // fix2: auto-resume on reopen (seeded). A saved position resumes the
+  // lesson on the local path with no ?resume=1.
+  pg = await page(browser);
+  await pg.context().addInitScript(() => {
+    localStorage.setItem(
+      "archive-progress-v4",
+      JSON.stringify({ V1nx_qy87FM: 8 }),
+    );
+  });
+  await pg.goto(G + "/?splash=0#/lesson/" + LONG_LESSON);
+  await pg.waitForTimeout(2500);
+  const autoRes = await pg.evaluate(
+    () => document.querySelector("#vid")?.currentTime || 0,
+  );
+  check(
+    "[fix2] reopen auto-resumes from the saved position (seeded 8s)",
+    autoRes > 5,
+    JSON.stringify({ autoRes }),
+  );
+  await pg.context().close();
+
+  // fix2: Start tabs with the real flow (Home first, then Start). Home
+  // renders the same first-lesson block, so the tabs must act on their own
+  // box, not the first #firstBox in the document.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1500);
+  const homeBoxes = await pg.evaluate(() => ({
+    firstBox: document.querySelectorAll("#firstBox").length,
+    homeBox: !!document.querySelector("#firstBoxHome"),
+  }));
+  await pg.click('#nav a[data-r="start"]');
+  await pg.waitForTimeout(1200);
+  const beforeTitle = await pg.evaluate(() =>
+    document.querySelector("#v-start #firstBox .ttl")?.textContent?.trim(),
+  );
+  await pg.click('#v-start [data-level="advanced"]');
+  await pg.waitForTimeout(600);
+  const startTabs = await pg.evaluate(() => ({
+    aria: [...document.querySelectorAll("#v-start [data-level]")].map((b) =>
+      b.getAttribute("aria-selected"),
+    ),
+    title: document
+      .querySelector("#v-start #firstBox .ttl")
+      ?.textContent?.trim(),
+    boxes: document.querySelectorAll("#firstBox").length,
+  }));
+  check(
+    "[fix2] Start tabs: Home box has its own id, Advanced switches the visible box",
+    homeBoxes.firstBox === 0 &&
+      homeBoxes.homeBox &&
+      startTabs.boxes === 1 &&
+      JSON.stringify(startTabs.aria) ===
+        JSON.stringify(["false", "false", "true"]) &&
+      !!startTabs.title &&
+      startTabs.title !== beforeTitle,
+    JSON.stringify({ homeBoxes, beforeTitle, startTabs }),
+  );
+  await pg.context().close();
+
+  // fix2: series grids flow with the site language (the document stays
+  // dir=rtl by design; the grid itself must flip).
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  await pg.evaluate(() =>
+    document.querySelector('#langSeg button[data-lang="en"]')?.click(),
+  );
+  await pg.waitForTimeout(600);
+  const tawId = await pg.evaluate(() =>
+    DATA.playlists.find((p) => /General Fiqh – Tawhid/.test(p.titleEn)).id,
+  );
+  await pg.goto(G + "/?splash=0#/playlist/" + tawId);
+  await pg.waitForTimeout(2500);
+  const gridEn = await pg.evaluate(() => {
+    const g = document.querySelector("#plGrid");
+    const xs = [...g.querySelectorAll(":scope > *")]
+      .slice(0, 4)
+      .map((c) => Math.round(c.getBoundingClientRect().x));
+    return {
+      dir: getComputedStyle(g).direction,
+      ascending: xs[0] < xs[1] && xs[1] < xs[2] && xs[2] < xs[3],
+    };
+  });
+  await pg.evaluate(() =>
+    document.querySelector('#langSeg button[data-lang="ar"]')?.click(),
+  );
+  await pg.waitForTimeout(800);
+  const gridAr = await pg.evaluate(() =>
+    getComputedStyle(document.querySelector("#plGrid")).direction,
+  );
+  check(
+    "[fix2] series grid flows with the site language: LTR in English, RTL in Arabic",
+    gridEn.dir === "ltr" && gridEn.ascending && gridAr === "rtl",
+    JSON.stringify({ gridEn, gridAr }),
+  );
+  await pg.context().close();
+
+  // fix2: the transcript note follows the transcript tab language, not the
+  // site language (Tajweed lesson has subtitle entries but no text file in
+  // the preview, so the note is what shows).
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  await pg.evaluate(() =>
+    document.querySelector('#langSeg button[data-lang="en"]')?.click(),
+  );
+  await pg.waitForTimeout(600);
+  await pg.goto(G + "/?splash=0#/lesson/VLKRl6DmzaU");
+  await pg.waitForTimeout(3000);
+  await pg.evaluate(() =>
+    [...document.querySelectorAll("#txPanel [data-tx]")]
+      .find((b) => b.dataset.tx === "ar")
+      ?.click(),
+  );
+  await pg.waitForTimeout(2000);
+  const txAr = await pg.evaluate(() =>
+    document.querySelector("#txBody")?.textContent?.trim(),
+  );
+  check(
+    "[fix2] transcript note follows the transcript tab language (Arabic tab, English site)",
+    !!txAr && txAr.startsWith("النص الكامل"),
+    JSON.stringify(txAr && txAr.slice(0, 80)),
+  );
+  await pg.context().close();
+
+  // fix2: Programme lesson 24 is genuinely absent from the channel's
+  // numbering (as is 46); the rendered numbers ascend with no other gaps.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  const progId2 = await pg.evaluate(() =>
+    DATA.playlists.find((p) => /Programme to Memorise/.test(p.titleEn)).id,
+  );
+  await pg.goto(G + "/?splash=0#/playlist/" + progId2);
+  await pg.waitForTimeout(2500);
+  const progNums = await pg.evaluate(() =>
+    [...document.querySelectorAll("#plGrid .lcard .ltitle")].map((e) => {
+      const t = e.textContent
+        .trim()
+        .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+      const m = t.match(/^(\d+)/);
+      return m ? +m[1] : null;
+    }),
+  );
+  const numbered = progNums.filter((n) => n !== null);
+  const sorted = [...numbered].sort((a, b) => a - b);
+  check(
+    "[fix2] Programme numbers ascend with no other gaps: 24 and 46 are the channel's own missing numbers",
+    progNums.length === 72 &&
+      JSON.stringify(numbered) === JSON.stringify(sorted) &&
+      !numbered.includes(24) &&
+      !numbered.includes(46),
+    JSON.stringify({
+      count: progNums.length,
+      first: progNums.slice(0, 6),
+      max: Math.max(...numbered),
+    }),
   );
   await pg.context().close();
 
