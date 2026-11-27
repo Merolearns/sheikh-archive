@@ -1861,6 +1861,109 @@ const G = "http://archive.test";
   );
   await pg.context().close();
 
+  // 13-bug fix (Nov 26 2026): playback position is saved, Resume shows on
+  // Home, and In progress counts started and watched lessons.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/lesson/" + ids.with_subs);
+  await pg.waitForSelector("#vid");
+  await pg.evaluate(() => {
+    const v = document.querySelector("#vid");
+    v.muted = true;
+    return v.play();
+  });
+  await pg.waitForTimeout(7000);
+  await pg.evaluate(() => document.querySelector("#vid").pause());
+  await pg.waitForTimeout(400);
+  const prog = await pg.evaluate(() =>
+    JSON.parse(localStorage.getItem("archive-progress-v4") || "{}"),
+  );
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  const resume = await pg.evaluate(
+    (id) => {
+      const rc = document.querySelector("#rc");
+      return !!rc && rc.innerHTML.includes(id);
+    },
+    ids.with_subs,
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + ids.with_subs);
+  await pg.waitForTimeout(1200);
+  await pg.evaluate(() => document.querySelector("[data-done]")?.click());
+  await pg.waitForTimeout(500);
+  await pg.goto(G + "/?splash=0#/library?scope=progress");
+  await pg.waitForTimeout(1500);
+  const inProg = await pg.evaluate(
+    (id) =>
+      !!document.querySelector(
+        '#v-library a[href^="#/lesson/' + id + '"]',
+      ),
+    ids.with_subs,
+  );
+  check(
+    "[fix] resume: position saved after ~7s play, Resume on Home, watched lesson still in In progress",
+    prog[ids.with_subs] > 5 && resume && inProg,
+    JSON.stringify({ saved: prog[ids.with_subs], resume, inProg }),
+  );
+  await pg.context().close();
+
+  // 13-bug fix: #/library?scope=books lands on the Books view.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/library?scope=books");
+  await pg.waitForTimeout(1200);
+  const booksView = await pg.evaluate(() => ({
+    hash: location.hash,
+    on: document.querySelector("#v-books").classList.contains("on"),
+  }));
+  check(
+    "[fix] library scope=books redirects to #/books",
+    booksView.hash === "#/books" && booksView.on,
+    JSON.stringify(booksView),
+  );
+  await pg.context().close();
+
+  // 13-bug fix: series order is the lesson numbers (intro, 1, 2, 3), and
+  // the Sheikh tab reads the same counts as the Library (3,977 / 71).
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/home");
+  await pg.waitForTimeout(1200);
+  const progId = await pg.evaluate(
+    () =>
+      DATA.playlists.find((p) => /Programme to Memorise/.test(p.titleEn)).id,
+  );
+  await pg.goto(G + "/?splash=0#/playlist/" + progId);
+  await pg.waitForTimeout(2000);
+  const firstNums = await pg.evaluate(() =>
+    [...document.querySelectorAll("#plGrid .lcard .ltitle")]
+      .slice(0, 4)
+      .map((e) => {
+        const t = e.textContent
+          .trim()
+          .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+        const m = t.match(/^(\d+)/);
+        return m ? +m[1] : null;
+      }),
+  );
+  check(
+    "[fix] series order: Programme opens with the intro, then lessons 1, 2, 3",
+    JSON.stringify(firstNums) === JSON.stringify([null, 1, 2, 3]),
+    JSON.stringify(firstNums),
+  );
+  await pg.goto(G + "/?splash=0#/about/sheikh");
+  await pg.waitForTimeout(1200);
+  const sheikhStats = await pg.evaluate(() =>
+    [...document.querySelectorAll("#v-about .stat b")].map((b) =>
+      b.textContent
+        .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+        .replace(/[^0-9]/g, ""),
+    ),
+  );
+  check(
+    "[fix] Sheikh tab counts match the Library: 3977 lessons, 71 series",
+    sheikhStats[0] === "3977" && sheikhStats[1] === "71",
+    JSON.stringify(sheikhStats),
+  );
+  await pg.context().close();
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);
