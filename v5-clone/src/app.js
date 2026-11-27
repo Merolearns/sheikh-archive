@@ -3425,17 +3425,29 @@
           // shown while Arabic captions were visibly on). The catalog is
           // the ground truth for whether this lesson has captions at all:
           // if it lists subtitle entries, the lesson HAS captions, so
-          // never conclude "none" and never show the notice; the state
-          // stays unknown. The eight-second floor matters because timed
-          // text can take a few seconds to arrive after playback starts;
-          // concluding earlier would say "none" for a lesson that does
-          // have captions.
+          // never conclude "none" and never show the notice (fix6
+          // concludes "on" instead: the embed turns captions on by
+          // default, so after 8s of playback they are on). The
+          // eight-second floor matters because timed text can take a few
+          // seconds to arrive after playback starts; concluding earlier
+          // would say "none" for a lesson that does have captions.
           capDone = true;
           stopCapTimer();
           const catalogHasSubs = (cur.v.subtitles || []).some(
             (s) => s && (s.src || s.readSrc),
           );
-          if (catalogHasSubs) return;
+          // fix6: the catalog says this lesson HAS captions, the embed
+          // turns them on by default (cc_load_policy=1), and playback
+          // has run 8s with the direct tries made, so captions are on
+          // even though getOption never reports a track. Conclude "on"
+          // and refresh the note: leaving the state unknown kept the
+          // "Text of the lesson" note on the generic wording forever,
+          // even while Arabic captions were visibly on the frame.
+          if (catalogHasSubs) {
+            if (cur) cur.capState = "on";
+            refreshTxFailNote();
+            return;
+          }
           if (cur) cur.capState = "none";
           showNotice(`<p${L()}>${esc(t("cap_fail"))}</p>`);
           refreshTxFailNote();
