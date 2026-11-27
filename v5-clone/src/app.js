@@ -331,9 +331,15 @@
       tx_hint: "اضغط على أي سطر لتنتقل إلى تلك اللحظة من الدرس.",
       tx_loading: "جارٍ تحميل النص...",
       tx_fail:
-        "النص الكامل لهذا الدرس غير متوفر في نسخة الويب. يمكنك تشغيل الترجمة من داخل مشغّل يوتيوب أثناء المشاهدة.",
-      cap_fail:
-        "الترجمة غير متاحة لهذا الدرس. ما زال بإمكانك قراءة النص كاملًا.",
+        "النص الكامل لهذا الدرس غير متوفر في نسخة الويب. إن كان لهذا الدرس ترجمة، فشغّلها من داخل مشغّل يوتيوب أثناء المشاهدة.",
+      // fix4: the "no text" note follows the caption state (on / none /
+      // unknown), so it never tells the user to turn on subtitles that
+      // are not there. Arabic composed from the existing words above.
+      tx_fail_cap:
+        "النص الكامل لهذا الدرس غير متوفر في نسخة الويب. الترجمة مفعّلة في مشغّل يوتيوب أعلاه. تابع معها.",
+      tx_fail_nocap:
+        "النص الكامل لهذا الدرس غير متوفر في نسخة الويب، ولا توجد له ترجمة على يوتيوب أيضًا.",
+      cap_fail: "الترجمة غير متاحة لهذا الدرس.",
       open_file: "افتحه في برنامج آخر",
       err_404: "فيديو هذا الدرس غير موجود على هذا الجهاز.",
       err_details: "التفاصيل",
@@ -389,6 +395,8 @@
       sort_time: "مدة سلاسل هذه الخطوة: {h}",
       st_path_t: "الطريق في ست خطوات",
       st_path_n: "الطريق في {n} خطوات",
+      // fix4: singular for one step ("الطريق في {n} خطوات" was wrong for 1).
+      st_path_1: "الطريق في {n} خطوة",
       st_path_p: "السلاسل التي تقترحها المكتبة لكل خطوة.",
       pre_label: "قبلها:",
       pre_1:
@@ -660,9 +668,13 @@
       tx_hint: "Tap any line to go to that moment in the lesson.",
       tx_loading: "Loading the text...",
       tx_fail:
-        "The full text of this lesson is not on the web version. You can turn on subtitles in the YouTube player while you watch.",
-      cap_fail:
-        "Captions are not available for this lesson. You can still read the full text.",
+        "The full text of this lesson is not on the web version. If this lesson has subtitles, turn them on in the YouTube player while you watch.",
+      // fix4: see the Arabic note above.
+      tx_fail_cap:
+        "The full text of this lesson is not on the web version. Subtitles are on in the YouTube player above. Follow along there.",
+      tx_fail_nocap:
+        "The full text of this lesson is not on the web version, and this lesson has no subtitles on YouTube either.",
+      cap_fail: "Captions are not available for this lesson.",
       open_file: "Open in another player",
       err_404: "This lesson's video is not on this computer.",
       err_details: "Details",
@@ -726,6 +738,8 @@
       sort_time: "Time for this step's series: {h}",
       st_path_t: "The path in six steps",
       st_path_n: "The path in {n} steps",
+      // fix4: singular for one step ("The path in 1 steps" was wrong).
+      st_path_1: "The path in {n} step",
       st_path_p: "The library's suggested series for each step.",
       pre_label: "Before this:",
       pre_1:
@@ -3102,9 +3116,11 @@
     // of leaving an empty panel or hiding it. The installed app shows its
     // text; on the web version the subtitles in the YouTube player are the
     // read-along. The note follows the transcript language just picked,
-    // not the site language.
+    // not the site language. It also follows the caption state too
+    // (fix4): it never tells the user to turn on subtitles when this
+    // lesson has none, and says plainly when subtitles are already on.
     if (cur && cur.v.id === vid)
-      body.innerHTML = `<p lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">${esc(tL(lang, "tx_fail"))}</p>`;
+      body.innerHTML = `<p lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">${esc(tL(lang, cur.capState === "on" ? "tx_fail_cap" : cur.capState === "none" ? "tx_fail_nocap" : "tx_fail"))}</p>`;
   }
   function syncTx(force) {
     if (!cur || cur.mode === "yt" || !cur.tx || !cur.tx.lines.length) return;
@@ -3257,28 +3273,31 @@
   function startYtPoll() {
     if (!cur) return;
     const lessonId = cur.v.id;
+    if (cur) cur.capState = null; // per lesson: on / none / null (unknown)
     loadYtApi().then(() => {
       if (!cur || cur.v.id !== lessonId || cur.mode !== "yt") return;
       if (!window.YT || !window.YT.Player) return;
       stopYtPoll();
       let player = null;
-      // Captions on by default: cc_load_policy=1 only turns on a track in
-      // the embed's cc_lang_pref language, and the lesson may only carry
-      // another language on YouTube, so pick from the player's real track
-      // list: site language first, else the first track it has.
-      // The list is NOT there at onReady (fix3): the captions module
-      // loads async (onApiChange) and the list only fills once the
-      // video's timed text arrives, usually after playback starts. The
-      // old onReady plus one 1.5s retry never saw a track in real playback.
-      // So keep trying once a second while playing until the player
-      // reports an active track. Only when playback has started and the
-      // list stays empty does the lesson have no captions at all, and
-      // then the page says so plainly instead of silently showing none.
+      // Captions on by default. Two paths, because the track list alone
+      // is NOT reliable (fix4): on lesson VLKRl6DmzaU the list stayed
+      // empty through 35s of real playback even though YouTube lists an
+      // Arabic auto-generated track for it, so fix3 concluded "none"
+      // and showed the notice wrongly. Path 1 (tracklist): pick the site
+      // language first, else the first track. Path 2 (direct): set the
+      // track by language code without consulting the list. The
+      // documented setOption form, which works even when the list never
+      // fills; a language with no track is a harmless no-op. The "no
+      // captions" notice fires only when BOTH paths fail: the list stayed
+      // empty for 8s of playback AND every candidate language was tried
+      // directly twice with no track activating.
       let capDone = false;
       let capTries = 0;
       let capTimer = null;
       let capSawPlay = false;
       let capEmptyReads = 0;
+      let capDirectTries = {};
+      let capLastDirectTick = 0;
       const capActive = () => {
         try {
           const tr = player.getOption("captions", "track");
@@ -3315,6 +3334,31 @@
             });
         } catch (_) {}
       };
+      // fix4: try each candidate language directly, without the list.
+      // Only counted once playback has started: the timed-text manifest
+      // arrives after playback starts, so pre-playback tries would be
+      // spent before a track could activate.
+      const capDirectCandidates = () => {
+        const langs = [st.lang, st.lang === "ar" ? "en" : "ar"];
+        return [...new Set(langs)];
+      };
+      const tryDirectCaptions = () => {
+        if (!cur || cur.v.id !== lessonId || !player || capDone) return;
+        for (const lang of capDirectCandidates()) {
+          if ((capDirectTries[lang] || 0) >= 2) continue;
+          try {
+            if (player.loadModule) player.loadModule("captions");
+            player.setOption("captions", "track", { languageCode: lang });
+          } catch (_) {}
+          capDirectTries[lang] = (capDirectTries[lang] || 0) + 1;
+          capLastDirectTick = capTries;
+          if (capActive()) return;
+        }
+      };
+      const capDirectExhausted = () =>
+        capDirectCandidates().every(
+          (lang) => (capDirectTries[lang] || 0) >= 2,
+        ) && capTries - capLastDirectTick >= 2;
       const capTick = () => {
         if (!cur || cur.v.id !== lessonId || cur.mode !== "yt" || capDone) {
           stopCapTimer();
@@ -3324,20 +3368,30 @@
         pickCaptions();
         if (capActive()) {
           capDone = true;
+          if (cur) cur.capState = "on";
           stopCapTimer();
           return;
         }
-        if (capTries >= 20) {
-          stopCapTimer();
-          return;
-        }
-        if (capSawPlay && capEmptyReads >= 8) {
-          // Playback has run for eight seconds and the list is still
-          // empty: this lesson has no captions in any language. Eight,
-          // not three: timed text can take a few seconds to arrive after
-          // playback starts, and concluding too early would say "none"
-          // for a lesson that does have captions.
+        if (capSawPlay) tryDirectCaptions();
+        if (capActive()) {
           capDone = true;
+          if (cur) cur.capState = "on";
+          stopCapTimer();
+          return;
+        }
+        if (capTries >= 30) {
+          stopCapTimer();
+          return;
+        }
+        if (capSawPlay && capEmptyReads >= 8 && capDirectExhausted()) {
+          // Playback has run, the list stayed empty, and every language
+          // was tried directly twice with nothing activating: this
+          // lesson has no captions in any language. The eight-second
+          // floor matters because timed text can take a few seconds to
+          // arrive after playback starts; concluding earlier would say
+          // "none" for a lesson that does have captions.
+          capDone = true;
+          if (cur) cur.capState = "none";
           stopCapTimer();
           showNotice(`<p${L()}>${esc(t("cap_fail"))}</p>`);
         }
@@ -3538,7 +3592,9 @@
       secHead(
         shownSteps.length === PATH.length
           ? t("st_path_t")
-          : t("st_path_n", { n: nf(shownSteps.length) }),
+          : shownSteps.length === 1
+            ? t("st_path_1", { n: nf(1) })
+            : t("st_path_n", { n: nf(shownSteps.length) }),
         { promise: t("st_path_p") },
       ) +
       '<ol class="steps">' +
