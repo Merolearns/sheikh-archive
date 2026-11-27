@@ -362,6 +362,12 @@ html.vt-theme::view-transition-old(root){animation-name:vtOut}
 .lib-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:10px 0 16px;flex-wrap:wrap}
 .lib-h h1{font-size:28px}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+/* Series/library grids flow with the site language, not the document: the
+   build ships <html dir="rtl"> and the chrome stays anchored there, so
+   without this an English visitor reads the grid right-to-left (first row
+   2, 2, 1, 1) although the DOM order ascends. paintChrome sets
+   data-lang on <html> at boot and on every language switch. */
+:root[data-lang="en"] .grid{direction:ltr}
 .pgroup{margin-bottom:12px}
 .pgroup-h{display:flex;align-items:center;gap:14px;margin:26px 0 16px}
 .pgroup-h .glyph{font-family:var(--font-head);font-weight:700;font-size:44px;line-height:1.2;color:var(--gold-2);width:52px;text-align:center}
