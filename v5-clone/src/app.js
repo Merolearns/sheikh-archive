@@ -3119,8 +3119,26 @@
     // not the site language. It also follows the caption state too
     // (fix4): it never tells the user to turn on subtitles when this
     // lesson has none, and says plainly when subtitles are already on.
-    if (cur && cur.v.id === vid)
+    if (cur && cur.v.id === vid) {
+      // fix5: remember that the fallback note is showing, so it can be
+      // re-rendered if the caption state settles after the panel opens.
+      cur.tx.failLang = lang;
       body.innerHTML = `<p lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">${esc(tL(lang, cur.capState === "on" ? "tx_fail_cap" : cur.capState === "none" ? "tx_fail_nocap" : "tx_fail"))}</p>`;
+    }
+  }
+  // fix5: the "Text of the lesson" note is rendered once from capState,
+  // but the state can settle after the panel opens (detection runs for
+  // seconds while the user reads). Re-render ONLY the fallback paragraph
+  // when the state changes, so it never contradicts the player; timed
+  // lines and plain text are never touched.
+  function refreshTxFailNote() {
+    if (!cur || !cur.tx || !cur.tx.failLang || cur.tx.lines.length) return;
+    const box = $("#txPanel");
+    const body = $("#txBody");
+    if (!box || box.hidden || !body || body.classList.contains("plain"))
+      return;
+    const lang = cur.tx.failLang;
+    body.innerHTML = `<p lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">${esc(tL(lang, cur.capState === "on" ? "tx_fail_cap" : cur.capState === "none" ? "tx_fail_nocap" : "tx_fail"))}</p>`;
   }
   function syncTx(force) {
     if (!cur || cur.mode === "yt" || !cur.tx || !cur.tx.lines.length) return;
@@ -3156,6 +3174,15 @@
     if (!n) return;
     n.innerHTML = html;
     n.hidden = false;
+  }
+  // fix5: the notice is tied strictly to capState - shown ONLY when the
+  // state is confirmed "none", hidden when on or unknown. There was no
+  // hide path at all before: once shown, it stayed for the whole lesson
+  // view even if captions then turned on.
+  function hideNotice() {
+    const n = $("#notice");
+    if (!n) return;
+    n.hidden = true;
   }
   // On a playback error, ask the server whether the file exists before blaming the format.
   async function probeError(v, p) {
@@ -3274,6 +3301,7 @@
     if (!cur) return;
     const lessonId = cur.v.id;
     if (cur) cur.capState = null; // per lesson: on / none / null (unknown)
+    hideNotice(); // fix5: unknown state - no stale notice from any earlier view
     loadYtApi().then(() => {
       if (!cur || cur.v.id !== lessonId || cur.mode !== "yt") return;
       if (!window.YT || !window.YT.Player) return;
@@ -3369,6 +3397,8 @@
         if (capActive()) {
           capDone = true;
           if (cur) cur.capState = "on";
+          hideNotice(); // fix5: captions on - the notice must not show
+          refreshTxFailNote();
           stopCapTimer();
           return;
         }
@@ -3376,6 +3406,8 @@
         if (capActive()) {
           capDone = true;
           if (cur) cur.capState = "on";
+          hideNotice(); // fix5: captions on - the notice must not show
+          refreshTxFailNote();
           stopCapTimer();
           return;
         }
@@ -3385,15 +3417,28 @@
         }
         if (capSawPlay && capEmptyReads >= 8 && capDirectExhausted()) {
           // Playback has run, the list stayed empty, and every language
-          // was tried directly twice with nothing activating: this
-          // lesson has no captions in any language. The eight-second
-          // floor matters because timed text can take a few seconds to
-          // arrive after playback starts; concluding earlier would say
-          // "none" for a lesson that does have captions.
+          // was tried directly twice with nothing activating. That alone
+          // does NOT prove "none" (fix5): the track list stays empty and
+          // getOption reports no track even while captions render - the
+          // embed's cc_load_policy turns them on by itself, which is
+          // exactly what happened on VLKRl6DmzaU in real playback (notice
+          // shown while Arabic captions were visibly on). The catalog is
+          // the ground truth for whether this lesson has captions at all:
+          // if it lists subtitle entries, the lesson HAS captions, so
+          // never conclude "none" and never show the notice; the state
+          // stays unknown. The eight-second floor matters because timed
+          // text can take a few seconds to arrive after playback starts;
+          // concluding earlier would say "none" for a lesson that does
+          // have captions.
           capDone = true;
-          if (cur) cur.capState = "none";
           stopCapTimer();
+          const catalogHasSubs = (cur.v.subtitles || []).some(
+            (s) => s && (s.src || s.readSrc),
+          );
+          if (catalogHasSubs) return;
+          if (cur) cur.capState = "none";
           showNotice(`<p${L()}>${esc(t("cap_fail"))}</p>`);
+          refreshTxFailNote();
         }
       };
       const startCapTimer = () => {
