@@ -2226,6 +2226,163 @@ const G = "http://archive.test";
   );
   await pg.context().close();
 
+  // fix3 (Nov 26 2026, third pass): Start tabs change the whole page,
+  // not just the starter lesson. Verified against the real catalog:
+  // beginner shows 2 question cards, 4 path steps, 15 days; intermediate
+  // 3 cards, 6 steps, 23 days; advanced 1 card, 1 step, 2 days.
+  pg = await page(browser);
+  await pg.goto(G + "/?splash=0#/start");
+  await pg.waitForTimeout(1500);
+  // English mode for exact heading assertions (the site defaults to Arabic).
+  await pg.evaluate(() =>
+    document.querySelector("#langSeg button[data-lang=en]")?.click(),
+  );
+  await pg.waitForTimeout(800);
+  const startState = () =>
+    pg.evaluate(() => ({
+      heading: document
+        .querySelector("#v-start .page-h h1")
+        ?.textContent?.trim(),
+      cards: document.querySelectorAll("#v-start .cards3 .card").length,
+      steps: document.querySelectorAll("#v-start .steps .step").length,
+      days: document.querySelectorAll("#v-start #days .dcard").length,
+      prog: document.querySelector("#daysProg")?.textContent?.trim(),
+    }));
+  const stBeginner = await startState();
+  await pg.click('#v-start [data-level="advanced"]');
+  await pg.waitForTimeout(800);
+  const stAdvanced = await startState();
+  await pg.click('#v-start [data-level="intermediate"]');
+  await pg.waitForTimeout(800);
+  const stIntermediate = await startState();
+  check(
+    "[fix3] Start tabs: heading, questions, path and days follow the level",
+    stBeginner.heading === "A clear path for beginners" &&
+      stBeginner.cards === 2 &&
+      stBeginner.steps === 4 &&
+      stBeginner.days === 15 &&
+      stBeginner.prog === "0 of 15 days done" &&
+      stAdvanced.heading === "A clear path for advanced learners" &&
+      stAdvanced.cards === 1 &&
+      stAdvanced.steps === 1 &&
+      stAdvanced.days === 2 &&
+      stAdvanced.prog === "0 of 2 days done" &&
+      stIntermediate.heading === "A clear path for intermediate learners" &&
+      stIntermediate.cards === 3 &&
+      stIntermediate.steps === 6 &&
+      stIntermediate.days === 23 &&
+      stIntermediate.prog === "0 of 23 days done",
+    JSON.stringify({ stBeginner, stAdvanced, stIntermediate }),
+  );
+  await pg.context().close();
+
+  // fix3: captions with the REAL player timing. The track list is empty
+  // at onReady and only fills once the video's timed text arrives after
+  // playback starts; the old onReady + one retry never saw a track. The
+  // mock keeps the list empty until 2.5s after PLAYING, then offers
+  // Arabic + English tracks; the app must end with an active track.
+  const YT_WIDGET3 =
+    "window.YT.PlayerState={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};" +
+    "window.YT.Player=function(el,opts){let t=0;let tracks=[];let active=null;" +
+    "const timer=setInterval(()=>{t+=1;},1000);" +
+    "this.getCurrentTime=()=>t;this.getPlayerState=()=>1;" +
+    "this.seekTo=(s)=>{t=s;};this.playVideo=()=>{};this.pauseVideo=()=>{};" +
+    "this.destroy=()=>clearInterval(timer);" +
+    "this.loadModule=()=>{};" +
+    'this.setOption=(m,k,v)=>{if(m==="captions"&&k==="track")active={languageCode:v.languageCode};};' +
+    'this.getOption=(m,k)=>{if(m==="captions"&&k==="tracklist")return tracks;if(m==="captions"&&k==="track")return active;return null;};' +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onStateChange&&opts.events.onStateChange({data:1}),300);" +
+    'setTimeout(()=>{tracks=[{languageCode:"ar",kind:"asr"},{languageCode:"en",kind:"asr"}];},2800);' +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onReady&&opts.events.onReady({target:this}),350);" +
+    "window.__mockPlayer=this;window.__capState=()=>({active, tracks: tracks.length});};" +
+    "if(window.onYTReady)window.onYTReady();" +
+    "if(window.onYouTubeIframeAPIReady)window.onYouTubeIframeAPIReady();";
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET3,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + LONG_LESSON);
+  await pg.waitForTimeout(1500);
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(8000);
+  const capLate = await pg.evaluate(() => window.__capState?.());
+  check(
+    "[fix3] captions: track turns on once the list arrives after playback starts",
+    // The site defaults to Arabic, so the Arabic track is picked first.
+    capLate && capLate.active && capLate.active.languageCode === "ar",
+    JSON.stringify(capLate),
+  );
+  await pg.context().close();
+
+  // fix3: a lesson with no captions in any language must say so plainly.
+  // Same mock, but the track list never fills; after playback starts the
+  // page shows the "Captions are not available" notice under the player.
+  const YT_WIDGET3_NONE =
+    "window.YT.PlayerState={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};" +
+    "window.YT.Player=function(el,opts){let t=0;" +
+    "const timer=setInterval(()=>{t+=1;},1000);" +
+    "this.getCurrentTime=()=>t;this.getPlayerState=()=>1;" +
+    "this.seekTo=(s)=>{t=s;};this.playVideo=()=>{};this.pauseVideo=()=>{};" +
+    "this.destroy=()=>clearInterval(timer);" +
+    "this.loadModule=()=>{};" +
+    'this.setOption=()=>{};' +
+    'this.getOption=(m,k)=>{if(m==="captions"&&(k==="tracklist"||k==="track"))return m==="captions"&&k==="tracklist"?[]:null;return null;};' +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onStateChange&&opts.events.onStateChange({data:1}),300);" +
+    "setTimeout(()=>opts&&opts.events&&opts.events.onReady&&opts.events.onReady({target:this}),350);" +
+    "window.__mockPlayer=this;};" +
+    "if(window.onYTReady)window.onYTReady();" +
+    "if(window.onYouTubeIframeAPIReady)window.onYouTubeIframeAPIReady();";
+  pg = await page(browser);
+  await pg.context().route("**/iframe_api", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_LOADER,
+    }),
+  );
+  await pg.context().route("**/www-widgetapi.js", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/javascript",
+      body: YT_WIDGET3_NONE,
+    }),
+  );
+  await pg.goto(G + "/?splash=0#/lesson/" + LONG_LESSON);
+  await pg.waitForTimeout(1500);
+  await pg.evaluate(() =>
+    document.querySelector('[data-mode="yt"]')?.click(),
+  );
+  await pg.waitForTimeout(11000);
+  const capNone = await pg.evaluate(() => {
+    const n = document.querySelector("#notice");
+    return n
+      ? { hidden: n.hidden, text: n.textContent.trim().slice(0, 80) }
+      : null;
+  });
+  check(
+    "[fix3] captions: no tracks at all shows the plain no-captions notice",
+    // The site defaults to Arabic, so the notice reads in Arabic.
+    capNone &&
+      !capNone.hidden &&
+      (capNone.text.includes("الترجمة غير متاحة") ||
+        capNone.text.includes("Captions are not available")),
+    JSON.stringify(capNone),
+  );
+  await pg.context().close();
+
   await browser.close();
   console.log("FAILURES:", fails);
   process.exit(fails ? 1 : 0);
